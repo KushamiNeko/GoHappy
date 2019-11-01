@@ -1,4 +1,4 @@
-module github.com/KushamiNeko/files_backup
+module github.com/KushamiNeko/go_happy
 
 go 1.13
 

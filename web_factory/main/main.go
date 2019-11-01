@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/KushamiNeko/go_fun/utils/pretty"
-	"github.com/KushamiNeko/web_factory/process"
+	"github.com/KushamiNeko/go_happy/web_factory/process"
 )
 
 func main() {

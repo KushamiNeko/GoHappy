@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/KushamiNeko/files_backup/config"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/files_backup/config"
 )
 
 func Diff(src, tar string) (string, error) {
@@ -68,17 +68,18 @@ func Cp(src, tar string) error {
 
 	pretty.ColorPrintln(config.ColorInfo, fmt.Sprintf("cp: %s -> %s", src, tar))
 
-	//var outb bytes.Buffer
+	var outb bytes.Buffer
 	var errb bytes.Buffer
 
 	cmd := exec.Command("cp", "-rp", src, tar)
 
-	//cmd.Stdout = &outb
+	cmd.Stdout = &outb
 	cmd.Stderr = &errb
 
 	err := cmd.Run()
-
 	if err != nil {
+		pretty.ColorPrintln(config.ColorFailed, fmt.Sprintf("out: %s", outb.String()))
+		pretty.ColorPrintln(config.ColorFailed, fmt.Sprintf("err: %s", errb.String()))
 		return err
 	}
 
@@ -98,16 +99,17 @@ func Rm(tar string) error {
 
 	pretty.ColorPrintln(config.ColorWarning, fmt.Sprintf("rm: %s", tar))
 
-	//var outb bytes.Buffer
+	var outb bytes.Buffer
 	var errb bytes.Buffer
 
 	cmd := exec.Command("rm", "-rf", tar)
 
-	//cmd.Stdout = &outb
+	cmd.Stdout = &outb
 	cmd.Stderr = &errb
-
 	err := cmd.Run()
 	if err != nil {
+		pretty.ColorPrintln(config.ColorFailed, fmt.Sprintf("out: %s", outb.String()))
+		pretty.ColorPrintln(config.ColorFailed, fmt.Sprintf("err: %s", errb.String()))
 		return err
 	}
 

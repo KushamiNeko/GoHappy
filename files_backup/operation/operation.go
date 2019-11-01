@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/KushamiNeko/files_backup/config"
-	"github.com/KushamiNeko/files_backup/shell"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/files_backup/config"
+	"github.com/KushamiNeko/go_happy/files_backup/shell"
 )
 
 func Sync(src, dst string, force, ensure bool) error {

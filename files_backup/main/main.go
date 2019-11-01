@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/KushamiNeko/files_backup/config"
-	"github.com/KushamiNeko/files_backup/operation"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/files_backup/config"
+	"github.com/KushamiNeko/go_happy/files_backup/operation"
 )
 
 func main() {

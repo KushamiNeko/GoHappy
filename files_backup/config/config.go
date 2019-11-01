@@ -9,6 +9,7 @@ const (
 	ColorInfo    = pretty.PaperLightBlue400
 	ColorWarning = pretty.PaperRed400
 	ColorSpecial = pretty.PaperIndigo300
+	ColorFailed  = pretty.PaperYellow200
 )
 
 var (
