@@ -1,0 +1,39 @@
+@import "../../_common_scss/material_design_style/layout";
+@import "../../_common_scss/material_design_style/typography";
+@import "../../_common_scss/material_design_style/colors";
+@import "../../_common_scss/material_design_style/shadows";
+@import "../../_common_scss/my_style/my_style";
+
+.navbar-container {
+  @include layout-horizontal;
+  @include layout-around-justified;
+  @include shadow-2dp;
+
+  background-color: $paper-blue-grey-700;
+}
+
+.navbar-button {
+  @include font-subhead;
+  @include my-style-font-family;
+  background-color: $paper-blue-grey-700;
+  text-decoration: none;
+  border: none;
+  color: white;
+  opacity: $dark-secondary-opacity;
+  outline: none;
+}
+
+.navbar-button:hover {
+  opacity: $dark-primary-opacity;
+}
+
+.navbar-button-active {
+  opacity: $dark-primary-opacity;
+}
+
+.navbar-text {
+  @include font-subhead;
+  @include my-style-font-family;
+  opacity: $dark-divider-opacity;
+  color: white;
+}

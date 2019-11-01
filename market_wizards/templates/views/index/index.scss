@@ -1,0 +1,100 @@
+@import "../../_common_scss/material_design_style/layout";
+@import "../../_common_scss/material_design_style/typography";
+@import "../../_common_scss/my_style/my_style";
+@import "../../_components/chart_canvas/chart_canvas.scss";
+@import "../../_components/navbar/navbar.scss";
+@import "../../_components/modal/modal.scss";
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: black;
+}
+
+.index-modal-open {
+  display: none;
+}
+
+.index-content {
+  @include layout-horizontal;
+}
+
+.index-sidebar-container {
+  @include layout-flex-2;
+}
+
+.index-view-container {
+  @include layout-flex-10;
+}
+
+@mixin h-margin {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+@mixin border-outline {
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+}
+
+.index-input-container {
+  @include layout-vertical;
+  @include layout-around-justified;
+}
+
+.index-input-set {
+  @include font-body1;
+  @include layout-vertical;
+  @include layout-around-justified;
+}
+
+.index-input-label {
+  @include font-body1;
+  @include my-style-font-family;
+  @include h-margin;
+  color: white;
+}
+
+.index-input-text {
+  @include font-body1;
+  @include my-style-font-family;
+  @include h-margin;
+  @include border-outline;
+  color: white;
+  background-color: $paper-blue-grey-400;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.index-input-text:focus {
+  color: black;
+  background-color: $paper-grey-200;
+}
+
+.index-input-text-hidden {
+  display: none;
+}
+
+.index-input-button {
+  @include font-button;
+  @include my-style-font-family;
+  @include h-margin;
+  @include border-outline;
+  color: white;
+  background-color: $paper-blue-grey-700;
+  margin-top: 1em;
+}
+
+.index-input-button:focus,
+.index-input-button:hover {
+  background-color: $paper-grey-500;
+}
+
+.index-input-button:active {
+  color: black;
+  background-color: $paper-grey-200;
+}

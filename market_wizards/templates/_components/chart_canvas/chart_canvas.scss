@@ -1,0 +1,39 @@
+@import "../../_common_scss/common/common";
+@import "../../_common_scss/material_design_style/typography";
+@import "../../_common_scss/my_style/my_style";
+
+.chart-canvas-container {
+  @include noselect();
+  display: flex;
+}
+
+.chart-canvas-canvas {
+  @include noselect();
+
+  position: absolute;
+  top: auto;
+
+  z-index: 1;
+}
+
+.chart-canvas-image {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.chart-canvas-info {
+  @include noselect();
+  @include my-style-label;
+  white-space: pre;
+
+  position: absolute;
+  top: auto;
+
+  z-index: 2;
+
+  height: 1.25em;
+
+  color: white;
+  background-color: "rgba(255, 255, 255, 0.5)";
+  opacity: 0.5;
+}

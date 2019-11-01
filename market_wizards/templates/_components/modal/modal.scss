@@ -1,0 +1,28 @@
+@import "../../_common_scss/material_design_style/layout";
+@import "../../_common_scss/material_design_style/colors";
+
+.modal{
+  display: none; 
+  position: fixed; 
+  z-index: 5; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  background-color: rgba($paper-blue-grey-900, 0.8); 
+}
+
+.modal-open {
+  @include layout-horizontal;
+  @include layout-around-justified;
+}
+
+.modal-content {
+  @include layout-horizontal;
+  @include layout-around-justified;
+  background-color: $paper-indigo-400;
+  border-radius: 1.5em;
+  margin: auto;
+  padding: 1em;
+  height: min-content;
+}

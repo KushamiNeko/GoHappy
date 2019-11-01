@@ -1,0 +1,13 @@
+@mixin will-change($p, $s, $f) {
+  will-change: $p;
+  -webkit-transition: $p $s $f;
+  transition: $p $s $f;
+}
+
+@mixin noselect() {
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
