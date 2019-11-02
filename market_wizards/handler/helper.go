@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/KushamiNeko/go_utils/cleaner"
+	"github.com/KushamiNeko/go_fun/utils/web"
 )
 
 func renderView(w http.ResponseWriter, viewTemplates string, data interface{}) {
@@ -22,25 +22,31 @@ func renderView(w http.ResponseWriter, viewTemplates string, data interface{}) {
 		return
 	}
 
-	w.Write(cleaner.Clean(buffer.Bytes()))
+	w.Write(web.CleanAll(buffer.Bytes()))
 }
 
-func writeTemplate(w http.ResponseWriter, temp *template.Template, name string, data interface{}, cb func()) {
-	buffer := bytes.Buffer{}
+//func writeTemplate(w http.ResponseWriter, temp *template.Template, name string, data interface{}, cb func()) {
+//buffer := bytes.Buffer{}
 
-	err := temp.ExecuteTemplate(
-		&buffer,
-		name,
-		data,
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+//err := temp.ExecuteTemplate(
+//&buffer,
+//name,
+//data,
+//)
+//if err != nil {
+//pretty.ColorPrintln(pretty.PaperPink300, err.Error())
+//http.Error(w, err.Error(), http.StatusInternalServerError)
+//return
+//}
 
-	if cb != nil {
-		cb()
-	}
+//if cb != nil {
+//cb()
+//}
 
-	w.Write(cleaner.Clean(buffer.Bytes()))
-}
+//_, err = w.Write(cleaner.CleanAll(buffer.Bytes()))
+//if err != nil {
+//pretty.ColorPrintln(pretty.PaperPink300, err.Error())
+//http.Error(w, err.Error(), http.StatusInternalServerError)
+//return
+//}
+//}

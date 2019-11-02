@@ -1,0 +1,133 @@
+@import "../../_common_scss/material_design_style/layout";
+@import "../../_common_scss/material_design_style/typography";
+@import "../../_common_scss/my_style/my_style";
+
+@mixin h-margin {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+@mixin border-outline {
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+}
+
+.-trade-inputs-container {
+  @include layout-vertical;
+  @include layout-around-justified;
+}
+
+//.-trade-inputs-separator {
+//@include my-style-separator;
+//background-color: white;
+//width: 85%;
+//color: white;
+//}
+
+//.-trade-inputs-table {
+//cursor: pointer;
+//}
+
+.-trade-inputs-set {
+  @include font-body1;
+  @include layout-vertical;
+  @include layout-around-justified;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.-trade-inputs-label {
+  @include font-body1;
+  @include my-style-font-family;
+  @include h-margin;
+  color: white;
+  margin-bottom: 0.1em;
+}
+
+.-trade-inputs-table-selected {
+  color: $paper-amber-300;
+}
+
+.-trade-inputs-text {
+  @include font-body1;
+  @include my-style-font-family;
+  @include h-margin;
+  @include border-outline;
+  color: white;
+  background-color: $paper-blue-grey-400;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.-trade-inputs-text-error {
+  background-color: $paper-red-400;
+}
+
+.-trade-inputs-text:focus {
+  color: black;
+  background-color: $paper-grey-200;
+}
+
+.-trade-inputs-text-hidden {
+  display: none;
+}
+
+@mixin btn {
+  @include font-button;
+  @include my-style-font-family;
+  @include h-margin;
+  @include border-outline;
+  color: white;
+  background-color: $paper-blue-grey-700;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+}
+
+.-trade-inputs-button {
+  @include btn;
+  //@include font-button;
+  //@include my-style-font-family;
+  //@include h-margin;
+  //@include border-outline;
+  //color: white;
+  //background-color: $paper-blue-grey-700;
+  //margin-top: 1em;
+  //margin-bottom: 0.25em;
+}
+
+.-trade-inputs-button:focus,
+.-trade-inputs-button:hover {
+  background-color: $paper-grey-500;
+}
+
+.-trade-inputs-button:active {
+  color: black;
+  background-color: $paper-grey-200;
+}
+
+.-trade-inputs-operation-btns-container {
+  @include layout-horizontal;
+  @include layout-around-justified;
+}
+
+.-trade-inputs-operation-btn {
+  @include layout-flex;
+  @include btn;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.-trade-inputs-operation-icon {
+  line-height: unset;
+  font-size: larger;
+}
+
+.-trade-inputs-operation-btn:focus,
+.-trade-inputs-operation-btn:hover {
+  background-color: $paper-grey-500;
+}
+
+.-trade-inputs-operation-btn-selected {
+  background-color: $paper-amber-400;
+}

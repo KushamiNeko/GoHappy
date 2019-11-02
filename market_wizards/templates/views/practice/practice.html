@@ -1,0 +1,46 @@
+<!---->
+{{define "Practice"}}
+<!---->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!---->
+    {{template "IndexHead"}}
+    <!---->
+
+    <!---->
+    {{template "PracticeCSS"}}
+    <!---->
+  </head>
+
+  <body>
+    <!---->
+    {{template "Modal" TemplateData "view" "" .}}
+    <!---->
+
+    <div id="practice-navbar" class="practice-navbar">
+      <!---->
+      {{template "Navbar" TemplateData "view" "" .}}
+      <!---->
+    </div>
+
+    <div class="practice-content">
+      <!---->
+      {{template "Sidebar" TemplateData "view" "" .}}
+      <!---->
+
+      <!---->
+      {{template "Canvas" TemplateData "view" "" .}}
+      <!---->
+    </div>
+
+    <!---->
+    {{template "PracticeJS"}}
+    <!---->
+  </body>
+</html>
+
+<!---->
+{{end}}
+<!---->

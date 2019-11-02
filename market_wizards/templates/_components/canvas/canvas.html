@@ -1,0 +1,32 @@
+<!---->
+{{define "Canvas"}}
+<!---->
+
+<div id="{{.ID}}-canvas-chart-info" class="{{.Class}}-canvas-chart-info"></div>
+
+<div class="{{.Class}}-canvas-container">
+  <div
+    id="{{.ID}}-canvas-chart-container"
+    class="{{.Class}}-canvas-chart-container"
+  >
+    <canvas
+      id="{{.ID}}-canvas-chart-inspect"
+      class="{{.Class}}-canvas-chart-cover"
+    ></canvas>
+
+    <canvas
+      id="{{.ID}}-canvas-chart-cover"
+      class="{{.Class}}-canvas-chart-cover"
+    ></canvas>
+
+    <img
+      id="{{.ID}}-canvas-chart-image"
+      class="{{.Class}}-canvas-chart-image"
+      src=""
+    />
+  </div>
+</div>
+
+<!---->
+{{end}}
+<!---->

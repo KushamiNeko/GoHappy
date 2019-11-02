@@ -27,11 +27,8 @@ type cache struct {
 }
 
 type PlotHandler struct {
-	store []*cache
-
-	//quotes  *data.Quotes
+	store  []*cache
 	series *data.TimeSeries
-	//records []*data.TradeRecord
 }
 
 func (p *PlotHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -43,8 +40,8 @@ func (p *PlotHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodGet:
 		const pattern = `/plot/practice/.+`
-
 		regex := regexp.MustCompile(pattern)
+
 		if !regex.MatchString(r.RequestURI) {
 			http.NotFound(w, r)
 			return
@@ -58,21 +55,20 @@ func (p *PlotHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
-	var err error
+	//var err error
 
 	//const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(time|frequency|forward|backward|info)*/*(\d{14})*/*(records)*/*(\d+)*`
-	const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(symbol|frequency|forward|backward|info|inspect)*/*(\d{8}|\d{14})*/*(records)*/*(\d+)*`
+	const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(simple|refresh|forward|backward|info|inspect)*/*(\d{8}|\d{14})*/*(records)*/*(\d+)*`
 
 	regex := regexp.MustCompile(pattern)
-	if !regex.MatchString(r.RequestURI) {
+	match := regex.FindAllStringSubmatch(r.RequestURI, -1)
+	if match == nil {
 		http.Error(w, "unknown parameter", http.StatusNotFound)
 		return
 	}
 
-	match := regex.FindAllStringSubmatch(r.RequestURI, -1)
-
 	//symbol := match[0][1]
-	//freq := data.Frequency(match[0][2])
+	//freq := data.ParseFrequency(match[0][2])
 	function := match[0][3]
 	//dtime := match[0][4]
 	//showRecords := match[0][5] != ""
@@ -82,8 +78,8 @@ func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
 	//src := p.symbolSource(symbol)
 
 	switch function {
-	case "symbol":
-	case "frequency":
+	case "simple":
+	case "refresh":
 	case "forward":
 		//p.quotes.Forward()
 

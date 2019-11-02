@@ -2,16 +2,10 @@
 {{define "Modal"}}
 <!---->
 
-<div id="modal" class="modal">
-
-    <div id="modal-content" class="modal-content">
-
-        <!---->
-        {{block "ModalContent" .}}{{end}}
-        <!---->
-
-    </div>
-
+<div id="{{.ID}}-modal" class="{{.Class}}-modal">
+  <div id="{{.ID}}-modal-content" class="{{.Class}}-modal-content">
+    <!---->
+  </div>
 </div>
 
 <!---->

@@ -1,0 +1,618 @@
+{{define "PracticeCSS"}}
+
+<!---->
+
+<style>
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: black;
+}
+
+.-navbar-container {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  background-color: #455a64;
+}
+
+.-navbar-button {
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  font-family: "Ubuntu", sans-serif;
+  background-color: #455a64;
+  text-decoration: none;
+  border: none;
+  color: white;
+  opacity: 0.54;
+  outline: none;
+  cursor: pointer;
+}
+
+.-navbar-button:hover {
+  opacity: 0.87;
+}
+
+.-navbar-button-active {
+  opacity: 0.87;
+}
+
+.-navbar-text {
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  font-family: "Ubuntu", sans-serif;
+  opacity: 0.12;
+  color: white;
+}
+
+.-navbar-hidden {
+  display: none;
+}
+
+.-chart-inputs-container {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+.-chart-inputs-separator {
+  display: block;
+  height: 1px;
+  width: 97.5%;
+  margin: 5px auto 5px auto;
+  background-color: black;
+  opacity: 0.38;
+  background-color: white;
+  width: 85%;
+  color: white;
+}
+
+.-chart-inputs-table {
+  cursor: pointer;
+}
+
+.-chart-inputs-set {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.-chart-inputs-label {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  color: white;
+  margin-bottom: 0.1em;
+}
+
+.-chart-inputs-table-selected {
+  color: #ffd54f;
+}
+
+.-chart-inputs-text {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+  color: white;
+  background-color: #78909c;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.-chart-inputs-text-error {
+  background-color: #ef5350;
+}
+
+.-chart-inputs-text:focus {
+  color: black;
+  background-color: #eeeeee;
+}
+
+.-chart-inputs-text-hidden {
+  display: none;
+}
+
+.-chart-inputs-button {
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.018em;
+  line-height: 24px;
+  text-transform: uppercase;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+  color: white;
+  background-color: #455a64;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+}
+
+.-chart-inputs-button:focus,
+.-chart-inputs-button:hover {
+  background-color: #9e9e9e;
+}
+
+.-chart-inputs-button:active {
+  color: black;
+  background-color: #eeeeee;
+}
+
+.-trade-inputs-container {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+.-trade-inputs-set {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.-trade-inputs-label {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  color: white;
+  margin-bottom: 0.1em;
+}
+
+.-trade-inputs-table-selected {
+  color: #ffd54f;
+}
+
+.-trade-inputs-text {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+  color: white;
+  background-color: #78909c;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.-trade-inputs-text-error {
+  background-color: #ef5350;
+}
+
+.-trade-inputs-text:focus {
+  color: black;
+  background-color: #eeeeee;
+}
+
+.-trade-inputs-text-hidden {
+  display: none;
+}
+
+.-trade-inputs-button {
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.018em;
+  line-height: 24px;
+  text-transform: uppercase;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+  color: white;
+  background-color: #455a64;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+}
+
+.-trade-inputs-button:focus,
+.-trade-inputs-button:hover {
+  background-color: #9e9e9e;
+}
+
+.-trade-inputs-button:active {
+  color: black;
+  background-color: #eeeeee;
+}
+
+.-trade-inputs-operation-btns-container {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+.-trade-inputs-operation-btn {
+  -ms-flex: 1 1 1e-9px;
+  -webkit-flex: 1;
+  flex: 1;
+  -webkit-flex-basis: 1e-9px;
+  flex-basis: 1e-9px;
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.018em;
+  line-height: 24px;
+  text-transform: uppercase;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+  color: white;
+  background-color: #455a64;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.-trade-inputs-operation-icon {
+  line-height: unset;
+  font-size: larger;
+}
+
+.-trade-inputs-operation-btn:focus,
+.-trade-inputs-operation-btn:hover {
+  background-color: #9e9e9e;
+}
+
+.-trade-inputs-operation-btn-selected {
+  background-color: #ffca28;
+}
+
+.-sidebar-container {
+  -ms-flex: 2;
+  -webkit-flex: 2;
+  flex: 2;
+}
+
+.-sidebar-hidden {
+  display: none;
+}
+
+.-chart-inputs-container {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+.-chart-inputs-separator {
+  display: block;
+  height: 1px;
+  width: 97.5%;
+  margin: 5px auto 5px auto;
+  background-color: black;
+  opacity: 0.38;
+  background-color: white;
+  width: 85%;
+  color: white;
+}
+
+.-chart-inputs-table {
+  cursor: pointer;
+}
+
+.-chart-inputs-set {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.-chart-inputs-label {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  color: white;
+  margin-bottom: 0.1em;
+}
+
+.-chart-inputs-table-selected {
+  color: #ffd54f;
+}
+
+.-chart-inputs-text {
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+  color: white;
+  background-color: #78909c;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.-chart-inputs-text-error {
+  background-color: #ef5350;
+}
+
+.-chart-inputs-text:focus {
+  color: black;
+  background-color: #eeeeee;
+}
+
+.-chart-inputs-text-hidden {
+  display: none;
+}
+
+.-chart-inputs-button {
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.018em;
+  line-height: 24px;
+  text-transform: uppercase;
+  font-family: "Ubuntu", sans-serif;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-radius: 0.35em;
+  border-style: none;
+  outline: none;
+  color: white;
+  background-color: #455a64;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+}
+
+.-chart-inputs-button:focus,
+.-chart-inputs-button:hover {
+  background-color: #9e9e9e;
+}
+
+.-chart-inputs-button:active {
+  color: black;
+  background-color: #eeeeee;
+}
+
+.-modal {
+  display: none;
+  position: fixed;
+  z-index: 5;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(38, 50, 56, 0.8);
+}
+
+.-modal-open {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+.-modal-content {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-pack: distribute;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+  background-color: #5c6bc0;
+  border-radius: 1.5em;
+  margin: auto;
+  padding: 1em;
+  height: min-content;
+}
+
+.-canvas-chart-info {
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  font-family: "Ubuntu", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  will-change: top;
+  -webkit-transition: top 0.05s ease;
+  transition: top 0.05s ease;
+  will-change: left;
+  -webkit-transition: left 0.05s ease;
+  transition: left 0.05s ease;
+  white-space: pre;
+  position: absolute;
+  z-index: 2;
+  color: white;
+  background-color: "rgba(255, 255, 255, 0.5)";
+  opacity: 0.87;
+}
+@media (max-width: 1000px) {
+  .-canvas-chart-info {
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+}
+
+.-canvas-chart-info-hidden {
+  display: none;
+}
+
+.-canvas-container {
+  -ms-flex: 10;
+  -webkit-flex: 10;
+  flex: 10;
+}
+
+.-canvas-chart-container {
+  will-change: opacity;
+  -webkit-transition: opacity 0.075s ease;
+  transition: opacity 0.075s ease;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  display: flex;
+}
+
+.-canvas-chart-cover {
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  position: absolute;
+  top: auto;
+  z-index: 1;
+}
+
+.-canvas-chart-image {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.-canvas-chart-hidden {
+  opacity: 0;
+}
+
+.practice-content {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  height: 97%;
+}
+
+
+</style>
+
+<!---->
+
+{{end}}

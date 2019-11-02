@@ -1,34 +1,6 @@
 @import "../../_common_scss/material_design_style/layout";
 @import "../../_common_scss/material_design_style/typography";
 @import "../../_common_scss/my_style/my_style";
-@import "../../_components/chart_canvas/chart_canvas.scss";
-@import "../../_components/navbar/navbar.scss";
-@import "../../_components/modal/modal.scss";
-
-html,
-body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: black;
-}
-
-.index-modal-open {
-  display: none;
-}
-
-.index-content {
-  @include layout-horizontal;
-}
-
-.index-sidebar-container {
-  @include layout-flex-2;
-}
-
-.index-view-container {
-  @include layout-flex-10;
-}
 
 @mixin h-margin {
   margin-left: 1em;
@@ -41,25 +13,43 @@ body {
   outline: none;
 }
 
-.index-input-container {
+.-chart-inputs-container {
   @include layout-vertical;
   @include layout-around-justified;
 }
 
-.index-input-set {
+.-chart-inputs-separator {
+  @include my-style-separator;
+  background-color: white;
+  width: 85%;
+  color: white;
+}
+
+.-chart-inputs-table {
+  cursor: pointer;
+}
+
+.-chart-inputs-set {
   @include font-body1;
   @include layout-vertical;
   @include layout-around-justified;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
 }
 
-.index-input-label {
+.-chart-inputs-label {
   @include font-body1;
   @include my-style-font-family;
   @include h-margin;
   color: white;
+  margin-bottom: 0.1em;
 }
 
-.index-input-text {
+.-chart-inputs-table-selected {
+  color: $paper-amber-300;
+}
+
+.-chart-inputs-text {
   @include font-body1;
   @include my-style-font-family;
   @include h-margin;
@@ -70,16 +60,20 @@ body {
   padding-right: 0.25em;
 }
 
-.index-input-text:focus {
+.-chart-inputs-text-error {
+  background-color: $paper-red-400;
+}
+
+.-chart-inputs-text:focus {
   color: black;
   background-color: $paper-grey-200;
 }
 
-.index-input-text-hidden {
+.-chart-inputs-text-hidden {
   display: none;
 }
 
-.index-input-button {
+.-chart-inputs-button {
   @include font-button;
   @include my-style-font-family;
   @include h-margin;
@@ -87,14 +81,15 @@ body {
   color: white;
   background-color: $paper-blue-grey-700;
   margin-top: 1em;
+  margin-bottom: 0.25em;
 }
 
-.index-input-button:focus,
-.index-input-button:hover {
+.-chart-inputs-button:focus,
+.-chart-inputs-button:hover {
   background-color: $paper-grey-500;
 }
 
-.index-input-button:active {
+.-chart-inputs-button:active {
   color: black;
   background-color: $paper-grey-200;
 }

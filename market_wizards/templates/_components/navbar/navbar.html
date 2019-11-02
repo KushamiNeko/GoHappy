@@ -2,19 +2,15 @@
 {{define "Navbar"}}
 <!---->
 
-<div class="navbar-container">
-
-  <button id="navbar-study"
-    class="navbar-button">Study</button>
-  <span class="navbar-text">/</span>
-  <button id="navbar-practice"
-    class="navbar-button">Practice</button>
-  <span class="navbar-text">/</span>
-  <button id="navbar-records"
-    class="navbar-button">Records</button>
-
+<div id="{{.ID}}-navbar-container" class="{{.Class}}-navbar-container">
+  <button id="{{.ID}}-navbar-practice" class="{{.Class}}-navbar-button">
+    Practice
+  </button>
+  <span class="{{.Class}}-navbar-text">/</span>
+  <button id="{{.ID}}-navbar-records" class="{{.Class}}-navbar-button">
+    Records
+  </button>
 </div>
-
 
 <!---->
 {{end}}

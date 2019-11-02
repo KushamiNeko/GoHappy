@@ -19,7 +19,7 @@ func main() {
 	input := flag.String("input", "", "the input file or directory")
 	output := flag.String("output", "", "the output directory")
 
-	operations := flag.String("operations", "", "scss,dart,ts")
+	operations := flag.String("operations", "scss,dart", "scss,dart,ts")
 
 	interval := flag.Int("interval", 5, "sleep interval between each loop")
 
@@ -94,7 +94,7 @@ func validateInputs(input, output, operations string) error {
 	}
 
 	if operations == "" {
-		return fmt.Errorf("please specify the operation")
+		return fmt.Errorf("please specify the operations")
 	} else {
 		regex := regexp.MustCompile(`^(?:scss|dart|ts)(?:,(?:scss|dart|ts))*$`)
 		if !regex.MatchString(operations) {

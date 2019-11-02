@@ -4,7 +4,7 @@
 @import "../../_common_scss/material_design_style/shadows";
 @import "../../_common_scss/my_style/my_style";
 
-.navbar-container {
+.-navbar-container {
   @include layout-horizontal;
   @include layout-around-justified;
   @include shadow-2dp;
@@ -12,7 +12,7 @@
   background-color: $paper-blue-grey-700;
 }
 
-.navbar-button {
+.-navbar-button {
   @include font-subhead;
   @include my-style-font-family;
   background-color: $paper-blue-grey-700;
@@ -21,19 +21,24 @@
   color: white;
   opacity: $dark-secondary-opacity;
   outline: none;
+  cursor: pointer;
 }
 
-.navbar-button:hover {
+.-navbar-button:hover {
   opacity: $dark-primary-opacity;
 }
 
-.navbar-button-active {
+.-navbar-button-active {
   opacity: $dark-primary-opacity;
 }
 
-.navbar-text {
+.-navbar-text {
   @include font-subhead;
   @include my-style-font-family;
   opacity: $dark-divider-opacity;
   color: white;
+}
+
+.-navbar-hidden {
+  display: none;
 }

@@ -1,0 +1,68 @@
+<!---->
+{{define "TradeInputs"}}
+<!---->
+
+<div
+  id="{{.ID}}-trade-inputs-container"
+  class="{{.Class}}-trade-inputs-container"
+>
+  <div class="{{.Class}}-trade-inputs-set">
+    <span class="{{.Class}}-trade-inputs-label">price</span>
+    <input
+      id="{{.ID}}-trade-inputs-price"
+      type="text"
+      class="{{.Class}}-trade-inputs-text"
+    />
+  </div>
+
+  <div class="{{.Class}}-trade-inputs-set">
+    <span class="{{.Class}}-trade-inputs-label">quantity</span>
+    <input
+      id="{{.ID}}-trade-inputs-quantity"
+      type="text"
+      class="{{.Class}}-trade-inputs-text"
+    />
+  </div>
+
+  <div class="{{.Class}}-trade-inputs-set">
+    <span class="{{.Class}}-trade-inputs-label">operation</span>
+    <div class="{{.Class}}-trade-inputs-operation-btns-container">
+      <button
+        id="{{.ID}}-trade-inputs-button"
+        class="{{.Class}}-trade-inputs-operation-btn"
+      >
+        <i class="material-icons {{.Class}}-trade-inputs-operation-icon">
+          add
+        </i>
+      </button>
+      <button
+        id="{{.ID}}-trade-inputs-button"
+        class="{{.Class}}-trade-inputs-operation-btn"
+      >
+        <i class="material-icons {{.Class}}-trade-inputs-operation-icon">
+          remove
+        </i>
+      </button>
+    </div>
+  </div>
+
+  <div class="{{.Class}}-trade-inputs-set">
+    <span class="{{.Class}}-trade-inputs-label">note</span>
+    <textarea
+      id="{{.ID}}-trade-inputs-note"
+      class="{{.Class}}-trade-inputs-text"
+      rows="10"
+    ></textarea>
+  </div>
+
+  <button
+    id="{{.ID}}-trade-inputs-button"
+    class="{{.Class}}-trade-inputs-button"
+  >
+    ok
+  </button>
+</div>
+
+<!---->
+{{end}}
+<!---->

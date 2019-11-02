@@ -84,12 +84,15 @@ func (p *Processor) Caching(src string) error {
 
 	switch {
 	case stat.Mode().IsRegular():
+		tar := false
 		for _, op := range p.Operations {
-			if !strings.HasSuffix(filepath.Ext(src), strings.TrimSpace(op)) {
-				return nil
-			} else {
-				break
+			if strings.HasSuffix(filepath.Ext(src), strings.TrimSpace(op)) {
+				tar = true
 			}
+		}
+
+		if tar == false {
+			return nil
 		}
 
 		//err = cacheFile(src)
