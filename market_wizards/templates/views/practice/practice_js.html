@@ -3622,7 +3622,7 @@
       _._$chartUrl = t4;
       _._$chartInspect = t5;
       _._$info = t6;
-      _._working = true;
+      _._working = false;
     }
   },
   Y = {
@@ -7062,6 +7062,7 @@
       t1 = _this._canvas$_server;
       t2 = t1._$chartUrl;
       new P._BroadcastStream(t2, [H.getTypeArgumentByIndex(t2, 0)]).listen$1(new G.Canvas__attachListener_closure1(_this));
+      t1._working = false;
       t1.getChart$0();
       t1 = t1._$chartInspect;
       new P._BroadcastStream(t1, [H.getTypeArgumentByIndex(t1, 0)]).listen$1(new G.Canvas__attachListener_closure2(_this));
@@ -7581,7 +7582,7 @@
       if (typeof t2 !== "string")
         H.throwExpression(H.argumentErrorValue(t2));
       H.assertHelper(t3._nativeRegExp.test(t2));
-      t1._function = "simple";
+      t1._function = "refresh";
       t1._symbol = t2;
       t1.getChart$0();
     },
@@ -7787,6 +7788,7 @@
               t1 = $async$temp1.assertSubtype($async$temp2.decode$1(0, $async$result), "$isMap", [P.String, null], "$asMap");
               $async$self._$info.add$1(0, t1);
               $async$self._$time.add$1(0, H.stringTypeCheck(t1.$index(0, "Time")));
+              $async$self._time = H.stringTypeCheck(t1.$index(0, "Time"));
             case 1:
               // return
               return P._asyncReturn($async$returnValue, $async$completer);
@@ -7830,8 +7832,11 @@
       return this.inspectRequest$4$ax$ay(x, y, null, null);
     },
     getChart$0: function() {
-      this._working = true;
-      this._$chartUrl.add$1(0, this._requestUrl$0());
+      var _this = this;
+      if (_this._working)
+        return;
+      _this._working = true;
+      _this._$chartUrl.add$1(0, _this._requestUrl$0());
     }
   };
   M.Sidebar.prototype = {};

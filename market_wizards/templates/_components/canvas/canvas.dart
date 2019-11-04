@@ -19,8 +19,6 @@ class Canvas {
   CanvasRenderingContext2D _cctx;
 
   bool _calculate = false;
-  //Map<String, dynamic> _calculateStart;
-  //Map<String, dynamic> _calculateEnd;
 
   num _calcAnchorX = 0;
   num _calcAnchorY = 0;
@@ -80,51 +78,10 @@ class Canvas {
       _image.src = url;
     });
 
+    _server.done();
     _server.getChart();
 
     _server.$chartInspect.listen((info) {
-      //var str = "time: ${info['time']}\n"
-      //"price: ${info['price']}\n"
-      //"open: ${info['open']}\n"
-      //"high: ${info['high']}\n"
-      //"low: ${info['low']}\n"
-      //"close: ${info['close']}\n"
-      //"volume: ${info.putIfAbsent('volume', () => 0)}\n"
-      //"interest: ${info.putIfAbsent('open interest', () => 0)}\n";
-
-      //if (!_calculate) {
-      //_calculateStart = info;
-      //} else {
-      //_calculateEnd = info;
-
-      //var d = DateTime.parse(_calculateEnd["time"])
-      //.difference(DateTime.parse(_calculateStart["time"]));
-
-      //var p = num.parse(_calculateEnd["price"].replaceAll(",", "")) -
-      //num.parse(_calculateStart["price"].replaceAll(",", ""));
-
-      //var pp = (num.parse(_calculateEnd["price"].replaceAll(",", "")) -
-      //num.parse(_calculateStart["price"].replaceAll(",", ""))) /
-      //num.parse(_calculateStart["price"].replaceAll(",", ""));
-
-      //pp *= 100.0;
-
-      //var sd = d.inDays.toString().replaceAllMapped(
-      //new RegExp(r"(\d{1,3})(?=(\d{3})+)"), (Match m) => "${m[1]},");
-
-      //var re = new RegExp(r"(\d{1,3})(?=(\d{3})+\.)");
-
-      //var sp =
-      //p.toStringAsFixed(2).replaceAllMapped(re, (Match m) => "${m[1]},");
-
-      //var spp =
-      //pp.toStringAsFixed(2).replaceAllMapped(re, (Match m) => "${m[1]},");
-
-      //str = "${str}\nperiod: ${sd}days\ndiff(\$): ${sp}\ndiff(%): ${spp}";
-      //}
-
-      //_info.innerHtml = str;
-
       _info.innerHtml = info;
     });
 

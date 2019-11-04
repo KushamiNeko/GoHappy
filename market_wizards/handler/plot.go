@@ -555,6 +555,12 @@ func (p *PlotHandler) plot(out io.Writer, freq data.Frequency, showRecords bool)
 			BodyWidth:    plot.ChartConfig("CandleBodyWidth"),
 			ShadowWidth:  plot.ChartConfig("CandleShadowWidth"),
 		},
+		&plotter.QuoteInfo{
+			TimeSeries: p.series,
+			XOffset:    5,
+			FontSize:   plot.ChartConfig("InfoFontSize"),
+			Color:      plot.ThemeColor("ColorText"),
+		},
 	)
 
 	if showRecords {

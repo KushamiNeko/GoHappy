@@ -22,13 +22,12 @@ class Server {
   StreamController<String> _$chartUrl;
 
   StreamController<String> _$chartInspect;
-  //StreamController<Map<String, dynamic>> _$chartInspect;
 
   StreamController<Map<String, dynamic>> _$info;
 
   static Server _server = null;
 
-  bool _working = true;
+  bool _working = false;
 
   factory Server() {
     if (_server == null) {
@@ -89,7 +88,7 @@ class Server {
 
   void symbolRequest(String symbol) {
     assert(new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$").hasMatch(symbol));
-    _function = "simple";
+    _function = "refresh";
 
     _symbol = symbol;
 
@@ -139,20 +138,6 @@ class Server {
     return url;
   }
 
-  //void timeRequest() async {
-  //if (_working) {
-  //return;
-  //}
-
-  //_function = "time";
-  //var url = _requestUrl();
-
-  //var info = await HttpRequest.getString(url);
-  //_time = info;
-
-  //_$time.add(info);
-  //}
-
   void infoRequest() async {
     if (_working) {
       return;
@@ -166,6 +151,7 @@ class Server {
 
     _$info.add(m);
     _$time.add(m["Time"]);
+    _time = m["Time"];
   }
 
   void inspectRequest(num x, num y, {num ax, num ay}) async {
@@ -185,13 +171,15 @@ class Server {
     }
 
     var info = await HttpRequest.getString(url);
-    //var m = json.decode(info);
 
     _$chartInspect.add(info);
-    //_$chartInspect.add(m);
   }
 
   void getChart() {
+    if (_working) {
+      return;
+    }
+
     _working = true;
 
     var url = _requestUrl();
