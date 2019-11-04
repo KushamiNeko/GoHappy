@@ -21,8 +21,10 @@ class Server {
 
   StreamController<String> _$chartUrl;
 
-  //StreamController<String> _$chartInspect;
-  StreamController<Map<String, dynamic>> _$chartInspect;
+  StreamController<String> _$chartInspect;
+  //StreamController<Map<String, dynamic>> _$chartInspect;
+
+  StreamController<Map<String, dynamic>> _$info;
 
   static Server _server = null;
 
@@ -42,7 +44,8 @@ class Server {
         _$showRecords = StreamController.broadcast(),
         _$version = StreamController.broadcast(),
         _$chartUrl = StreamController.broadcast(),
-        _$chartInspect = StreamController.broadcast() {
+        _$chartInspect = StreamController.broadcast(),
+        _$info = StreamController.broadcast() {
     var now = new DateTime.now();
     _time =
         "${now.year.toString()}${now.month.toString().padLeft(2, "0")}${now.day.toString().padLeft(2, "0")}";
@@ -56,6 +59,7 @@ class Server {
 
   Stream get $chartUrl => _$chartUrl.stream;
   Stream get $chartInspect => _$chartInspect.stream;
+  Stream get $info => _$info.stream;
 
   void broadcast() {
     _$time.add(_time);
@@ -124,7 +128,7 @@ class Server {
 
   String _requestUrl() {
     var url =
-        "${window.location.origin}/practice/${_symbol}/${_frequency}/${_function}/${_time}";
+        "${window.location.origin}/plot/practice/${_symbol}/${_frequency}/${_function}/${_time}";
 
     if (_showRecords) {
       url = "${url}/records/${_version}";
@@ -135,21 +139,36 @@ class Server {
     return url;
   }
 
-  void timeRequest() async {
+  //void timeRequest() async {
+  //if (_working) {
+  //return;
+  //}
+
+  //_function = "time";
+  //var url = _requestUrl();
+
+  //var info = await HttpRequest.getString(url);
+  //_time = info;
+
+  //_$time.add(info);
+  //}
+
+  void infoRequest() async {
     if (_working) {
       return;
     }
 
-    _function = "time";
+    _function = "info";
     var url = _requestUrl();
 
     var info = await HttpRequest.getString(url);
-    _time = info;
+    var m = json.decode(info);
 
-    _$time.add(info);
+    _$info.add(m);
+    _$time.add(m["Time"]);
   }
 
-  void inspectRequest(num x, num y) async {
+  void inspectRequest(num x, num y, {num ax, num ay}) async {
     assert(x >= 0 && y >= 0);
 
     if (_working) {
@@ -161,11 +180,15 @@ class Server {
 
     url = "${url}&x=${x}&y=${y}";
 
-    var info = await HttpRequest.getString(url);
-    var m = json.decode(info);
+    if (ax != null && ay != null) {
+      url = "${url}&ax=${ax}&ay=${ay}";
+    }
 
-    //_$chartInspect.add(info);
-    _$chartInspect.add(m);
+    var info = await HttpRequest.getString(url);
+    //var m = json.decode(info);
+
+    _$chartInspect.add(info);
+    //_$chartInspect.add(m);
   }
 
   void getChart() {

@@ -324,7 +324,8 @@ func plotChart(symbol string, year int, freq data.Frequency, version string, rec
 		//},
 	)
 
-	p.YRange(utils.Min(ts.Values("low")), utils.Max(ts.Values("high")), 25.0)
+	ymn, ymx := utils.RangeExtend(utils.Min(ts.Values("low")), utils.Max(ts.Values("high")), 25.0)
+	p.YRange(ymn, ymx)
 
 	buffer := new(bytes.Buffer)
 

@@ -19,11 +19,11 @@ class Canvas {
   CanvasRenderingContext2D _cctx;
 
   bool _calculate = false;
-  Map<String, dynamic> _calculateStart;
-  Map<String, dynamic> _calculateEnd;
+  //Map<String, dynamic> _calculateStart;
+  //Map<String, dynamic> _calculateEnd;
 
-  num _calcStartAnchorX = 0;
-  num _calcStartAnchorY = 0;
+  num _calcAnchorX = 0;
+  num _calcAnchorY = 0;
 
   bool _coverL = false;
   bool _coverR = false;
@@ -68,7 +68,7 @@ class Canvas {
 
       _server.done();
 
-      _server.timeRequest();
+      _server.infoRequest();
 
       if (!_info.classes.contains("${_cls}-canvas-chart-info-hidden")) {
         _info.classes.add("${_cls}-canvas-chart-info-hidden");
@@ -83,51 +83,53 @@ class Canvas {
     _server.getChart();
 
     _server.$chartInspect.listen((info) {
-      var str = "time: ${info['time']}\n"
-          "price: ${info['price']}\n"
-          "open: ${info['open']}\n"
-          "high: ${info['high']}\n"
-          "low: ${info['low']}\n"
-          "close: ${info['close']}\n"
-          "volume: ${info.putIfAbsent('volume', () => 0)}\n"
-          "interest: ${info.putIfAbsent('open interest', () => 0)}\n";
+      //var str = "time: ${info['time']}\n"
+      //"price: ${info['price']}\n"
+      //"open: ${info['open']}\n"
+      //"high: ${info['high']}\n"
+      //"low: ${info['low']}\n"
+      //"close: ${info['close']}\n"
+      //"volume: ${info.putIfAbsent('volume', () => 0)}\n"
+      //"interest: ${info.putIfAbsent('open interest', () => 0)}\n";
 
-      if (!_calculate) {
-        _calculateStart = info;
-      } else {
-        _calculateEnd = info;
+      //if (!_calculate) {
+      //_calculateStart = info;
+      //} else {
+      //_calculateEnd = info;
 
-        var d = DateTime.parse(_calculateEnd["time"])
-            .difference(DateTime.parse(_calculateStart["time"]));
+      //var d = DateTime.parse(_calculateEnd["time"])
+      //.difference(DateTime.parse(_calculateStart["time"]));
 
-        var p = num.parse(_calculateEnd["price"].replaceAll(",", "")) -
-            num.parse(_calculateStart["price"].replaceAll(",", ""));
+      //var p = num.parse(_calculateEnd["price"].replaceAll(",", "")) -
+      //num.parse(_calculateStart["price"].replaceAll(",", ""));
 
-        var pp = (num.parse(_calculateEnd["price"].replaceAll(",", "")) -
-                num.parse(_calculateStart["price"].replaceAll(",", ""))) /
-            num.parse(_calculateStart["price"].replaceAll(",", ""));
+      //var pp = (num.parse(_calculateEnd["price"].replaceAll(",", "")) -
+      //num.parse(_calculateStart["price"].replaceAll(",", ""))) /
+      //num.parse(_calculateStart["price"].replaceAll(",", ""));
 
-        pp *= 100.0;
+      //pp *= 100.0;
 
-        var sd = d.inDays.toString().replaceAllMapped(
-            new RegExp(r"(\d{1,3})(?=(\d{3})+)"), (Match m) => "${m[1]},");
+      //var sd = d.inDays.toString().replaceAllMapped(
+      //new RegExp(r"(\d{1,3})(?=(\d{3})+)"), (Match m) => "${m[1]},");
 
-        var re = new RegExp(r"(\d{1,3})(?=(\d{3})+\.)");
+      //var re = new RegExp(r"(\d{1,3})(?=(\d{3})+\.)");
 
-        var sp =
-            p.toStringAsFixed(2).replaceAllMapped(re, (Match m) => "${m[1]},");
+      //var sp =
+      //p.toStringAsFixed(2).replaceAllMapped(re, (Match m) => "${m[1]},");
 
-        var spp =
-            pp.toStringAsFixed(2).replaceAllMapped(re, (Match m) => "${m[1]},");
+      //var spp =
+      //pp.toStringAsFixed(2).replaceAllMapped(re, (Match m) => "${m[1]},");
 
-        str = "${str}\nperiod: ${sd}days\ndiff(\$): ${sp}\ndiff(%): ${spp}";
-      }
+      //str = "${str}\nperiod: ${sd}days\ndiff(\$): ${sp}\ndiff(%): ${spp}";
+      //}
 
-      _info.innerHtml = str;
+      //_info.innerHtml = str;
+
+      _info.innerHtml = info;
     });
 
     document.body.onMouseMove.listen((MouseEvent event) {
-      //_inspectInfo(event);
+      _inspectInfo(event);
 
       if (_double) {
         _doubleCover(event);
@@ -138,7 +140,7 @@ class Canvas {
       } else {}
       _inspect(event);
       if (_calculate) {
-        //_calcAnchor(event);
+        _calcAnchor(event);
       }
     });
 
@@ -151,8 +153,8 @@ class Canvas {
       }
 
       _calculate = true;
-      _calcStartAnchorX = _eventXOffset(event);
-      _calcStartAnchorY = _eventYOffset(event);
+      _calcAnchorX = _eventXOffset(event);
+      _calcAnchorY = _eventYOffset(event);
 
       if (event.ctrlKey) {
         _singleCoverL(event);
@@ -241,7 +243,18 @@ class Canvas {
             1),
         0);
 
-    _server.inspectRequest(x, y);
+    if (_calculate) {
+      var ax = max(min(_calcAnchorX / _inspectCanvas.width, 1), 0);
+
+      var ay = max(
+          min((_inspectCanvas.height - _calcAnchorY) / _inspectCanvas.height,
+              1),
+          0);
+
+      _server.inspectRequest(x, y, ax: ax, ay: ay);
+    } else {
+      _server.inspectRequest(x, y);
+    }
 
     var offset = 20;
 
@@ -284,18 +297,18 @@ class Canvas {
     _ictx.strokeStyle = _anchorColor;
 
     _ictx.beginPath();
-    _ictx.moveTo(_calcStartAnchorX, 0);
+    _ictx.moveTo(_calcAnchorX, 0);
 
-    _ictx.lineTo(_calcStartAnchorX, _inspectCanvas.height);
+    _ictx.lineTo(_calcAnchorX, _inspectCanvas.height);
 
     _ictx.stroke();
     _ictx.closePath();
 
     _ictx.beginPath();
 
-    _ictx.moveTo(0, _calcStartAnchorY);
+    _ictx.moveTo(0, _calcAnchorY);
 
-    _ictx.lineTo(_inspectCanvas.width, _calcStartAnchorY);
+    _ictx.lineTo(_inspectCanvas.width, _calcAnchorY);
 
     _ictx.stroke();
     _ictx.closePath();

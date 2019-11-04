@@ -317,35 +317,6 @@
       }
       return hash;
     },
-    Primitives_parseInt: function(source, radix) {
-      var match, decimalMatch;
-      if (typeof source !== "string")
-        H.throwExpression(H.argumentErrorValue(source));
-      match = /^\s*[+-]?((0x[a-f0-9]+)|(\d+)|([a-z0-9]+))\s*$/i.exec(source);
-      if (match == null)
-        return;
-      if (3 >= match.length)
-        return H.ioore(match, 3);
-      decimalMatch = H.stringTypeCheck(match[3]);
-      if (decimalMatch != null)
-        return parseInt(source, 10);
-      if (match[2] != null)
-        return parseInt(source, 16);
-      return;
-    },
-    Primitives_parseDouble: function(source) {
-      var result, trimmed;
-      if (!/^\s*[+-]?(?:Infinity|NaN|(?:\.\d+|\d+(?:\.\d*)?)(?:[eE][+-]?\d+)?)\s*$/.test(source))
-        return;
-      result = parseFloat(source);
-      if (isNaN(result)) {
-        trimmed = C.JSString_methods.trim$0(source);
-        if (trimmed === "NaN" || trimmed === "+NaN" || trimmed === "-NaN")
-          return result;
-        return;
-      }
-      return result;
-    },
     Primitives_objectTypeName: function(object) {
       return H.Primitives__objectClassName(object) + H._joinArguments(H.getRuntimeTypeInfo(object), 0, null);
     },
@@ -377,59 +348,38 @@
       $name = $name;
       return H.unminifyOrTag($name.length > 1 && C.JSString_methods._codeUnitAt$1($name, 0) === 36 ? C.JSString_methods.substring$1($name, 1) : $name);
     },
-    Primitives_valueFromDecomposedDate: function(years, month, day, hours, minutes, seconds, milliseconds, isUtc) {
-      var jsMonth, value;
-      if (typeof years !== "number" || Math.floor(years) !== years)
-        H.throwExpression(H.argumentErrorValue(years));
-      if (typeof month !== "number" || Math.floor(month) !== month)
-        H.throwExpression(H.argumentErrorValue(month));
-      if (typeof day !== "number" || Math.floor(day) !== day)
-        H.throwExpression(H.argumentErrorValue(day));
-      if (typeof hours !== "number" || Math.floor(hours) !== hours)
-        H.throwExpression(H.argumentErrorValue(hours));
-      if (typeof minutes !== "number" || Math.floor(minutes) !== minutes)
-        H.throwExpression(H.argumentErrorValue(minutes));
-      if (typeof seconds !== "number" || Math.floor(seconds) !== seconds)
-        H.throwExpression(H.argumentErrorValue(seconds));
-      if (typeof month !== "number")
-        return month.$sub();
-      jsMonth = month - 1;
-      if (typeof years !== "number")
-        return H.iae(years);
-      if (0 <= years && years < 100) {
-        years += 400;
-        jsMonth -= 4800;
-      }
-      value = isUtc ? Date.UTC(years, jsMonth, day, hours, minutes, seconds, milliseconds) : new Date(years, jsMonth, day, hours, minutes, seconds, milliseconds).valueOf();
-      if (isNaN(value) || value < -864e13 || value > 864e13)
-        return;
-      return value;
-    },
     Primitives_lazyAsJsDate: function(receiver) {
       if (receiver.date === void 0)
         receiver.date = new Date(receiver._value);
       return receiver.date;
     },
     Primitives_getYear: function(receiver) {
-      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCFullYear() + 0 : H.Primitives_lazyAsJsDate(receiver).getFullYear() + 0;
+      var t1 = H.Primitives_lazyAsJsDate(receiver).getFullYear() + 0;
+      return t1;
     },
     Primitives_getMonth: function(receiver) {
-      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCMonth() + 1 : H.Primitives_lazyAsJsDate(receiver).getMonth() + 1;
+      var t1 = H.Primitives_lazyAsJsDate(receiver).getMonth() + 1;
+      return t1;
     },
     Primitives_getDay: function(receiver) {
-      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCDate() + 0 : H.Primitives_lazyAsJsDate(receiver).getDate() + 0;
+      var t1 = H.Primitives_lazyAsJsDate(receiver).getDate() + 0;
+      return t1;
     },
     Primitives_getHours: function(receiver) {
-      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCHours() + 0 : H.Primitives_lazyAsJsDate(receiver).getHours() + 0;
+      var t1 = H.Primitives_lazyAsJsDate(receiver).getHours() + 0;
+      return t1;
     },
     Primitives_getMinutes: function(receiver) {
-      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCMinutes() + 0 : H.Primitives_lazyAsJsDate(receiver).getMinutes() + 0;
+      var t1 = H.Primitives_lazyAsJsDate(receiver).getMinutes() + 0;
+      return t1;
     },
     Primitives_getSeconds: function(receiver) {
-      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCSeconds() + 0 : H.Primitives_lazyAsJsDate(receiver).getSeconds() + 0;
+      var t1 = H.Primitives_lazyAsJsDate(receiver).getSeconds() + 0;
+      return t1;
     },
     Primitives_getMilliseconds: function(receiver) {
-      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCMilliseconds() + 0 : H.Primitives_lazyAsJsDate(receiver).getMilliseconds() + 0;
+      var t1 = H.Primitives_lazyAsJsDate(receiver).getMilliseconds() + 0;
+      return t1;
     },
     iae: function(argument) {
       throw H.wrapException(H.argumentErrorValue(argument));
@@ -965,15 +915,6 @@
       if (t1)
         return value;
       H.propertyTypeCastError(value, property);
-    },
-    stringSuperNativeTypeCheck: function(value, property) {
-      if (value == null)
-        return value;
-      if (typeof value === "string")
-        return value;
-      if (J.getInterceptor$(value)[property])
-        return value;
-      H.propertyTypeError(value, property);
     },
     listTypeCheck: function(value) {
       if (value == null)
@@ -1738,64 +1679,14 @@
         return regexp;
       throw H.wrapException(P.FormatException$("Illegal RegExp pattern (" + String(regexp) + ")", source));
     },
-    _MatchImplementation$: function(pattern, _match) {
-      var t1 = _match.input;
-      H.assertHelper(typeof t1 === "string");
-      t1 = _match.index;
-      H.assertHelper(typeof t1 === "number" && Math.floor(t1) === t1);
-      return new H._MatchImplementation(_match);
-    },
     stringContainsUnchecked: function(receiver, other, startIndex) {
       var t1 = receiver.indexOf(other, startIndex);
       return t1 >= 0;
-    },
-    escapeReplacement: function(replacement) {
-      if (replacement.indexOf("$", 0) >= 0)
-        return replacement.replace(/\$/g, "$$$$");
-      return replacement;
     },
     quoteStringForRegExp: function(string) {
       if (/[[\]{}()*+?.\\^$|]/.test(string))
         return string.replace(/[[\]{}()*+?.\\^$|]/g, "\\$&");
       return string;
-    },
-    stringReplaceAllUnchecked: function(receiver, pattern, replacement) {
-      var t1 = H.stringReplaceAllUncheckedString(receiver, pattern, replacement);
-      return t1;
-    },
-    stringReplaceAllUncheckedString: function(receiver, pattern, replacement) {
-      var $length, t1, i, index;
-      if (pattern === "") {
-        if (receiver === "")
-          return replacement;
-        $length = receiver.length;
-        for (t1 = replacement, i = 0; i < $length; ++i)
-          t1 = t1 + receiver[i] + replacement;
-        return t1.charCodeAt(0) == 0 ? t1 : t1;
-      }
-      index = receiver.indexOf(pattern, 0);
-      if (index < 0)
-        return receiver;
-      if (receiver.length < 500 || replacement.indexOf("$", 0) >= 0)
-        return receiver.split(pattern).join(replacement);
-      return receiver.replace(new RegExp(H.quoteStringForRegExp(pattern), 'g'), H.escapeReplacement(replacement));
-    },
-    _stringIdentity: function(string) {
-      return string;
-    },
-    stringReplaceAllFuncUnchecked: function(receiver, pattern, onMatch, onNonMatch) {
-      var t3, t4, t5,
-        t1 = new H._AllMatchesIterator(pattern, receiver, 0),
-        startIndex = 0, t2 = "";
-      for (; t1.moveNext$0(); t2 = t3) {
-        t3 = t1.__js_helper$_current;
-        t4 = t3._match;
-        t5 = t4.index;
-        t3 = t2 + H.S(H._stringIdentity(C.JSString_methods.substring$2(receiver, startIndex, t5))) + H.S(onMatch.call$1(t3));
-        startIndex = t5 + t4[0].length;
-      }
-      t1 = t2 + H.S(H._stringIdentity(C.JSString_methods.substring$1(receiver, startIndex)));
-      return t1.charCodeAt(0) == 0 ? t1 : t1;
     },
     TypeErrorDecoder: function TypeErrorDecoder(t0, t1, t2, t3, t4, t5) {
       var _ = this;
@@ -1892,16 +1783,6 @@
       _.pattern = t0;
       _._nativeRegExp = t1;
       _._nativeAnchoredRegExp = _._nativeGlobalRegExp = null;
-    },
-    _MatchImplementation: function _MatchImplementation(t0) {
-      this._match = t0;
-    },
-    _AllMatchesIterator: function _AllMatchesIterator(t0, t1, t2) {
-      var _ = this;
-      _._regExp = t0;
-      _._string = t1;
-      _._nextIndex = t2;
-      _.__js_helper$_current = null;
     },
     extractKeys: function(victim) {
       return J.JSArray_JSArray$markFixed(victim ? Object.keys(victim) : [], null);
@@ -2155,9 +2036,6 @@
     },
     remove$0$x: function(receiver) {
       return J.getInterceptor$x(receiver).remove$0(receiver);
-    },
-    replaceAll$2$s: function(receiver, a0, a1) {
-      return J.getInterceptor$s(receiver).replaceAll$2(receiver, a0, a1);
     },
     toLowerCase$0$s: function(receiver) {
       return J.getInterceptor$s(receiver).toLowerCase$0(receiver);
@@ -2713,6 +2591,8 @@
     },
     StreamSubscription: function StreamSubscription() {
     },
+    StreamTransformerBase: function StreamTransformerBase() {
+    },
     _ControllerStream: function _ControllerStream() {
     },
     _ControllerSubscription: function _ControllerSubscription() {
@@ -2989,11 +2869,49 @@
     },
     _SetBase_Object_SetMixin: function _SetBase_Object_SetMixin() {
     },
-    int_parse: function(source) {
-      var value = H.Primitives_parseInt(source, null);
-      if (value != null)
-        return value;
-      throw H.wrapException(P.FormatException$(source, null));
+    _parseJson: function(source, reviver) {
+      var parsed, e, exception, t1;
+      if (typeof source !== "string")
+        throw H.wrapException(H.argumentErrorValue(source));
+      parsed = null;
+      try {
+        parsed = JSON.parse(source);
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        t1 = P.FormatException$(String(e), null);
+        throw H.wrapException(t1);
+      }
+      t1 = P._convertJsonToDartLazy(parsed);
+      return t1;
+    },
+    _convertJsonToDartLazy: function(object) {
+      var i;
+      if (object == null)
+        return;
+      if (typeof object != "object")
+        return object;
+      if (Object.getPrototypeOf(object) !== Array.prototype)
+        return new P._JsonMap(object, Object.create(null));
+      for (i = 0; i < object.length; ++i)
+        object[i] = P._convertJsonToDartLazy(object[i]);
+      return object;
+    },
+    _JsonMap: function _JsonMap(t0, t1) {
+      this._original = t0;
+      this._processed = t1;
+      this._data = null;
+    },
+    _JsonMapKeyIterable: function _JsonMapKeyIterable(t0) {
+      this._parent = t0;
+    },
+    Codec: function Codec() {
+    },
+    Converter: function Converter() {
+    },
+    JsonCodec: function JsonCodec() {
+    },
+    JsonDecoder: function JsonDecoder(t0) {
+      this._reviver = t0;
     },
     Error__objectToString: function(object) {
       if (object instanceof H.Closure)
@@ -3027,75 +2945,6 @@
           string = string + separator + H.S(iterator.get$current());
       }
       return string;
-    },
-    DateTime_parse: function(formattedString) {
-      var t1, t2, years, month, day, hour, minute, second, milliAndMicroseconds, t3, t4, t5, sign, hourDifference, minuteDifference, isUtc, value,
-        match = $.$get$DateTime__parseFormat().firstMatch$1(formattedString);
-      if (match != null) {
-        t1 = new P.DateTime_parse_parseIntOrZero();
-        t2 = match._match;
-        if (1 >= t2.length)
-          return H.ioore(t2, 1);
-        years = P.int_parse(t2[1]);
-        if (2 >= t2.length)
-          return H.ioore(t2, 2);
-        month = P.int_parse(t2[2]);
-        if (3 >= t2.length)
-          return H.ioore(t2, 3);
-        day = P.int_parse(t2[3]);
-        if (4 >= t2.length)
-          return H.ioore(t2, 4);
-        hour = t1.call$1(t2[4]);
-        if (5 >= t2.length)
-          return H.ioore(t2, 5);
-        minute = t1.call$1(t2[5]);
-        if (6 >= t2.length)
-          return H.ioore(t2, 6);
-        second = t1.call$1(t2[6]);
-        if (7 >= t2.length)
-          return H.ioore(t2, 7);
-        milliAndMicroseconds = new P.DateTime_parse_parseMilliAndMicroseconds().call$1(t2[7]);
-        if (typeof milliAndMicroseconds !== "number")
-          return milliAndMicroseconds.$tdiv();
-        t3 = C.JSInt_methods._tdivFast$1(milliAndMicroseconds, 1000);
-        t4 = t2.length;
-        if (8 >= t4)
-          return H.ioore(t2, 8);
-        if (t2[8] != null) {
-          if (9 >= t4)
-            return H.ioore(t2, 9);
-          t5 = t2[9];
-          if (t5 != null) {
-            sign = t5 === "-" ? -1 : 1;
-            if (10 >= t4)
-              return H.ioore(t2, 10);
-            hourDifference = P.int_parse(t2[10]);
-            if (11 >= t2.length)
-              return H.ioore(t2, 11);
-            minuteDifference = t1.call$1(t2[11]);
-            if (typeof hourDifference !== "number")
-              return H.iae(hourDifference);
-            if (typeof minuteDifference !== "number")
-              return minuteDifference.$add();
-            if (typeof minute !== "number")
-              return minute.$sub();
-            minute -= sign * (minuteDifference + 60 * hourDifference);
-          }
-          isUtc = true;
-        } else
-          isUtc = false;
-        value = H.Primitives_valueFromDecomposedDate(years, month, day, hour, minute, second, t3 + C.JSDouble_methods.round$0(milliAndMicroseconds % 1000 / 1000), isUtc);
-        if (value == null)
-          throw H.wrapException(P.FormatException$("Time out of range", formattedString));
-        if (Math.abs(value) <= 864e13)
-          t1 = false;
-        else
-          t1 = true;
-        if (t1)
-          H.throwExpression(P.ArgumentError$("DateTime is outside valid range: " + H.S(value)));
-        return new P.DateTime(value, isUtc);
-      } else
-        throw H.wrapException(P.FormatException$("Invalid date format", formattedString));
     },
     DateTime__fourDigits: function(n) {
       var absN = Math.abs(n),
@@ -3170,26 +3019,11 @@
     FormatException$: function(message, source) {
       return new P.FormatException(message, source);
     },
-    num_parse: function(input) {
-      var t1,
-        source = C.JSString_methods.trim$0(input),
-        result = H.Primitives_parseInt(source, null);
-      if (result == null)
-        result = H.Primitives_parseDouble(source);
-      if (result != null)
-        return result;
-      t1 = P.FormatException$(input, null);
-      throw H.wrapException(t1);
-    },
     bool: function bool() {
     },
     DateTime: function DateTime(t0, t1) {
       this._value = t0;
       this.isUtc = t1;
-    },
-    DateTime_parse_parseIntOrZero: function DateTime_parse_parseIntOrZero() {
-    },
-    DateTime_parse_parseMilliAndMicroseconds: function DateTime_parse_parseMilliAndMicroseconds() {
     },
     double: function double() {
     },
@@ -3267,10 +3101,6 @@
     num: function num() {
     },
     Object: function Object() {
-    },
-    Match: function Match() {
-    },
-    RegExpMatch: function RegExpMatch() {
     },
     Set: function Set() {
     },
@@ -3442,6 +3272,10 @@
     },
     CharacterData: function CharacterData() {
     },
+    CssStyleDeclaration: function CssStyleDeclaration() {
+    },
+    CssStyleDeclarationBase: function CssStyleDeclarationBase() {
+    },
     DivElement: function DivElement() {
     },
     DomException: function DomException() {
@@ -3602,6 +3436,8 @@
     _ValidatingTreeSanitizer_sanitizeTree_walk: function _ValidatingTreeSanitizer_sanitizeTree_walk(t0) {
       this.$this = t0;
     },
+    _CssStyleDeclaration_Interceptor_CssStyleDeclarationBase: function _CssStyleDeclaration_Interceptor_CssStyleDeclarationBase() {
+    },
     _HtmlCollection_Interceptor_ListMixin: function _HtmlCollection_Interceptor_ListMixin() {
     },
     _HtmlCollection_Interceptor_ListMixin_ImmutableListMixin: function _HtmlCollection_Interceptor_ListMixin_ImmutableListMixin() {
@@ -3624,7 +3460,7 @@
       _._canvas$_server = t4;
       _._cctx = _._ictx = null;
       _._calculate = false;
-      _._calculateEnd = _._calculateStart = null;
+      _._calcAnchorY = _._calcAnchorX = 0;
       _._double = _._coverR = _._coverL = false;
       _._doubleAnchorX = 0;
     }, Canvas__attachListener_closure: function Canvas__attachListener_closure(t0) {
@@ -3635,11 +3471,6 @@
       this.$this = t0;
     }, Canvas__attachListener_closure2: function Canvas__attachListener_closure2(t0) {
       this.$this = t0;
-    }, Canvas__attachListener__closure: function Canvas__attachListener__closure() {
-    }, Canvas__attachListener__closure0: function Canvas__attachListener__closure0() {
-    }, Canvas__attachListener__closure1: function Canvas__attachListener__closure1() {
-    }, Canvas__attachListener__closure2: function Canvas__attachListener__closure2() {
-    }, Canvas__attachListener__closure3: function Canvas__attachListener__closure3() {
     }, Canvas__attachListener_closure3: function Canvas__attachListener_closure3(t0) {
       this.$this = t0;
     }, Canvas__attachListener_closure4: function Canvas__attachListener_closure4(t0) {
@@ -3650,7 +3481,7 @@
   M = {
     ChartInputs$: function(id) {
       var t3, t4, t5, t6, t7,
-        t1 = H.setRuntimeTypeInfo(["esz19", "nqz19", "qrz19", "znz19", "clx19", "gcx19"], [P.String]),
+        t1 = H.setRuntimeTypeInfo(["esz19", "nqz19", "qrz19", "znz19", "clz19", "gcz19"], [P.String]),
         t2 = $.Server__server;
       if (t2 == null)
         t2 = $.Server__server = R.Server$_internal();
@@ -3769,14 +3600,14 @@
         t2 = P.StreamController_StreamController$broadcast(t1),
         t3 = P.StreamController_StreamController$broadcast(t1),
         t4 = P.StreamController_StreamController$broadcast(P.bool);
-      t1 = new R.Server(t2, t3, P.StreamController_StreamController$broadcast(t1), t4, P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast([P.Map, P.String,,]));
+      t1 = new R.Server(t2, t3, P.StreamController_StreamController$broadcast(t1), t4, P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast([P.Map, P.String,,]));
       now = new P.DateTime(Date.now(), false);
       t4 = C.JSInt_methods.toString$0(H.Primitives_getYear(now)) + C.JSString_methods.padLeft$2(C.JSInt_methods.toString$0(H.Primitives_getMonth(now)), 2, "0") + C.JSString_methods.padLeft$2(C.JSInt_methods.toString$0(H.Primitives_getDay(now)), 2, "0");
       t1._time = t4;
       t2.add$1(0, t4);
       return t1;
     },
-    Server: function Server(t0, t1, t2, t3, t4, t5) {
+    Server: function Server(t0, t1, t2, t3, t4, t5, t6) {
       var _ = this;
       _._time = null;
       _._$time = t0;
@@ -3790,6 +3621,7 @@
       _._$showRecords = t3;
       _._$chartUrl = t4;
       _._$chartInspect = t5;
+      _._$info = t6;
       _._working = true;
     }
   },
@@ -3932,12 +3764,6 @@
         throw H.wrapException(P.RangeError$range(newLength, 0, null, "newLength", null));
       receiver.length = newLength;
     },
-    $index: function(receiver, index) {
-      H.intTypeCheck(index);
-      if (index >= receiver.length || index < 0)
-        throw H.wrapException(H.diagnoseIndexError(receiver, index));
-      return receiver[index];
-    },
     $indexSet: function(receiver, index, value) {
       H.assertSubtypeOfRuntimeType(value, H.getTypeArgumentByIndex(receiver, 0));
       if (!!receiver.immutable$list)
@@ -3998,19 +3824,6 @@
         return 0 - Math.round(0 - receiver);
       throw H.wrapException(P.UnsupportedError$("" + receiver + ".round()"));
     },
-    toStringAsFixed$1: function(receiver, fractionDigits) {
-      var result, t1;
-      if (fractionDigits > 20)
-        throw H.wrapException(P.RangeError$range(fractionDigits, 0, 20, "fractionDigits", null));
-      result = receiver.toFixed(fractionDigits);
-      if (receiver === 0)
-        t1 = 1 / receiver < 0;
-      else
-        t1 = false;
-      if (t1)
-        return "-" + result;
-      return result;
-    },
     toString$0: function(receiver) {
       if (receiver === 0 && 1 / receiver < 0)
         return "-0.0";
@@ -4038,20 +3851,6 @@
         return result - other;
       else
         return result + other;
-    },
-    _tdivFast$1: function(receiver, other) {
-      return (receiver | 0) === receiver ? receiver / other | 0 : this._tdivSlow$1(receiver, other);
-    },
-    _tdivSlow$1: function(receiver, other) {
-      var quotient = receiver / other;
-      if (quotient >= -2147483648 && quotient <= 2147483647)
-        return quotient | 0;
-      if (quotient > 0) {
-        if (quotient !== 1 / 0)
-          return Math.floor(quotient);
-      } else if (quotient > -1 / 0)
-        return Math.ceil(quotient);
-      throw H.wrapException(P.UnsupportedError$("Result of truncating division is " + H.S(quotient) + ": " + H.S(receiver) + " ~/ " + other));
     },
     _shrOtherPositive$1: function(receiver, other) {
       var t1;
@@ -4087,12 +3886,6 @@
       if (typeof other !== "string")
         throw H.wrapException(P.ArgumentError$value(other, null, null));
       return receiver + other;
-    },
-    replaceAll$2: function(receiver, from, to) {
-      return H.stringReplaceAllUnchecked(receiver, from, to);
-    },
-    splitMapJoin$2$onMatch: function(receiver, from, onMatch) {
-      return H.stringReplaceAllFuncUnchecked(receiver, from, H.functionTypeCheck(onMatch, {func: 1, ret: P.String, args: [P.Match]}), null);
     },
     startsWith$1: function(receiver, pattern) {
       var otherLength = pattern.length;
@@ -4159,6 +3952,14 @@
         return receiver;
       return this.$mul(padding, delta) + receiver;
     },
+    contains$2: function(receiver, other, startIndex) {
+      if (startIndex > receiver.length)
+        throw H.wrapException(P.RangeError$range(startIndex, 0, receiver.length, null, null));
+      return H.stringContainsUnchecked(receiver, other, startIndex);
+    },
+    contains$1: function($receiver, other) {
+      return this.contains$2($receiver, other, 0);
+    },
     toString$0: function(receiver) {
       return receiver;
     },
@@ -4175,12 +3976,6 @@
     },
     get$length: function(receiver) {
       return receiver.length;
-    },
-    $index: function(receiver, index) {
-      H.intTypeCheck(index);
-      if (index >= receiver.length || false)
-        throw H.wrapException(H.diagnoseIndexError(receiver, index));
-      return receiver[index];
     },
     $isPattern: 1,
     $isString: 1
@@ -4349,7 +4144,7 @@
           error.$thrownJsError = this.ex;
       return error;
     },
-    $signature: 8
+    $signature: 7
   };
   H._StackTrace.prototype = {
     toString$0: function(_) {
@@ -4440,12 +4235,6 @@
     get$keys: function() {
       return new H.LinkedHashMapKeyIterable(this, [H.getTypeArgumentByIndex(this, 0)]);
     },
-    containsKey$1: function(key) {
-      var strings = this.__js_helper$_strings;
-      if (strings == null)
-        return false;
-      return this._containsTableEntry$2(strings, key);
-    },
     $index: function(_, key) {
       var strings, cell, t1, nums, _this = this;
       if (typeof key === "string") {
@@ -4502,16 +4291,6 @@
             bucket.push(_this.__js_helper$_newLinkedCell$2(key, value));
         }
       }
-    },
-    putIfAbsent$2: function(key, ifAbsent) {
-      var value, _this = this;
-      H.assertSubtypeOfRuntimeType(key, H.getTypeArgumentByIndex(_this, 0));
-      H.functionTypeCheck(ifAbsent, {func: 1, ret: H.getTypeArgumentByIndex(_this, 1)});
-      if (_this.containsKey$1(key))
-        return _this.$index(0, key);
-      value = ifAbsent.call$0();
-      _this.$indexSet(0, key, value);
-      return value;
     },
     forEach$1: function(_, action) {
       var cell, modifications, _this = this;
@@ -4578,9 +4357,6 @@
     _deleteTableEntry$2: function(table, key) {
       delete table[key];
     },
-    _containsTableEntry$2: function(table, key) {
-      return this._getTableCell$2(table, key) != null;
-    },
     _newHashTable$0: function() {
       var _s20_ = "<non-identifier-key>",
         table = Object.create(null);
@@ -4599,9 +4375,6 @@
         t2 = new H.LinkedHashMapKeyIterator(t1, t1.__js_helper$_modifications, this.$ti);
       t2.__js_helper$_cell = t1.__js_helper$_first;
       return t2;
-    },
-    contains$1: function(_, element) {
-      return this._map.containsKey$1(element);
     }
   };
   H.LinkedHashMapKeyIterator.prototype = {
@@ -4634,113 +4407,25 @@
     call$1: function(o) {
       return this.getTag(o);
     },
-    $signature: 8
+    $signature: 7
   };
   H.initHooks_closure0.prototype = {
     call$2: function(o, tag) {
       return this.getUnknownTag(o, tag);
     },
-    $signature: 16
+    $signature: 13
   };
   H.initHooks_closure1.prototype = {
     call$1: function(tag) {
       return this.prototypeForTag(H.stringTypeCheck(tag));
     },
-    $signature: 17
+    $signature: 14
   };
   H.JSSyntaxRegExp.prototype = {
     toString$0: function(_) {
       return "RegExp/" + this.pattern + "/" + this._nativeRegExp.flags;
     },
-    get$_nativeGlobalVersion: function() {
-      var _this = this,
-        t1 = _this._nativeGlobalRegExp;
-      if (t1 != null)
-        return t1;
-      t1 = _this._nativeRegExp;
-      return _this._nativeGlobalRegExp = H.JSSyntaxRegExp_makeNative(_this.pattern, t1.multiline, !t1.ignoreCase, t1.unicode, t1.dotAll, true);
-    },
-    firstMatch$1: function(string) {
-      var m;
-      if (typeof string !== "string")
-        H.throwExpression(H.argumentErrorValue(string));
-      m = this._nativeRegExp.exec(string);
-      if (m == null)
-        return;
-      return H._MatchImplementation$(this, m);
-    },
-    _execGlobal$2: function(string, start) {
-      var match,
-        regexp = this.get$_nativeGlobalVersion();
-      regexp.lastIndex = start;
-      match = regexp.exec(string);
-      if (match == null)
-        return;
-      return H._MatchImplementation$(this, match);
-    },
     $isPattern: 1
-  };
-  H._MatchImplementation.prototype = {
-    get$end: function() {
-      var t1 = this._match;
-      return t1.index + t1[0].length;
-    },
-    $index: function(_, index) {
-      var t1;
-      H.intTypeCheck(index);
-      t1 = this._match;
-      if (index >= t1.length)
-        return H.ioore(t1, index);
-      return t1[index];
-    },
-    $isMatch: 1,
-    $isRegExpMatch: 1
-  };
-  H._AllMatchesIterator.prototype = {
-    get$current: function() {
-      return this.__js_helper$_current;
-    },
-    moveNext$0: function() {
-      var t2, t3, match, nextIndex, _this = this,
-        t1 = _this._string;
-      if (t1 == null)
-        return false;
-      t2 = _this._nextIndex;
-      if (t2 <= t1.length) {
-        t3 = _this._regExp;
-        match = t3._execGlobal$2(t1, t2);
-        if (match != null) {
-          _this.__js_helper$_current = match;
-          nextIndex = match.get$end();
-          if (match._match.index === nextIndex) {
-            if (t3._nativeRegExp.unicode) {
-              t1 = _this._nextIndex;
-              t2 = t1 + 1;
-              t3 = _this._string;
-              if (t2 < t3.length) {
-                t1 = J.getInterceptor$s(t3).codeUnitAt$1(t3, t1);
-                if (t1 >= 55296 && t1 <= 56319) {
-                  t1 = C.JSString_methods.codeUnitAt$1(t3, t2);
-                  t1 = t1 >= 56320 && t1 <= 57343;
-                } else
-                  t1 = false;
-              } else
-                t1 = false;
-            } else
-              t1 = false;
-            nextIndex = (t1 ? nextIndex + 1 : nextIndex) + 1;
-          }
-          _this._nextIndex = nextIndex;
-          return true;
-        }
-      }
-      _this._string = _this.__js_helper$_current = null;
-      return false;
-    },
-    $isIterator: 1,
-    $asIterator: function() {
-      return [P.RegExpMatch];
-    }
   };
   P._AsyncRun__initializeScheduleImmediate_internalCallback.prototype = {
     call$1: function(_) {
@@ -4762,7 +4447,7 @@
       t2 = this.span;
       t1.firstChild ? t1.removeChild(t2) : t1.appendChild(t2);
     },
-    $signature: 18
+    $signature: 15
   };
   P._AsyncRun__scheduleImmediateJsOverride_internalCallback.prototype = {
     call$0: function() {
@@ -4814,19 +4499,19 @@
     call$1: function(result) {
       return this.bodyFunction.call$2(0, result);
     },
-    $signature: 19
+    $signature: 16
   };
   P._awaitOnObject_closure0.prototype = {
     call$2: function(error, stackTrace) {
       this.bodyFunction.call$2(1, new H.ExceptionAndStackTrace(error, H.interceptedTypeCheck(stackTrace, "$isStackTrace")));
     },
-    $signature: 20
+    $signature: 17
   };
   P._wrapJsFunctionForAsync_closure.prototype = {
     call$2: function(errorCode, result) {
       this.$protected(H.intTypeCheck(errorCode), result);
     },
-    $signature: 21
+    $signature: 18
   };
   P._BroadcastStream.prototype = {};
   P._BroadcastSubscription.prototype = {
@@ -5171,7 +4856,7 @@
     call$1: function(error) {
       return this.call$2(error, null);
     },
-    $signature: 22
+    $signature: 19
   };
   P._Future__chainForeignFuture_closure1.prototype = {
     call$0: function() {
@@ -5256,7 +4941,7 @@
     call$1: function(_) {
       return this.originalSource;
     },
-    $signature: 23
+    $signature: 20
   };
   P._Future__propagateToListeners_handleValueCallback.prototype = {
     call$0: function() {
@@ -5342,6 +5027,7 @@
     $signature: 0
   };
   P.StreamSubscription.prototype = {};
+  P.StreamTransformerBase.prototype = {};
   P._ControllerStream.prototype = {
     get$hashCode: function(_) {
       return (H.Primitives_objectHashCode(this._controller) ^ 892482866) >>> 0;
@@ -5597,9 +5283,6 @@
     },
     bindUnaryCallbackGuarded$1$1: function(f, $T) {
       return new P._RootZone_bindUnaryCallbackGuarded_closure(this, H.functionTypeCheck(f, {func: 1, ret: -1, args: [$T]}), $T);
-    },
-    $index: function(_, key) {
-      return;
     },
     run$1$1: function(f, $R) {
       H.functionTypeCheck(f, {func: 1, ret: $R});
@@ -5870,7 +5553,7 @@
       t1._contents = t2 + ": ";
       t1._contents += H.S(v);
     },
-    $signature: 24
+    $signature: 21
   };
   P.MapMixin.prototype = {
     forEach$1: function(_, action) {
@@ -5880,19 +5563,6 @@
         key = t1.get$current();
         action.call$2(key, _this.$index(0, key));
       }
-    },
-    putIfAbsent$2: function(key, ifAbsent) {
-      var t1, _this = this;
-      H.assertSubtypeOfRuntimeType(key, H.getRuntimeTypeArgument(_this, "MapMixin", 0));
-      H.functionTypeCheck(ifAbsent, {func: 1, ret: H.getRuntimeTypeArgument(_this, "MapMixin", 1)});
-      if (H.boolConversionCheck(_this.containsKey$1(key)))
-        return _this.$index(0, key);
-      t1 = ifAbsent.call$0();
-      _this.$indexSet(0, key, t1);
-      return t1;
-    },
-    containsKey$1: function(key) {
-      return J.contains$1$asx(this.get$keys(), key);
     },
     get$length: function(_) {
       return J.get$length$asx(this.get$keys());
@@ -5962,12 +5632,136 @@
   };
   P._ListBase_Object_ListMixin.prototype = {};
   P._SetBase_Object_SetMixin.prototype = {};
+  P._JsonMap.prototype = {
+    $index: function(_, key) {
+      var result,
+        t1 = this._processed;
+      if (t1 == null)
+        return this.get$_upgradedMap().$index(0, key);
+      else if (typeof key !== "string")
+        return;
+      else {
+        result = t1[key];
+        return typeof result == "undefined" ? this._process$1(key) : result;
+      }
+    },
+    get$length: function(_) {
+      return this._processed == null ? this.get$_upgradedMap().__js_helper$_length : this._computeKeys$0().length;
+    },
+    get$keys: function() {
+      if (this._processed == null) {
+        var t1 = this.get$_upgradedMap();
+        return new H.LinkedHashMapKeyIterable(t1, [H.getTypeArgumentByIndex(t1, 0)]);
+      }
+      return new P._JsonMapKeyIterable(this);
+    },
+    forEach$1: function(_, f) {
+      var keys, i, key, value, _this = this;
+      H.functionTypeCheck(f, {func: 1, ret: -1, args: [P.String,,]});
+      if (_this._processed == null)
+        return _this.get$_upgradedMap().forEach$1(0, f);
+      keys = _this._computeKeys$0();
+      for (i = 0; i < keys.length; ++i) {
+        key = keys[i];
+        value = _this._processed[key];
+        if (typeof value == "undefined") {
+          value = P._convertJsonToDartLazy(_this._original[key]);
+          _this._processed[key] = value;
+        }
+        f.call$2(key, value);
+        if (keys !== _this._data)
+          throw H.wrapException(P.ConcurrentModificationError$(_this));
+      }
+    },
+    get$_upgradedMap: function() {
+      H.assertHelper(this._processed == null);
+      return this._data;
+    },
+    _computeKeys$0: function() {
+      var keys, _this = this;
+      H.assertHelper(_this._processed != null);
+      keys = H.listTypeCheck(_this._data);
+      if (keys == null)
+        keys = _this._data = H.setRuntimeTypeInfo(Object.keys(_this._original), [P.String]);
+      return keys;
+    },
+    _process$1: function(key) {
+      var result;
+      if (!Object.prototype.hasOwnProperty.call(this._original, key))
+        return;
+      result = P._convertJsonToDartLazy(this._original[key]);
+      return this._processed[key] = result;
+    },
+    $asMapMixin: function() {
+      return [P.String, null];
+    },
+    $asMap: function() {
+      return [P.String, null];
+    }
+  };
+  P._JsonMapKeyIterable.prototype = {
+    get$length: function(_) {
+      var t1 = this._parent;
+      return t1.get$length(t1);
+    },
+    elementAt$1: function(_, index) {
+      var t1 = this._parent;
+      if (t1._processed == null)
+        t1 = t1.get$keys().elementAt$1(0, index);
+      else {
+        t1 = t1._computeKeys$0();
+        if (index < 0 || index >= t1.length)
+          return H.ioore(t1, index);
+        t1 = t1[index];
+      }
+      return t1;
+    },
+    get$iterator: function(_) {
+      var t1 = this._parent;
+      if (t1._processed == null) {
+        t1 = t1.get$keys();
+        t1 = t1.get$iterator(t1);
+      } else {
+        t1 = t1._computeKeys$0();
+        t1 = new J.ArrayIterator(t1, t1.length, [H.getTypeArgumentByIndex(t1, 0)]);
+      }
+      return t1;
+    },
+    $asEfficientLengthIterable: function() {
+      return [P.String];
+    },
+    $asListIterable: function() {
+      return [P.String];
+    },
+    $asIterable: function() {
+      return [P.String];
+    }
+  };
+  P.Codec.prototype = {};
+  P.Converter.prototype = {};
+  P.JsonCodec.prototype = {
+    decode$1: function(_, source) {
+      var t1 = P._parseJson(source, this.get$decoder()._reviver);
+      return t1;
+    },
+    get$decoder: function() {
+      return C.JsonDecoder_null;
+    },
+    $asCodec: function() {
+      return [P.Object, P.String];
+    }
+  };
+  P.JsonDecoder.prototype = {
+    $asConverter: function() {
+      return [P.String, P.Object];
+    }
+  };
   P.bool.prototype = {};
   P.DateTime.prototype = {
     $eq: function(_, other) {
       if (other == null)
         return false;
-      return other instanceof P.DateTime && this._value === other._value && this.isUtc === other.isUtc;
+      return other instanceof P.DateTime && this._value === other._value && true;
     },
     get$hashCode: function(_) {
       var t1 = this._value;
@@ -5981,37 +5775,10 @@
         h = P.DateTime__twoDigits(H.Primitives_getHours(_this)),
         min = P.DateTime__twoDigits(H.Primitives_getMinutes(_this)),
         sec = P.DateTime__twoDigits(H.Primitives_getSeconds(_this)),
-        ms = P.DateTime__threeDigits(H.Primitives_getMilliseconds(_this));
-      if (_this.isUtc)
-        return y + "-" + m + "-" + d + " " + h + ":" + min + ":" + sec + "." + ms + "Z";
-      else
-        return y + "-" + m + "-" + d + " " + h + ":" + min + ":" + sec + "." + ms;
+        ms = P.DateTime__threeDigits(H.Primitives_getMilliseconds(_this)),
+        t1 = y + "-" + m + "-" + d + " " + h + ":" + min + ":" + sec + "." + ms;
+      return t1;
     }
-  };
-  P.DateTime_parse_parseIntOrZero.prototype = {
-    call$1: function(matched) {
-      if (matched == null)
-        return 0;
-      return P.int_parse(matched);
-    },
-    $signature: 9
-  };
-  P.DateTime_parse_parseMilliAndMicroseconds.prototype = {
-    call$1: function(matched) {
-      var $length, result, i;
-      if (matched == null)
-        return 0;
-      $length = matched.length;
-      H.assertHelper($length >= 1);
-      H.assertHelper($length <= 6);
-      for (result = 0, i = 0; i < 6; ++i) {
-        result *= 10;
-        if (i < $length)
-          result += C.JSString_methods._codeUnitAt$1(matched, i) ^ 48;
-      }
-      return result;
-    },
-    $signature: 9
   };
   P.double.prototype = {};
   P.Error.prototype = {};
@@ -6141,7 +5908,7 @@
     toString$0: function(_) {
       var source,
         t1 = this.message,
-        report = t1 != null && "" !== t1 ? "FormatException: " + H.S(t1) : "FormatException",
+        report = "" !== t1 ? "FormatException: " + t1 : "FormatException",
         objectSource = this.source;
       if (typeof objectSource === "string") {
         source = objectSource.length > 78 ? C.JSString_methods.substring$2(objectSource, 0, 75) + "..." : objectSource;
@@ -6216,8 +5983,6 @@
       return this.toString$0(this);
     }
   };
-  P.Match.prototype = {};
-  P.RegExpMatch.prototype = {$isMatch: 1};
   P.Set.prototype = {};
   P.StackTrace.prototype = {};
   P.String.prototype = {$isPattern: 1};
@@ -6257,6 +6022,12 @@
       return receiver.length;
     }
   };
+  W.CssStyleDeclaration.prototype = {
+    get$length: function(receiver) {
+      return receiver.length;
+    }
+  };
+  W.CssStyleDeclarationBase.prototype = {};
   W.DivElement.prototype = {$isDivElement: 1};
   W.DomException.prototype = {
     toString$0: function(receiver) {
@@ -6394,7 +6165,7 @@
     call$1: function(e) {
       return !!J.getInterceptor$(H.interceptedTypeCheck(e, "$isNode")).$isElement;
     },
-    $signature: 10
+    $signature: 8
   };
   W.Event.prototype = {
     get$target: function(receiver) {
@@ -6462,7 +6233,7 @@
     call$1: function(xhr) {
       return H.interceptedTypeCheck(xhr, "$isHttpRequest").responseText;
     },
-    $signature: 25
+    $signature: 22
   };
   W.HttpRequest_request_closure.prototype = {
     call$1: function(e) {
@@ -6481,7 +6252,7 @@
       else
         t3.completeError$1(e);
     },
-    $signature: 26
+    $signature: 23
   };
   W.HttpRequestEventTarget.prototype = {};
   W.ImageElement.prototype = {$isImageElement: 1};
@@ -6699,16 +6470,6 @@
     }
   };
   W._AttributeMap.prototype = {
-    putIfAbsent$2: function(key, ifAbsent) {
-      var t1, t2;
-      H.functionTypeCheck(ifAbsent, {func: 1, ret: P.String});
-      t1 = this._element;
-      if (!H.boolConversionCheck(t1.hasAttribute(key))) {
-        t2 = H.stringTypeCheck(ifAbsent.call$0());
-        t1.setAttribute(key, t2);
-      }
-      return t1.getAttribute(key);
-    },
     forEach$1: function(_, f) {
       var t1, t2, t3, _i, key;
       H.functionTypeCheck(f, {func: 1, ret: -1, args: [P.String, P.String]});
@@ -6740,18 +6501,11 @@
     }
   };
   W._ElementAttributeMap.prototype = {
-    containsKey$1: function(key) {
-      return this._element.hasAttribute(key);
-    },
     $index: function(_, key) {
       H.stringTypeCheck(key);
       if (H.assertTest(key != null))
         H.assertThrow("Attribute name cannot be null");
       return this._element.getAttribute(key);
-    },
-    $indexSet: function(_, key, value) {
-      H.stringTypeCheck(value);
-      this._element.setAttribute(key, value);
     },
     get$length: function(_) {
       return this.get$keys().length;
@@ -6801,7 +6555,7 @@
     call$1: function(e) {
       return this.onData.call$1(H.interceptedTypeCheck(e, "$isEvent"));
     },
-    $signature: 27
+    $signature: 24
   };
   W._Html5NodeValidator.prototype = {
     _Html5NodeValidator$1$uriPolicy: function(uriPolicy) {
@@ -6844,13 +6598,13 @@
     call$1: function(v) {
       return H.interceptedTypeCheck(v, "$isNodeValidator").allowsElement$1(this.element);
     },
-    $signature: 11
+    $signature: 9
   };
   W.NodeValidatorBuilder_allowsAttribute_closure.prototype = {
     call$1: function(v) {
       return H.interceptedTypeCheck(v, "$isNodeValidator").allowsAttribute$3(this.element, this.attributeName, this.value);
     },
-    $signature: 11
+    $signature: 9
   };
   W._SimpleNodeValidator.prototype = {
     _SimpleNodeValidator$4$allowedAttributes$allowedElements$allowedUriAttributes: function(uriPolicy, allowedAttributes, allowedElements, allowedUriAttributes) {
@@ -6893,13 +6647,13 @@
     call$1: function(x) {
       return !C.JSArray_methods.contains$1(C.List_yrN, H.stringTypeCheck(x));
     },
-    $signature: 12
+    $signature: 10
   };
   W._SimpleNodeValidator_closure0.prototype = {
     call$1: function(x) {
       return C.JSArray_methods.contains$1(C.List_yrN, H.stringTypeCheck(x));
     },
-    $signature: 12
+    $signature: 10
   };
   W._TemplatingNodeValidator.prototype = {
     allowsAttribute$3: function(element, attributeName, value) {
@@ -6916,7 +6670,7 @@
     call$1: function(attr) {
       return "TEMPLATE::" + H.S(H.stringTypeCheck(attr));
     },
-    $signature: 28
+    $signature: 25
   };
   W._SvgNodeValidator.prototype = {
     allowsElement$1: function(element) {
@@ -7113,8 +6867,9 @@
         child = H.interceptedTypeCheck(nextChild, "$isNode");
       }
     },
-    $signature: 29
+    $signature: 26
   };
+  W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase.prototype = {};
   W._HtmlCollection_Interceptor_ListMixin.prototype = {};
   W._HtmlCollection_Interceptor_ListMixin_ImmutableListMixin.prototype = {};
   W._NodeList_Interceptor_ListMixin.prototype = {};
@@ -7178,7 +6933,7 @@
     call$1: function(s) {
       return H.assertSubtype(s, "$isSet", [P.String], "$asSet").add$1(0, this.value);
     },
-    $signature: 30
+    $signature: 27
   };
   P.FilteredElementList.prototype = {
     get$_html_common$_iterable: function() {
@@ -7220,13 +6975,13 @@
     call$1: function(n) {
       return !!J.getInterceptor$(H.interceptedTypeCheck(n, "$isNode")).$isElement;
     },
-    $signature: 10
+    $signature: 8
   };
   P.FilteredElementList__iterable_closure0.prototype = {
     call$1: function(n) {
       return H.interceptedTypeCast(H.interceptedTypeCheck(n, "$isNode"), "$isElement");
     },
-    $signature: 31
+    $signature: 28
   };
   P.OpenDBRequest.prototype = {$isOpenDBRequest: 1};
   P.Request.prototype = {};
@@ -7400,12 +7155,6 @@
           return t4.$sub();
         t2.fillRect(t3, 0, t4 - t3, t1.height);
       }
-    },
-    set$_calculateStart: function(_calculateStart) {
-      this._calculateStart = H.assertSubtype(_calculateStart, "$isMap", [P.String, null], "$asMap");
-    },
-    set$_calculateEnd: function(_calculateEnd) {
-      this._calculateEnd = H.assertSubtype(_calculateEnd, "$isMap", [P.String, null], "$asMap");
     }
   };
   G.Canvas__attachListener_closure.prototype = {
@@ -7421,7 +7170,7 @@
       t1.initCanvasSize$0();
       t2 = t1._canvas$_server;
       t2._working = false;
-      t2.timeRequest$0();
+      t2.infoRequest$0();
       t1 = t1._info;
       t2 = t1.classList.contains("-canvas-chart-info-hidden");
       if (!t2)
@@ -7437,123 +7186,135 @@
   };
   G.Canvas__attachListener_closure2.prototype = {
     call$1: function(info) {
-      var t2, t3, t4, t5, t6, t7, t8, t9, sd, re, sp, spp, _s4_ = "time", _s5_ = "price",
-        t1 = J.getInterceptor$asx(info),
-        str = "time: " + H.S(t1.$index(info, _s4_)) + "\nprice: " + H.S(t1.$index(info, _s5_)) + "\nopen: " + H.S(t1.$index(info, "open")) + "\nhigh: " + H.S(t1.$index(info, "high")) + "\nlow: " + H.S(t1.$index(info, "low")) + "\nclose: " + H.S(t1.$index(info, "close")) + "\nvolume: " + H.S(info.putIfAbsent$2("volume", new G.Canvas__attachListener__closure())) + "\ninterest: " + H.S(info.putIfAbsent$2("open interest", new G.Canvas__attachListener__closure0())) + "\n";
-      t1 = this.$this;
-      t2 = [P.String, null];
-      if (!t1._calculate)
-        t1.set$_calculateStart(H.assertSubtype(info, "$isMap", t2, "$asMap"));
-      else {
-        t1.set$_calculateEnd(H.assertSubtype(info, "$isMap", t2, "$asMap"));
-        t2 = P.DateTime_parse(H.stringTypeCheck(t1._calculateEnd.$index(0, _s4_)));
-        t3 = P.DateTime_parse(H.stringTypeCheck(t1._calculateStart.$index(0, _s4_)));
-        t4 = P.num_parse(J.replaceAll$2$s(t1._calculateEnd.$index(0, _s5_), ",", ""));
-        t5 = P.num_parse(J.replaceAll$2$s(t1._calculateStart.$index(0, _s5_), ",", ""));
-        if (typeof t4 !== "number")
-          return t4.$sub();
-        if (typeof t5 !== "number")
-          return H.iae(t5);
-        t6 = P.num_parse(J.replaceAll$2$s(t1._calculateEnd.$index(0, _s5_), ",", ""));
-        t7 = P.num_parse(J.replaceAll$2$s(t1._calculateStart.$index(0, _s5_), ",", ""));
-        if (typeof t6 !== "number")
-          return t6.$sub();
-        if (typeof t7 !== "number")
-          return H.iae(t7);
-        t8 = P.num_parse(J.replaceAll$2$s(t1._calculateStart.$index(0, _s5_), ",", ""));
-        if (typeof t8 !== "number")
-          return H.iae(t8);
-        t9 = {func: 1, ret: P.String, args: [P.Match]};
-        sd = C.JSString_methods.splitMapJoin$2$onMatch(C.JSInt_methods.toString$0(C.JSInt_methods._tdivFast$1(1000 * (t2._value - t3._value), 864e8)), P.RegExp_RegExp("(\\d{1,3})(?=(\\d{3})+)"), H.functionTypeCheck(new G.Canvas__attachListener__closure1(), t9));
-        re = P.RegExp_RegExp("(\\d{1,3})(?=(\\d{3})+\\.)");
-        sp = C.JSString_methods.splitMapJoin$2$onMatch(C.JSNumber_methods.toStringAsFixed$1(t4 - t5, 2), re, H.functionTypeCheck(new G.Canvas__attachListener__closure2(), t9));
-        spp = C.JSString_methods.splitMapJoin$2$onMatch(C.JSDouble_methods.toStringAsFixed$1((t6 - t7) / t8 * 100, 2), re, H.functionTypeCheck(new G.Canvas__attachListener__closure3(), t9));
-        str = str + "\nperiod: " + sd + "days\ndiff($): " + sp + "\ndiff(%): " + spp;
-      }
-      t1 = t1._info;
-      (t1 && C.DivElement_methods).setInnerHtml$1(t1, str);
+      var t1 = this.$this._info;
+      (t1 && C.DivElement_methods).setInnerHtml$1(t1, H.stringTypeCheck(info));
     },
     $signature: 1
   };
-  G.Canvas__attachListener__closure.prototype = {
-    call$0: function() {
-      return 0;
-    },
-    $signature: 13
-  };
-  G.Canvas__attachListener__closure0.prototype = {
-    call$0: function() {
-      return 0;
-    },
-    $signature: 13
-  };
-  G.Canvas__attachListener__closure1.prototype = {
-    call$1: function(m) {
-      return H.S(m.$index(0, 1)) + ",";
-    },
-    $signature: 6
-  };
-  G.Canvas__attachListener__closure2.prototype = {
-    call$1: function(m) {
-      return H.S(m.$index(0, 1)) + ",";
-    },
-    $signature: 6
-  };
-  G.Canvas__attachListener__closure3.prototype = {
-    call$1: function(m) {
-      return H.S(m.$index(0, 1)) + ",";
-    },
-    $signature: 6
-  };
   G.Canvas__attachListener_closure3.prototype = {
     call$1: function($event) {
-      var t1, t2, t3, t4, t5, t6;
+      var t1, t2, t3, t4, t5, t6, t7, t8, x, y;
       H.interceptedTypeCheck($event, "$isMouseEvent");
       t1 = this.$this;
+      t2 = t1._info;
+      t3 = t2.classList.contains("-canvas-chart-info-hidden");
+      if (t3)
+        t2.classList.remove("-canvas-chart-info-hidden");
+      t3 = $event.clientX;
+      t4 = $event.clientY;
+      t5 = t1._image;
+      t6 = C.JSNumber_methods.round$0(t5.offsetLeft);
+      if (typeof t3 !== "number")
+        return t3.$sub();
+      t7 = t1._inspectCanvas;
+      t8 = t7.width;
+      if (typeof t8 !== "number")
+        return H.iae(t8);
+      x = Math.max(Math.min((t3 - t6) / t8, 1), 0);
+      t6 = t7.height;
+      t3 = C.JSNumber_methods.round$0(t5.offsetTop);
+      if (typeof t4 !== "number")
+        return t4.$sub();
+      if (typeof t6 !== "number")
+        return t6.$sub();
+      y = Math.max(Math.min((t6 - (t4 - t3)) / t6, 1), 0);
+      t3 = t1._canvas$_server;
+      if (t1._calculate)
+        t3.inspectRequest$4$ax$ay(x, y, Math.max(Math.min(t1._calcAnchorX / t8, 1), 0), Math.max(Math.min((t6 - t1._calcAnchorY) / t6, 1), 0));
+      else
+        t3.inspectRequest$2(x, y);
+      t3 = $event.clientX;
+      $event.clientY;
+      t4 = C.JSNumber_methods.round$0(t5.offsetLeft);
+      if (typeof t3 !== "number")
+        return t3.$sub();
+      t6 = t7.width;
+      if (typeof t6 !== "number")
+        return t6.$div();
+      if (t3 - t4 > t6 / 2) {
+        t4 = t2.style;
+        t6 = t2.clientWidth;
+        if (typeof t6 !== "number")
+          return H.iae(t6);
+        t6 = H.S(t3 - t6 - 20) + "px";
+        t4.left = t6;
+      } else {
+        t4 = t2.style;
+        t3 = H.S(t3 + 20) + "px";
+        t4.left = t3;
+      }
+      t3 = $event.clientY;
+      t4 = C.JSNumber_methods.round$0(t5.offsetTop);
+      if (typeof t3 !== "number")
+        return t3.$sub();
+      t6 = t7.height;
+      if (typeof t6 !== "number")
+        return t6.$div();
+      if (t3 - t4 > t6 / 2) {
+        t4 = t2.style;
+        t2 = H.S(t3 - C.JSNumber_methods.round$0(t2.offsetHeight) - 20) + "px";
+        t4.top = t2;
+      } else {
+        t2 = t2.style;
+        t3 = H.S(t3 + 20) + "px";
+        t2.top = t3;
+      }
       if (t1._double)
         t1._doubleCover$1($event);
       else if (t1._coverL)
         t1._singleCoverL$1($event);
       else if (t1._coverR)
         t1._singleCoverR$1($event);
-      t2 = t1._inspectCanvas;
-      t1._ictx.clearRect(0, 0, t2.width, t2.height);
-      t3 = t1._ictx;
-      t3.strokeStyle = "rgba(255, 255, 255, 0.8)";
-      t3.beginPath();
-      t3 = t1._ictx;
-      t4 = $event.clientX;
+      t1._ictx.clearRect(0, 0, t7.width, t7.height);
+      t2 = t1._ictx;
+      t2.strokeStyle = "rgba(255, 255, 255, 0.8)";
+      t2.beginPath();
+      t2 = t1._ictx;
+      t3 = $event.clientX;
       $event.clientY;
-      t5 = t1._image;
-      t6 = C.JSNumber_methods.round$0(t5.offsetLeft);
-      if (typeof t4 !== "number")
-        return t4.$sub();
-      t3.moveTo(t4 - t6, 0);
-      t6 = t1._ictx;
-      t4 = $event.clientX;
+      t4 = C.JSNumber_methods.round$0(t5.offsetLeft);
+      if (typeof t3 !== "number")
+        return t3.$sub();
+      t2.moveTo(t3 - t4, 0);
+      t4 = t1._ictx;
+      t3 = $event.clientX;
       $event.clientY;
-      t3 = C.JSNumber_methods.round$0(t5.offsetLeft);
-      if (typeof t4 !== "number")
-        return t4.$sub();
-      t6.lineTo(t4 - t3, t2.height);
+      t2 = C.JSNumber_methods.round$0(t5.offsetLeft);
+      if (typeof t3 !== "number")
+        return t3.$sub();
+      t4.lineTo(t3 - t2, t7.height);
       t1._ictx.stroke();
       t1._ictx.closePath();
       t1._ictx.beginPath();
-      t3 = t1._ictx;
-      t4 = $event.clientY;
-      t6 = C.JSNumber_methods.round$0(t5.offsetTop);
-      if (typeof t4 !== "number")
-        return t4.$sub();
-      t3.moveTo(0, t4 - t6);
-      t6 = t1._ictx;
-      t2 = t2.width;
-      t4 = $event.clientY;
+      t2 = t1._ictx;
+      t3 = $event.clientY;
+      t4 = C.JSNumber_methods.round$0(t5.offsetTop);
+      if (typeof t3 !== "number")
+        return t3.$sub();
+      t2.moveTo(0, t3 - t4);
+      t4 = t1._ictx;
+      t3 = t7.width;
+      t2 = $event.clientY;
       t5 = C.JSNumber_methods.round$0(t5.offsetTop);
-      if (typeof t4 !== "number")
-        return t4.$sub();
-      t6.lineTo(t2, t4 - t5);
+      if (typeof t2 !== "number")
+        return t2.$sub();
+      t4.lineTo(t3, t2 - t5);
       t1._ictx.stroke();
       t1._ictx.closePath();
+      if (t1._calculate) {
+        t2 = t1._ictx;
+        t2.strokeStyle = "rgba(255, 255, 255, 0.5)";
+        t2.beginPath();
+        t1._ictx.moveTo(t1._calcAnchorX, 0);
+        t1._ictx.lineTo(t1._calcAnchorX, t7.height);
+        t1._ictx.stroke();
+        t1._ictx.closePath();
+        t1._ictx.beginPath();
+        t1._ictx.moveTo(0, t1._calcAnchorY);
+        t1._ictx.lineTo(t7.width, t1._calcAnchorY);
+        t1._ictx.stroke();
+        t1._ictx.closePath();
+      }
     },
     $signature: 4
   };
@@ -7571,14 +7332,17 @@
         t2.classList.add("-canvas-chart-info-hidden");
       t1._calculate = true;
       t2 = $event.clientX;
-      t3 = $event.clientY;
-      t4 = t1._image;
-      C.JSNumber_methods.round$0(t4.offsetLeft);
+      $event.clientY;
+      t3 = t1._image;
+      t4 = C.JSNumber_methods.round$0(t3.offsetLeft);
       if (typeof t2 !== "number")
         return t2.$sub();
-      C.JSNumber_methods.round$0(t4.offsetTop);
-      if (typeof t3 !== "number")
-        return t3.$sub();
+      t1._calcAnchorX = t2 - t4;
+      t4 = $event.clientY;
+      t3 = C.JSNumber_methods.round$0(t3.offsetTop);
+      if (typeof t4 !== "number")
+        return t4.$sub();
+      t1._calcAnchorY = t4 - t3;
       if (H.boolConversionCheck($event.ctrlKey))
         t1._singleCoverL$1($event);
       if (H.boolConversionCheck($event.shiftKey))
@@ -7860,7 +7624,7 @@
           break;
       }
     },
-    $signature: 14
+    $signature: 11
   };
   X.MainControl_closure0.prototype = {
     call$1: function($event) {
@@ -7929,15 +7693,13 @@
             break;
         }
     },
-    $signature: 14
+    $signature: 11
   };
   D.Modal.prototype = {};
   O.Navbar.prototype = {
     Navbar$2$cls: function(id, cls) {
-      var t1, t2, t3, _this = this,
-        path = window.location.pathname;
-      path.length;
-      if (H.stringContainsUnchecked(path, "practice", 0)) {
+      var t1, t2, t3, _this = this;
+      if (J.contains$1$asx(window.location.pathname, "practice")) {
         t1 = cls + "-navbar-button-active";
         _this._practice.classList.add(t1);
       }
@@ -7996,14 +7758,14 @@
     _requestUrl$0: function() {
       var _this = this,
         t1 = window.location,
-        url = (t1 && C.Location_methods).get$origin(t1) + "/practice/" + H.S(_this._symbol) + "/" + H.S(_this._frequency) + "/" + _this._function + "/" + H.S(_this._time);
+        url = (t1 && C.Location_methods).get$origin(t1) + "/plot/practice/" + H.S(_this._symbol) + "/" + H.S(_this._frequency) + "/" + _this._function + "/" + H.S(_this._time);
       return (_this._showRecords ? url + "/records/" + H.S(_this._version) : url) + "?timestemp=" + Date.now();
     },
-    timeRequest$0: function() {
+    infoRequest$0: function() {
       var $async$goto = 0,
         $async$completer = P._makeAsyncAwaitCompleter(null),
-        $async$returnValue, $async$self = this, info;
-      var $async$timeRequest$0 = P._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
+        $async$returnValue, $async$self = this, t1, $async$temp1, $async$temp2;
+      var $async$infoRequest$0 = P._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
         if ($async$errorCode === 1)
           return P._asyncRethrow($async$result, $async$completer);
         while (true)
@@ -8015,20 +7777,57 @@
                 $async$goto = 1;
                 break;
               }
-              $async$self._function = "time";
+              $async$self._function = "info";
+              $async$temp1 = H;
+              $async$temp2 = C.C_JsonCodec;
               $async$goto = 3;
-              return P._asyncAwait(W.HttpRequest_getString($async$self._requestUrl$0()), $async$timeRequest$0);
+              return P._asyncAwait(W.HttpRequest_getString($async$self._requestUrl$0()), $async$infoRequest$0);
             case 3:
               // returning from await.
-              info = $async$result;
-              $async$self._time = info;
-              $async$self._$time.add$1(0, info);
+              t1 = $async$temp1.assertSubtype($async$temp2.decode$1(0, $async$result), "$isMap", [P.String, null], "$asMap");
+              $async$self._$info.add$1(0, t1);
+              $async$self._$time.add$1(0, H.stringTypeCheck(t1.$index(0, "Time")));
             case 1:
               // return
               return P._asyncReturn($async$returnValue, $async$completer);
           }
       });
-      return P._asyncStartSync($async$timeRequest$0, $async$completer);
+      return P._asyncStartSync($async$infoRequest$0, $async$completer);
+    },
+    inspectRequest$4$ax$ay: function(x, y, ax, ay) {
+      var $async$goto = 0,
+        $async$completer = P._makeAsyncAwaitCompleter(null),
+        $async$returnValue, $async$self = this, url, $async$temp1;
+      var $async$inspectRequest$4$ax$ay = P._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
+        if ($async$errorCode === 1)
+          return P._asyncRethrow($async$result, $async$completer);
+        while (true)
+          switch ($async$goto) {
+            case 0:
+              // Function start
+              H.assertHelper(x >= 0 && y >= 0);
+              if ($async$self._working) {
+                // goto return
+                $async$goto = 1;
+                break;
+              }
+              $async$self._function = "inspect";
+              url = $async$self._requestUrl$0() + "&x=" + H.S(x) + "&y=" + H.S(y);
+              $async$temp1 = $async$self._$chartInspect;
+              $async$goto = 3;
+              return P._asyncAwait(W.HttpRequest_getString(ax != null && ay != null ? url + "&ax=" + H.S(ax) + "&ay=" + H.S(ay) : url), $async$inspectRequest$4$ax$ay);
+            case 3:
+              // returning from await.
+              $async$temp1.add$1(0, $async$result);
+            case 1:
+              // return
+              return P._asyncReturn($async$returnValue, $async$completer);
+          }
+      });
+      return P._asyncStartSync($async$inspectRequest$4$ax$ay, $async$completer);
+    },
+    inspectRequest$2: function(x, y) {
+      return this.inspectRequest$4$ax$ay(x, y, null, null);
     },
     getChart$0: function() {
       this._working = true;
@@ -8054,9 +7853,9 @@
       _static = hunkHelpers.installStaticTearOff,
       _instance = hunkHelpers.installInstanceTearOff,
       _instance_0_u = hunkHelpers._instance_0u;
-    _static_1(P, "async__AsyncRun__scheduleImmediateJsOverride$closure", "_AsyncRun__scheduleImmediateJsOverride", 7);
-    _static_1(P, "async__AsyncRun__scheduleImmediateWithSetImmediate$closure", "_AsyncRun__scheduleImmediateWithSetImmediate", 7);
-    _static_1(P, "async__AsyncRun__scheduleImmediateWithTimer$closure", "_AsyncRun__scheduleImmediateWithTimer", 7);
+    _static_1(P, "async__AsyncRun__scheduleImmediateJsOverride$closure", "_AsyncRun__scheduleImmediateJsOverride", 6);
+    _static_1(P, "async__AsyncRun__scheduleImmediateWithSetImmediate$closure", "_AsyncRun__scheduleImmediateWithSetImmediate", 6);
+    _static_1(P, "async__AsyncRun__scheduleImmediateWithTimer$closure", "_AsyncRun__scheduleImmediateWithTimer", 6);
     _static_0(P, "async___startMicrotaskLoop$closure", "_startMicrotaskLoop", 2);
     _static(P, "async___nullErrorHandler$closure", 1, null, ["call$2", "call$1"], ["_nullErrorHandler", function(error) {
       return P._nullErrorHandler(error, null);
@@ -8065,29 +7864,29 @@
     _instance(P._Completer.prototype, "get$completeError", 0, 1, null, ["call$2", "call$1"], ["completeError$2", "completeError$1"], 5, 0);
     _instance(P._Future.prototype, "get$_completeError", 0, 1, null, ["call$2", "call$1"], ["_completeError$2", "_completeError$1"], 5, 0);
     _instance_0_u(P._DoneStreamSubscription.prototype, "get$_sendDone", "_sendDone$0", 2);
-    _static(W, "html__Html5NodeValidator__standardAttributeValidator$closure", 4, null, ["call$4"], ["_Html5NodeValidator__standardAttributeValidator"], 15, 0);
-    _static(W, "html__Html5NodeValidator__uriAttributeValidator$closure", 4, null, ["call$4"], ["_Html5NodeValidator__uriAttributeValidator"], 15, 0);
+    _static(W, "html__Html5NodeValidator__standardAttributeValidator$closure", 4, null, ["call$4"], ["_Html5NodeValidator__standardAttributeValidator"], 12, 0);
+    _static(W, "html__Html5NodeValidator__uriAttributeValidator$closure", 4, null, ["call$4"], ["_Html5NodeValidator__uriAttributeValidator"], 12, 0);
   })();
   (function inheritance() {
     var _mixin = hunkHelpers.mixin,
       _inherit = hunkHelpers.inherit,
       _inheritMany = hunkHelpers.inheritMany;
     _inherit(P.Object, null);
-    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, P.Iterator, H.TypeErrorDecoder, P.Error, H.ExceptionAndStackTrace, H.Closure, H._StackTrace, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, H.JSSyntaxRegExp, H._MatchImplementation, H._AllMatchesIterator, P._TimerImpl, P._AsyncAwaitCompleter, P.Stream, P._BufferingStreamSubscription, P._BroadcastStreamController, P._Completer, P._FutureListener, P._Future, P._AsyncCallbackEntry, P.StreamSubscription, P._DelayedEvent, P._PendingEvents, P._DoneStreamSubscription, P._StreamIterator, P.AsyncError, P._Zone, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P._ListBase_Object_ListMixin, P.ListMixin, P.SetMixin, P._SetBase_Object_SetMixin, P.bool, P.DateTime, P.num, P.OutOfMemoryError, P.StackOverflowError, P._Exception, P.FormatException, P.Function, P.List, P.Map, P.Null, P.Match, P.RegExpMatch, P.StackTrace, P.String, P.StringBuffer, W._Html5NodeValidator, W.ImmutableListMixin, W.NodeValidatorBuilder, W._SimpleNodeValidator, W._SvgNodeValidator, W.FixedSizeListIterator, W._DOMWindowCrossFrame, W.NodeValidator, W._SameOriginUriPolicy, W._ValidatingTreeSanitizer, G.Canvas, M.ChartInputs, X.MainControl, D.Modal, O.Navbar, R.Server, M.Sidebar]);
-    _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JSArray, J.JSNumber, J.JSString, W.EventTarget, W.CanvasRenderingContext2D, W.DomException, W.DomTokenList, W.Event, W._HtmlCollection_Interceptor_ListMixin, W.Location, W._NodeList_Interceptor_ListMixin, W.__NamedNodeMap_Interceptor_ListMixin]);
+    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, P.Iterator, H.TypeErrorDecoder, P.Error, H.ExceptionAndStackTrace, H.Closure, H._StackTrace, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, H.JSSyntaxRegExp, P._TimerImpl, P._AsyncAwaitCompleter, P.Stream, P._BufferingStreamSubscription, P._BroadcastStreamController, P._Completer, P._FutureListener, P._Future, P._AsyncCallbackEntry, P.StreamSubscription, P.StreamTransformerBase, P._DelayedEvent, P._PendingEvents, P._DoneStreamSubscription, P._StreamIterator, P.AsyncError, P._Zone, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P._ListBase_Object_ListMixin, P.ListMixin, P.SetMixin, P._SetBase_Object_SetMixin, P.Codec, P.bool, P.DateTime, P.num, P.OutOfMemoryError, P.StackOverflowError, P._Exception, P.FormatException, P.Function, P.List, P.Map, P.Null, P.StackTrace, P.String, P.StringBuffer, W.CssStyleDeclarationBase, W._Html5NodeValidator, W.ImmutableListMixin, W.NodeValidatorBuilder, W._SimpleNodeValidator, W._SvgNodeValidator, W.FixedSizeListIterator, W._DOMWindowCrossFrame, W.NodeValidator, W._SameOriginUriPolicy, W._ValidatingTreeSanitizer, G.Canvas, M.ChartInputs, X.MainControl, D.Modal, O.Navbar, R.Server, M.Sidebar]);
+    _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JSArray, J.JSNumber, J.JSString, W.EventTarget, W.CanvasRenderingContext2D, W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase, W.DomException, W.DomTokenList, W.Event, W._HtmlCollection_Interceptor_ListMixin, W.Location, W._NodeList_Interceptor_ListMixin, W.__NamedNodeMap_Interceptor_ListMixin]);
     _inheritMany(J.JavaScriptObject, [J.PlainJavaScriptObject, J.UnknownJavaScriptObject, J.JavaScriptFunction]);
     _inherit(J.JSUnmodifiableArray, J.JSArray);
     _inheritMany(J.JSNumber, [J.JSInt, J.JSDouble]);
     _inheritMany(P.Iterable, [H.EfficientLengthIterable, H.MappedIterable, H.WhereIterable]);
     _inheritMany(H.EfficientLengthIterable, [H.ListIterable, H.LinkedHashMapKeyIterable, P.Set]);
     _inheritMany(P.Iterator, [H.MappedIterator, H.WhereIterator]);
-    _inherit(H.MappedListIterable, H.ListIterable);
+    _inheritMany(H.ListIterable, [H.MappedListIterable, P._JsonMapKeyIterable]);
     _inheritMany(P.Error, [H.NullError, H.JsNoSuchMethodError, H.UnknownJsTypeError, H.TypeErrorImplementation, H.CastErrorImplementation, H.RuntimeError, P.AssertionError, P.NullThrownError, P.ArgumentError, P.UnsupportedError, P.UnimplementedError, P.StateError, P.ConcurrentModificationError, P.CyclicInitializationError]);
-    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P._AsyncRun__initializeScheduleImmediate_internalCallback, P._AsyncRun__initializeScheduleImmediate_closure, P._AsyncRun__scheduleImmediateJsOverride_internalCallback, P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, P._TimerImpl_internalCallback, P._awaitOnObject_closure, P._awaitOnObject_closure0, P._wrapJsFunctionForAsync_closure, P._Future__addListener_closure, P._Future__prependListeners_closure, P._Future__chainForeignFuture_closure, P._Future__chainForeignFuture_closure0, P._Future__chainForeignFuture_closure1, P._Future__asyncComplete_closure, P._Future__chainFuture_closure, P._Future__asyncCompleteError_closure, P._Future__propagateToListeners_handleWhenCompleteCallback, P._Future__propagateToListeners_handleWhenCompleteCallback_closure, P._Future__propagateToListeners_handleValueCallback, P._Future__propagateToListeners_handleError, P.Stream_length_closure, P.Stream_length_closure0, P._PendingEvents_schedule_closure, P._rootHandleUncaughtError_closure, P._RootZone_bindCallback_closure, P._RootZone_bindCallbackGuarded_closure, P._RootZone_bindUnaryCallbackGuarded_closure, P.MapBase_mapToString_closure, P.DateTime_parse_parseIntOrZero, P.DateTime_parse_parseMilliAndMicroseconds, W.Element_Element$html_closure, W.HttpRequest_getString_closure, W.HttpRequest_request_closure, W._EventStreamSubscription_closure, W.NodeValidatorBuilder_allowsElement_closure, W.NodeValidatorBuilder_allowsAttribute_closure, W._SimpleNodeValidator_closure, W._SimpleNodeValidator_closure0, W._TemplatingNodeValidator_closure, W._ValidatingTreeSanitizer_sanitizeTree_walk, P.CssClassSetImpl_add_closure, P.FilteredElementList__iterable_closure, P.FilteredElementList__iterable_closure0, G.Canvas__attachListener_closure, G.Canvas__attachListener_closure0, G.Canvas__attachListener_closure1, G.Canvas__attachListener_closure2, G.Canvas__attachListener__closure, G.Canvas__attachListener__closure0, G.Canvas__attachListener__closure1, G.Canvas__attachListener__closure2, G.Canvas__attachListener__closure3, G.Canvas__attachListener_closure3, G.Canvas__attachListener_closure4, G.Canvas__attachListener_closure5, M.ChartInputs_closure, M.ChartInputs_closure0, M.ChartInputs_closure1, M.ChartInputs_closure2, M.ChartInputs_closure3, M.ChartInputs_closure4, M.ChartInputs__addSymbol_closure, X.MainControl_closure, X.MainControl_closure0, O.Navbar_closure, O.Navbar_closure0]);
+    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P._AsyncRun__initializeScheduleImmediate_internalCallback, P._AsyncRun__initializeScheduleImmediate_closure, P._AsyncRun__scheduleImmediateJsOverride_internalCallback, P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, P._TimerImpl_internalCallback, P._awaitOnObject_closure, P._awaitOnObject_closure0, P._wrapJsFunctionForAsync_closure, P._Future__addListener_closure, P._Future__prependListeners_closure, P._Future__chainForeignFuture_closure, P._Future__chainForeignFuture_closure0, P._Future__chainForeignFuture_closure1, P._Future__asyncComplete_closure, P._Future__chainFuture_closure, P._Future__asyncCompleteError_closure, P._Future__propagateToListeners_handleWhenCompleteCallback, P._Future__propagateToListeners_handleWhenCompleteCallback_closure, P._Future__propagateToListeners_handleValueCallback, P._Future__propagateToListeners_handleError, P.Stream_length_closure, P.Stream_length_closure0, P._PendingEvents_schedule_closure, P._rootHandleUncaughtError_closure, P._RootZone_bindCallback_closure, P._RootZone_bindCallbackGuarded_closure, P._RootZone_bindUnaryCallbackGuarded_closure, P.MapBase_mapToString_closure, W.Element_Element$html_closure, W.HttpRequest_getString_closure, W.HttpRequest_request_closure, W._EventStreamSubscription_closure, W.NodeValidatorBuilder_allowsElement_closure, W.NodeValidatorBuilder_allowsAttribute_closure, W._SimpleNodeValidator_closure, W._SimpleNodeValidator_closure0, W._TemplatingNodeValidator_closure, W._ValidatingTreeSanitizer_sanitizeTree_walk, P.CssClassSetImpl_add_closure, P.FilteredElementList__iterable_closure, P.FilteredElementList__iterable_closure0, G.Canvas__attachListener_closure, G.Canvas__attachListener_closure0, G.Canvas__attachListener_closure1, G.Canvas__attachListener_closure2, G.Canvas__attachListener_closure3, G.Canvas__attachListener_closure4, G.Canvas__attachListener_closure5, M.ChartInputs_closure, M.ChartInputs_closure0, M.ChartInputs_closure1, M.ChartInputs_closure2, M.ChartInputs_closure3, M.ChartInputs_closure4, M.ChartInputs__addSymbol_closure, X.MainControl_closure, X.MainControl_closure0, O.Navbar_closure, O.Navbar_closure0]);
     _inheritMany(H.TearOffClosure, [H.StaticClosure, H.BoundClosure]);
     _inherit(H._AssertionError, P.AssertionError);
     _inherit(P.MapBase, P.MapMixin);
-    _inheritMany(P.MapBase, [H.JsLinkedHashMap, W._AttributeMap]);
+    _inheritMany(P.MapBase, [H.JsLinkedHashMap, P._JsonMap, W._AttributeMap]);
     _inheritMany(P.Stream, [P._StreamImpl, W._EventStream]);
     _inherit(P._ControllerStream, P._StreamImpl);
     _inherit(P._BroadcastStream, P._ControllerStream);
@@ -8101,12 +7900,16 @@
     _inherit(P._LinkedHashSet, P._SetBase);
     _inherit(P.ListBase, P._ListBase_Object_ListMixin);
     _inherit(P.SetBase, P._SetBase_Object_SetMixin);
+    _inherit(P.Converter, P.StreamTransformerBase);
+    _inherit(P.JsonCodec, P.Codec);
+    _inherit(P.JsonDecoder, P.Converter);
     _inheritMany(P.num, [P.double, P.int]);
     _inheritMany(P.ArgumentError, [P.RangeError, P.IndexError]);
     _inheritMany(W.EventTarget, [W.Node, W.HttpRequestEventTarget, W.Window, P.Request]);
     _inheritMany(W.Node, [W.Element, W.CharacterData, W._Attr]);
     _inheritMany(W.Element, [W.HtmlElement, P.SvgElement]);
     _inheritMany(W.HtmlElement, [W.AnchorElement, W.AreaElement, W.BaseElement, W.BodyElement, W.ButtonElement, W.CanvasElement, W.DivElement, W.FormElement, W.ImageElement, W.InputElement, W.SelectElement, W.TableCellElement, W.TableElement, W.TableRowElement, W.TableSectionElement, W.TemplateElement]);
+    _inherit(W.CssStyleDeclaration, W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase);
     _inheritMany(P.ListBase, [W._ChildrenElementList, W._ChildNodeListLazy, P.FilteredElementList]);
     _inherit(W._HtmlCollection_Interceptor_ListMixin_ImmutableListMixin, W._HtmlCollection_Interceptor_ListMixin);
     _inherit(W.HtmlCollection, W._HtmlCollection_Interceptor_ListMixin_ImmutableListMixin);
@@ -8127,6 +7930,7 @@
     _inherit(P.ScriptElement, P.SvgElement);
     _mixin(P._ListBase_Object_ListMixin, P.ListMixin);
     _mixin(P._SetBase_Object_SetMixin, P.SetMixin);
+    _mixin(W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase, W.CssStyleDeclarationBase);
     _mixin(W._HtmlCollection_Interceptor_ListMixin, P.ListMixin);
     _mixin(W._HtmlCollection_Interceptor_ListMixin_ImmutableListMixin, W.ImmutableListMixin);
     _mixin(W._NodeList_Interceptor_ListMixin, P.ListMixin);
@@ -8134,7 +7938,7 @@
     _mixin(W.__NamedNodeMap_Interceptor_ListMixin, P.ListMixin);
     _mixin(W.__NamedNodeMap_Interceptor_ListMixin_ImmutableListMixin, W.ImmutableListMixin);
   })();
-  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: P.Null}, {func: 1, ret: P.Null, args: [,]}, {func: 1, ret: -1}, {func: 1, ret: P.Null, args: [W.Event]}, {func: 1, ret: P.Null, args: [W.MouseEvent]}, {func: 1, ret: -1, args: [P.Object], opt: [P.StackTrace]}, {func: 1, ret: P.String, args: [P.Match]}, {func: 1, ret: -1, args: [{func: 1, ret: -1}]}, {func: 1, args: [,]}, {func: 1, ret: P.int, args: [P.String]}, {func: 1, ret: P.bool, args: [W.Node]}, {func: 1, ret: P.bool, args: [W.NodeValidator]}, {func: 1, ret: P.bool, args: [P.String]}, {func: 1, ret: P.int}, {func: 1, ret: P.Null, args: [W.KeyboardEvent]}, {func: 1, ret: P.bool, args: [W.Element, P.String, P.String, W._Html5NodeValidator]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.Null, args: [{func: 1, ret: -1}]}, {func: 1, ret: -1, args: [,]}, {func: 1, ret: P.Null, args: [, P.StackTrace]}, {func: 1, ret: P.Null, args: [P.int,,]}, {func: 1, ret: P.Null, args: [,], opt: [P.StackTrace]}, {func: 1, ret: [P._Future,,], args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [W.HttpRequest]}, {func: 1, ret: P.Null, args: [W.ProgressEvent]}, {func: 1, args: [W.Event]}, {func: 1, ret: P.String, args: [P.String]}, {func: 1, ret: -1, args: [W.Node, W.Node]}, {func: 1, ret: P.bool, args: [[P.Set, P.String]]}, {func: 1, ret: W.Element, args: [W.Node]}], interceptorsByTag: null, leafTags: null};
+  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: P.Null}, {func: 1, ret: P.Null, args: [,]}, {func: 1, ret: -1}, {func: 1, ret: P.Null, args: [W.Event]}, {func: 1, ret: P.Null, args: [W.MouseEvent]}, {func: 1, ret: -1, args: [P.Object], opt: [P.StackTrace]}, {func: 1, ret: -1, args: [{func: 1, ret: -1}]}, {func: 1, args: [,]}, {func: 1, ret: P.bool, args: [W.Node]}, {func: 1, ret: P.bool, args: [W.NodeValidator]}, {func: 1, ret: P.bool, args: [P.String]}, {func: 1, ret: P.Null, args: [W.KeyboardEvent]}, {func: 1, ret: P.bool, args: [W.Element, P.String, P.String, W._Html5NodeValidator]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.Null, args: [{func: 1, ret: -1}]}, {func: 1, ret: -1, args: [,]}, {func: 1, ret: P.Null, args: [, P.StackTrace]}, {func: 1, ret: P.Null, args: [P.int,,]}, {func: 1, ret: P.Null, args: [,], opt: [P.StackTrace]}, {func: 1, ret: [P._Future,,], args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [W.HttpRequest]}, {func: 1, ret: P.Null, args: [W.ProgressEvent]}, {func: 1, args: [W.Event]}, {func: 1, ret: P.String, args: [P.String]}, {func: 1, ret: -1, args: [W.Node, W.Node]}, {func: 1, ret: P.bool, args: [[P.Set, P.String]]}, {func: 1, ret: W.Element, args: [W.Node]}], interceptorsByTag: null, leafTags: null};
   (function constants() {
     var makeConstList = hunkHelpers.makeConstList;
     C.BodyElement_methods = W.BodyElement.prototype;
@@ -8143,7 +7947,6 @@
     C.HttpRequest_methods = W.HttpRequest.prototype;
     C.Interceptor_methods = J.Interceptor.prototype;
     C.JSArray_methods = J.JSArray.prototype;
-    C.JSDouble_methods = J.JSDouble.prototype;
     C.JSInt_methods = J.JSInt.prototype;
     C.JSNumber_methods = J.JSNumber.prototype;
     C.JSString_methods = J.JSString.prototype;
@@ -8274,8 +8077,10 @@
 };
     C.C_JS_CONST2 = function(hooks) { return hooks; }
 ;
+    C.C_JsonCodec = new P.JsonCodec();
     C.C_OutOfMemoryError = new P.OutOfMemoryError();
     C.C__RootZone = new P._RootZone();
+    C.JsonDecoder_null = new P.JsonDecoder(null);
     C.List_2Zi = H.setRuntimeTypeInfo(makeConstList(["*::class", "*::dir", "*::draggable", "*::hidden", "*::id", "*::inert", "*::itemprop", "*::itemref", "*::itemscope", "*::lang", "*::spellcheck", "*::title", "*::translate", "A::accesskey", "A::coords", "A::hreflang", "A::name", "A::shape", "A::tabindex", "A::target", "A::type", "AREA::accesskey", "AREA::alt", "AREA::coords", "AREA::nohref", "AREA::shape", "AREA::tabindex", "AREA::target", "AUDIO::controls", "AUDIO::loop", "AUDIO::mediagroup", "AUDIO::muted", "AUDIO::preload", "BDO::dir", "BODY::alink", "BODY::bgcolor", "BODY::link", "BODY::text", "BODY::vlink", "BR::clear", "BUTTON::accesskey", "BUTTON::disabled", "BUTTON::name", "BUTTON::tabindex", "BUTTON::type", "BUTTON::value", "CANVAS::height", "CANVAS::width", "CAPTION::align", "COL::align", "COL::char", "COL::charoff", "COL::span", "COL::valign", "COL::width", "COLGROUP::align", "COLGROUP::char", "COLGROUP::charoff", "COLGROUP::span", "COLGROUP::valign", "COLGROUP::width", "COMMAND::checked", "COMMAND::command", "COMMAND::disabled", "COMMAND::label", "COMMAND::radiogroup", "COMMAND::type", "DATA::value", "DEL::datetime", "DETAILS::open", "DIR::compact", "DIV::align", "DL::compact", "FIELDSET::disabled", "FONT::color", "FONT::face", "FONT::size", "FORM::accept", "FORM::autocomplete", "FORM::enctype", "FORM::method", "FORM::name", "FORM::novalidate", "FORM::target", "FRAME::name", "H1::align", "H2::align", "H3::align", "H4::align", "H5::align", "H6::align", "HR::align", "HR::noshade", "HR::size", "HR::width", "HTML::version", "IFRAME::align", "IFRAME::frameborder", "IFRAME::height", "IFRAME::marginheight", "IFRAME::marginwidth", "IFRAME::width", "IMG::align", "IMG::alt", "IMG::border", "IMG::height", "IMG::hspace", "IMG::ismap", "IMG::name", "IMG::usemap", "IMG::vspace", "IMG::width", "INPUT::accept", "INPUT::accesskey", "INPUT::align", "INPUT::alt", "INPUT::autocomplete", "INPUT::autofocus", "INPUT::checked", "INPUT::disabled", "INPUT::inputmode", "INPUT::ismap", "INPUT::list", "INPUT::max", "INPUT::maxlength", "INPUT::min", "INPUT::multiple", "INPUT::name", "INPUT::placeholder", "INPUT::readonly", "INPUT::required", "INPUT::size", "INPUT::step", "INPUT::tabindex", "INPUT::type", "INPUT::usemap", "INPUT::value", "INS::datetime", "KEYGEN::disabled", "KEYGEN::keytype", "KEYGEN::name", "LABEL::accesskey", "LABEL::for", "LEGEND::accesskey", "LEGEND::align", "LI::type", "LI::value", "LINK::sizes", "MAP::name", "MENU::compact", "MENU::label", "MENU::type", "METER::high", "METER::low", "METER::max", "METER::min", "METER::value", "OBJECT::typemustmatch", "OL::compact", "OL::reversed", "OL::start", "OL::type", "OPTGROUP::disabled", "OPTGROUP::label", "OPTION::disabled", "OPTION::label", "OPTION::selected", "OPTION::value", "OUTPUT::for", "OUTPUT::name", "P::align", "PRE::width", "PROGRESS::max", "PROGRESS::min", "PROGRESS::value", "SELECT::autocomplete", "SELECT::disabled", "SELECT::multiple", "SELECT::name", "SELECT::required", "SELECT::size", "SELECT::tabindex", "SOURCE::type", "TABLE::align", "TABLE::bgcolor", "TABLE::border", "TABLE::cellpadding", "TABLE::cellspacing", "TABLE::frame", "TABLE::rules", "TABLE::summary", "TABLE::width", "TBODY::align", "TBODY::char", "TBODY::charoff", "TBODY::valign", "TD::abbr", "TD::align", "TD::axis", "TD::bgcolor", "TD::char", "TD::charoff", "TD::colspan", "TD::headers", "TD::height", "TD::nowrap", "TD::rowspan", "TD::scope", "TD::valign", "TD::width", "TEXTAREA::accesskey", "TEXTAREA::autocomplete", "TEXTAREA::cols", "TEXTAREA::disabled", "TEXTAREA::inputmode", "TEXTAREA::name", "TEXTAREA::placeholder", "TEXTAREA::readonly", "TEXTAREA::required", "TEXTAREA::rows", "TEXTAREA::tabindex", "TEXTAREA::wrap", "TFOOT::align", "TFOOT::char", "TFOOT::charoff", "TFOOT::valign", "TH::abbr", "TH::align", "TH::axis", "TH::bgcolor", "TH::char", "TH::charoff", "TH::colspan", "TH::headers", "TH::height", "TH::nowrap", "TH::rowspan", "TH::scope", "TH::valign", "TH::width", "THEAD::align", "THEAD::char", "THEAD::charoff", "THEAD::valign", "TR::align", "TR::bgcolor", "TR::char", "TR::charoff", "TR::valign", "TRACK::default", "TRACK::kind", "TRACK::label", "TRACK::srclang", "UL::compact", "UL::type", "VIDEO::controls", "VIDEO::height", "VIDEO::loop", "VIDEO::mediagroup", "VIDEO::muted", "VIDEO::preload", "VIDEO::width"]), [P.String]);
     C.List_ego = H.setRuntimeTypeInfo(makeConstList(["HEAD", "AREA", "BASE", "BASEFONT", "BR", "COL", "COLGROUP", "EMBED", "FRAME", "FRAMESET", "HR", "IMAGE", "IMG", "INPUT", "ISINDEX", "LINK", "META", "PARAM", "SOURCE", "STYLE", "TITLE", "WBR"]), [P.String]);
     C.List_empty = H.setRuntimeTypeInfo(makeConstList([]), [P.String]);
@@ -8381,9 +8186,6 @@
     _lazy($, "_AsyncRun__scheduleImmediateClosure", "$get$_AsyncRun__scheduleImmediateClosure", function() {
       return P._AsyncRun__initializeScheduleImmediate();
     });
-    _lazy($, "DateTime__parseFormat", "$get$DateTime__parseFormat", function() {
-      return P.RegExp_RegExp("^([+-]?\\d{4,6})-?(\\d\\d)-?(\\d\\d)(?:[ T](\\d\\d)(?::?(\\d\\d)(?::?(\\d\\d)(?:[.,](\\d{1,6}))?)?)?( ?[zZ]| ?([-+])(\\d\\d)(?::?(\\d\\d))?)?)?$");
-    });
     _lazy($, "_Html5NodeValidator__allowedElements", "$get$_Html5NodeValidator__allowedElements", function() {
       return P.LinkedHashSet_LinkedHashSet$from(["A", "ABBR", "ACRONYM", "ADDRESS", "AREA", "ARTICLE", "ASIDE", "AUDIO", "B", "BDI", "BDO", "BIG", "BLOCKQUOTE", "BR", "BUTTON", "CANVAS", "CAPTION", "CENTER", "CITE", "CODE", "COL", "COLGROUP", "COMMAND", "DATA", "DATALIST", "DD", "DEL", "DETAILS", "DFN", "DIR", "DIV", "DL", "DT", "EM", "FIELDSET", "FIGCAPTION", "FIGURE", "FONT", "FOOTER", "FORM", "H1", "H2", "H3", "H4", "H5", "H6", "HEADER", "HGROUP", "HR", "I", "IFRAME", "IMG", "INPUT", "INS", "KBD", "LABEL", "LEGEND", "LI", "MAP", "MARK", "MENU", "METER", "NAV", "NOBR", "OL", "OPTGROUP", "OPTION", "OUTPUT", "P", "PRE", "PROGRESS", "Q", "S", "SAMP", "SECTION", "SELECT", "SMALL", "SOURCE", "SPAN", "STRIKE", "STRONG", "SUB", "SUMMARY", "SUP", "TABLE", "TBODY", "TD", "TEXTAREA", "TFOOT", "TH", "THEAD", "TIME", "TR", "TRACK", "TT", "U", "UL", "VAR", "VIDEO", "WBR"], P.String);
     });
@@ -8414,8 +8216,8 @@
       }
       init.dispatchPropertyName = init.getIsolateTag("dispatch_record");
     }();
-    hunkHelpers.setOrUpdateInterceptorsByTag({CanvasGradient: J.Interceptor, CanvasPattern: J.Interceptor, DOMError: J.Interceptor, DOMImplementation: J.Interceptor, MediaError: J.Interceptor, NavigatorUserMediaError: J.Interceptor, OverconstrainedError: J.Interceptor, PositionError: J.Interceptor, Range: J.Interceptor, WebGLRenderingContext: J.Interceptor, WebGL2RenderingContext: J.Interceptor, SQLError: J.Interceptor, HTMLAudioElement: W.HtmlElement, HTMLBRElement: W.HtmlElement, HTMLContentElement: W.HtmlElement, HTMLDListElement: W.HtmlElement, HTMLDataElement: W.HtmlElement, HTMLDataListElement: W.HtmlElement, HTMLDetailsElement: W.HtmlElement, HTMLDialogElement: W.HtmlElement, HTMLEmbedElement: W.HtmlElement, HTMLFieldSetElement: W.HtmlElement, HTMLHRElement: W.HtmlElement, HTMLHeadElement: W.HtmlElement, HTMLHeadingElement: W.HtmlElement, HTMLHtmlElement: W.HtmlElement, HTMLIFrameElement: W.HtmlElement, HTMLLIElement: W.HtmlElement, HTMLLabelElement: W.HtmlElement, HTMLLegendElement: W.HtmlElement, HTMLLinkElement: W.HtmlElement, HTMLMapElement: W.HtmlElement, HTMLMediaElement: W.HtmlElement, HTMLMenuElement: W.HtmlElement, HTMLMetaElement: W.HtmlElement, HTMLMeterElement: W.HtmlElement, HTMLModElement: W.HtmlElement, HTMLOListElement: W.HtmlElement, HTMLObjectElement: W.HtmlElement, HTMLOptGroupElement: W.HtmlElement, HTMLOptionElement: W.HtmlElement, HTMLOutputElement: W.HtmlElement, HTMLParagraphElement: W.HtmlElement, HTMLParamElement: W.HtmlElement, HTMLPictureElement: W.HtmlElement, HTMLPreElement: W.HtmlElement, HTMLProgressElement: W.HtmlElement, HTMLQuoteElement: W.HtmlElement, HTMLScriptElement: W.HtmlElement, HTMLShadowElement: W.HtmlElement, HTMLSlotElement: W.HtmlElement, HTMLSourceElement: W.HtmlElement, HTMLSpanElement: W.HtmlElement, HTMLStyleElement: W.HtmlElement, HTMLTableCaptionElement: W.HtmlElement, HTMLTableColElement: W.HtmlElement, HTMLTextAreaElement: W.HtmlElement, HTMLTimeElement: W.HtmlElement, HTMLTitleElement: W.HtmlElement, HTMLTrackElement: W.HtmlElement, HTMLUListElement: W.HtmlElement, HTMLUnknownElement: W.HtmlElement, HTMLVideoElement: W.HtmlElement, HTMLDirectoryElement: W.HtmlElement, HTMLFontElement: W.HtmlElement, HTMLFrameElement: W.HtmlElement, HTMLFrameSetElement: W.HtmlElement, HTMLMarqueeElement: W.HtmlElement, HTMLElement: W.HtmlElement, HTMLAnchorElement: W.AnchorElement, HTMLAreaElement: W.AreaElement, HTMLBaseElement: W.BaseElement, HTMLBodyElement: W.BodyElement, HTMLButtonElement: W.ButtonElement, HTMLCanvasElement: W.CanvasElement, CanvasRenderingContext2D: W.CanvasRenderingContext2D, CDATASection: W.CharacterData, CharacterData: W.CharacterData, Comment: W.CharacterData, ProcessingInstruction: W.CharacterData, Text: W.CharacterData, HTMLDivElement: W.DivElement, DOMException: W.DomException, DOMTokenList: W.DomTokenList, Element: W.Element, AbortPaymentEvent: W.Event, AnimationEvent: W.Event, AnimationPlaybackEvent: W.Event, ApplicationCacheErrorEvent: W.Event, BackgroundFetchClickEvent: W.Event, BackgroundFetchEvent: W.Event, BackgroundFetchFailEvent: W.Event, BackgroundFetchedEvent: W.Event, BeforeInstallPromptEvent: W.Event, BeforeUnloadEvent: W.Event, BlobEvent: W.Event, CanMakePaymentEvent: W.Event, ClipboardEvent: W.Event, CloseEvent: W.Event, CustomEvent: W.Event, DeviceMotionEvent: W.Event, DeviceOrientationEvent: W.Event, ErrorEvent: W.Event, ExtendableEvent: W.Event, ExtendableMessageEvent: W.Event, FetchEvent: W.Event, FontFaceSetLoadEvent: W.Event, ForeignFetchEvent: W.Event, GamepadEvent: W.Event, HashChangeEvent: W.Event, InstallEvent: W.Event, MediaEncryptedEvent: W.Event, MediaKeyMessageEvent: W.Event, MediaQueryListEvent: W.Event, MediaStreamEvent: W.Event, MediaStreamTrackEvent: W.Event, MessageEvent: W.Event, MIDIConnectionEvent: W.Event, MIDIMessageEvent: W.Event, MutationEvent: W.Event, NotificationEvent: W.Event, PageTransitionEvent: W.Event, PaymentRequestEvent: W.Event, PaymentRequestUpdateEvent: W.Event, PopStateEvent: W.Event, PresentationConnectionAvailableEvent: W.Event, PresentationConnectionCloseEvent: W.Event, PromiseRejectionEvent: W.Event, PushEvent: W.Event, RTCDataChannelEvent: W.Event, RTCDTMFToneChangeEvent: W.Event, RTCPeerConnectionIceEvent: W.Event, RTCTrackEvent: W.Event, SecurityPolicyViolationEvent: W.Event, SensorErrorEvent: W.Event, SpeechRecognitionError: W.Event, SpeechRecognitionEvent: W.Event, SpeechSynthesisEvent: W.Event, StorageEvent: W.Event, SyncEvent: W.Event, TrackEvent: W.Event, TransitionEvent: W.Event, WebKitTransitionEvent: W.Event, VRDeviceEvent: W.Event, VRDisplayEvent: W.Event, VRSessionEvent: W.Event, MojoInterfaceRequestEvent: W.Event, USBConnectionEvent: W.Event, AudioProcessingEvent: W.Event, OfflineAudioCompletionEvent: W.Event, WebGLContextEvent: W.Event, Event: W.Event, InputEvent: W.Event, EventTarget: W.EventTarget, HTMLFormElement: W.FormElement, HTMLCollection: W.HtmlCollection, HTMLFormControlsCollection: W.HtmlCollection, HTMLOptionsCollection: W.HtmlCollection, XMLHttpRequest: W.HttpRequest, XMLHttpRequestEventTarget: W.HttpRequestEventTarget, HTMLImageElement: W.ImageElement, HTMLInputElement: W.InputElement, KeyboardEvent: W.KeyboardEvent, Location: W.Location, MouseEvent: W.MouseEvent, DragEvent: W.MouseEvent, PointerEvent: W.MouseEvent, WheelEvent: W.MouseEvent, Document: W.Node, DocumentFragment: W.Node, HTMLDocument: W.Node, ShadowRoot: W.Node, XMLDocument: W.Node, DocumentType: W.Node, Node: W.Node, NodeList: W.NodeList, RadioNodeList: W.NodeList, ProgressEvent: W.ProgressEvent, ResourceProgressEvent: W.ProgressEvent, HTMLSelectElement: W.SelectElement, HTMLTableCellElement: W.TableCellElement, HTMLTableDataCellElement: W.TableCellElement, HTMLTableHeaderCellElement: W.TableCellElement, HTMLTableElement: W.TableElement, HTMLTableRowElement: W.TableRowElement, HTMLTableSectionElement: W.TableSectionElement, HTMLTemplateElement: W.TemplateElement, CompositionEvent: W.UIEvent, FocusEvent: W.UIEvent, TextEvent: W.UIEvent, TouchEvent: W.UIEvent, UIEvent: W.UIEvent, Window: W.Window, DOMWindow: W.Window, Attr: W._Attr, NamedNodeMap: W._NamedNodeMap, MozNamedAttrMap: W._NamedNodeMap, IDBOpenDBRequest: P.OpenDBRequest, IDBVersionChangeRequest: P.OpenDBRequest, IDBRequest: P.Request, IDBVersionChangeEvent: P.VersionChangeEvent, SVGScriptElement: P.ScriptElement, SVGAElement: P.SvgElement, SVGAnimateElement: P.SvgElement, SVGAnimateMotionElement: P.SvgElement, SVGAnimateTransformElement: P.SvgElement, SVGAnimationElement: P.SvgElement, SVGCircleElement: P.SvgElement, SVGClipPathElement: P.SvgElement, SVGDefsElement: P.SvgElement, SVGDescElement: P.SvgElement, SVGDiscardElement: P.SvgElement, SVGEllipseElement: P.SvgElement, SVGFEBlendElement: P.SvgElement, SVGFEColorMatrixElement: P.SvgElement, SVGFEComponentTransferElement: P.SvgElement, SVGFECompositeElement: P.SvgElement, SVGFEConvolveMatrixElement: P.SvgElement, SVGFEDiffuseLightingElement: P.SvgElement, SVGFEDisplacementMapElement: P.SvgElement, SVGFEDistantLightElement: P.SvgElement, SVGFEFloodElement: P.SvgElement, SVGFEFuncAElement: P.SvgElement, SVGFEFuncBElement: P.SvgElement, SVGFEFuncGElement: P.SvgElement, SVGFEFuncRElement: P.SvgElement, SVGFEGaussianBlurElement: P.SvgElement, SVGFEImageElement: P.SvgElement, SVGFEMergeElement: P.SvgElement, SVGFEMergeNodeElement: P.SvgElement, SVGFEMorphologyElement: P.SvgElement, SVGFEOffsetElement: P.SvgElement, SVGFEPointLightElement: P.SvgElement, SVGFESpecularLightingElement: P.SvgElement, SVGFESpotLightElement: P.SvgElement, SVGFETileElement: P.SvgElement, SVGFETurbulenceElement: P.SvgElement, SVGFilterElement: P.SvgElement, SVGForeignObjectElement: P.SvgElement, SVGGElement: P.SvgElement, SVGGeometryElement: P.SvgElement, SVGGraphicsElement: P.SvgElement, SVGImageElement: P.SvgElement, SVGLineElement: P.SvgElement, SVGLinearGradientElement: P.SvgElement, SVGMarkerElement: P.SvgElement, SVGMaskElement: P.SvgElement, SVGMetadataElement: P.SvgElement, SVGPathElement: P.SvgElement, SVGPatternElement: P.SvgElement, SVGPolygonElement: P.SvgElement, SVGPolylineElement: P.SvgElement, SVGRadialGradientElement: P.SvgElement, SVGRectElement: P.SvgElement, SVGSetElement: P.SvgElement, SVGStopElement: P.SvgElement, SVGStyleElement: P.SvgElement, SVGSVGElement: P.SvgElement, SVGSwitchElement: P.SvgElement, SVGSymbolElement: P.SvgElement, SVGTSpanElement: P.SvgElement, SVGTextContentElement: P.SvgElement, SVGTextElement: P.SvgElement, SVGTextPathElement: P.SvgElement, SVGTextPositioningElement: P.SvgElement, SVGTitleElement: P.SvgElement, SVGUseElement: P.SvgElement, SVGViewElement: P.SvgElement, SVGGradientElement: P.SvgElement, SVGComponentTransferFunctionElement: P.SvgElement, SVGFEDropShadowElement: P.SvgElement, SVGMPathElement: P.SvgElement, SVGElement: P.SvgElement});
-    hunkHelpers.setOrUpdateLeafTags({CanvasGradient: true, CanvasPattern: true, DOMError: true, DOMImplementation: true, MediaError: true, NavigatorUserMediaError: true, OverconstrainedError: true, PositionError: true, Range: true, WebGLRenderingContext: true, WebGL2RenderingContext: true, SQLError: true, HTMLAudioElement: true, HTMLBRElement: true, HTMLContentElement: true, HTMLDListElement: true, HTMLDataElement: true, HTMLDataListElement: true, HTMLDetailsElement: true, HTMLDialogElement: true, HTMLEmbedElement: true, HTMLFieldSetElement: true, HTMLHRElement: true, HTMLHeadElement: true, HTMLHeadingElement: true, HTMLHtmlElement: true, HTMLIFrameElement: true, HTMLLIElement: true, HTMLLabelElement: true, HTMLLegendElement: true, HTMLLinkElement: true, HTMLMapElement: true, HTMLMediaElement: true, HTMLMenuElement: true, HTMLMetaElement: true, HTMLMeterElement: true, HTMLModElement: true, HTMLOListElement: true, HTMLObjectElement: true, HTMLOptGroupElement: true, HTMLOptionElement: true, HTMLOutputElement: true, HTMLParagraphElement: true, HTMLParamElement: true, HTMLPictureElement: true, HTMLPreElement: true, HTMLProgressElement: true, HTMLQuoteElement: true, HTMLScriptElement: true, HTMLShadowElement: true, HTMLSlotElement: true, HTMLSourceElement: true, HTMLSpanElement: true, HTMLStyleElement: true, HTMLTableCaptionElement: true, HTMLTableColElement: true, HTMLTextAreaElement: true, HTMLTimeElement: true, HTMLTitleElement: true, HTMLTrackElement: true, HTMLUListElement: true, HTMLUnknownElement: true, HTMLVideoElement: true, HTMLDirectoryElement: true, HTMLFontElement: true, HTMLFrameElement: true, HTMLFrameSetElement: true, HTMLMarqueeElement: true, HTMLElement: false, HTMLAnchorElement: true, HTMLAreaElement: true, HTMLBaseElement: true, HTMLBodyElement: true, HTMLButtonElement: true, HTMLCanvasElement: true, CanvasRenderingContext2D: true, CDATASection: true, CharacterData: true, Comment: true, ProcessingInstruction: true, Text: true, HTMLDivElement: true, DOMException: true, DOMTokenList: true, Element: false, AbortPaymentEvent: true, AnimationEvent: true, AnimationPlaybackEvent: true, ApplicationCacheErrorEvent: true, BackgroundFetchClickEvent: true, BackgroundFetchEvent: true, BackgroundFetchFailEvent: true, BackgroundFetchedEvent: true, BeforeInstallPromptEvent: true, BeforeUnloadEvent: true, BlobEvent: true, CanMakePaymentEvent: true, ClipboardEvent: true, CloseEvent: true, CustomEvent: true, DeviceMotionEvent: true, DeviceOrientationEvent: true, ErrorEvent: true, ExtendableEvent: true, ExtendableMessageEvent: true, FetchEvent: true, FontFaceSetLoadEvent: true, ForeignFetchEvent: true, GamepadEvent: true, HashChangeEvent: true, InstallEvent: true, MediaEncryptedEvent: true, MediaKeyMessageEvent: true, MediaQueryListEvent: true, MediaStreamEvent: true, MediaStreamTrackEvent: true, MessageEvent: true, MIDIConnectionEvent: true, MIDIMessageEvent: true, MutationEvent: true, NotificationEvent: true, PageTransitionEvent: true, PaymentRequestEvent: true, PaymentRequestUpdateEvent: true, PopStateEvent: true, PresentationConnectionAvailableEvent: true, PresentationConnectionCloseEvent: true, PromiseRejectionEvent: true, PushEvent: true, RTCDataChannelEvent: true, RTCDTMFToneChangeEvent: true, RTCPeerConnectionIceEvent: true, RTCTrackEvent: true, SecurityPolicyViolationEvent: true, SensorErrorEvent: true, SpeechRecognitionError: true, SpeechRecognitionEvent: true, SpeechSynthesisEvent: true, StorageEvent: true, SyncEvent: true, TrackEvent: true, TransitionEvent: true, WebKitTransitionEvent: true, VRDeviceEvent: true, VRDisplayEvent: true, VRSessionEvent: true, MojoInterfaceRequestEvent: true, USBConnectionEvent: true, AudioProcessingEvent: true, OfflineAudioCompletionEvent: true, WebGLContextEvent: true, Event: false, InputEvent: false, EventTarget: false, HTMLFormElement: true, HTMLCollection: true, HTMLFormControlsCollection: true, HTMLOptionsCollection: true, XMLHttpRequest: true, XMLHttpRequestEventTarget: false, HTMLImageElement: true, HTMLInputElement: true, KeyboardEvent: true, Location: true, MouseEvent: true, DragEvent: true, PointerEvent: true, WheelEvent: true, Document: true, DocumentFragment: true, HTMLDocument: true, ShadowRoot: true, XMLDocument: true, DocumentType: true, Node: false, NodeList: true, RadioNodeList: true, ProgressEvent: true, ResourceProgressEvent: true, HTMLSelectElement: true, HTMLTableCellElement: true, HTMLTableDataCellElement: true, HTMLTableHeaderCellElement: true, HTMLTableElement: true, HTMLTableRowElement: true, HTMLTableSectionElement: true, HTMLTemplateElement: true, CompositionEvent: true, FocusEvent: true, TextEvent: true, TouchEvent: true, UIEvent: false, Window: true, DOMWindow: true, Attr: true, NamedNodeMap: true, MozNamedAttrMap: true, IDBOpenDBRequest: true, IDBVersionChangeRequest: true, IDBRequest: false, IDBVersionChangeEvent: true, SVGScriptElement: true, SVGAElement: true, SVGAnimateElement: true, SVGAnimateMotionElement: true, SVGAnimateTransformElement: true, SVGAnimationElement: true, SVGCircleElement: true, SVGClipPathElement: true, SVGDefsElement: true, SVGDescElement: true, SVGDiscardElement: true, SVGEllipseElement: true, SVGFEBlendElement: true, SVGFEColorMatrixElement: true, SVGFEComponentTransferElement: true, SVGFECompositeElement: true, SVGFEConvolveMatrixElement: true, SVGFEDiffuseLightingElement: true, SVGFEDisplacementMapElement: true, SVGFEDistantLightElement: true, SVGFEFloodElement: true, SVGFEFuncAElement: true, SVGFEFuncBElement: true, SVGFEFuncGElement: true, SVGFEFuncRElement: true, SVGFEGaussianBlurElement: true, SVGFEImageElement: true, SVGFEMergeElement: true, SVGFEMergeNodeElement: true, SVGFEMorphologyElement: true, SVGFEOffsetElement: true, SVGFEPointLightElement: true, SVGFESpecularLightingElement: true, SVGFESpotLightElement: true, SVGFETileElement: true, SVGFETurbulenceElement: true, SVGFilterElement: true, SVGForeignObjectElement: true, SVGGElement: true, SVGGeometryElement: true, SVGGraphicsElement: true, SVGImageElement: true, SVGLineElement: true, SVGLinearGradientElement: true, SVGMarkerElement: true, SVGMaskElement: true, SVGMetadataElement: true, SVGPathElement: true, SVGPatternElement: true, SVGPolygonElement: true, SVGPolylineElement: true, SVGRadialGradientElement: true, SVGRectElement: true, SVGSetElement: true, SVGStopElement: true, SVGStyleElement: true, SVGSVGElement: true, SVGSwitchElement: true, SVGSymbolElement: true, SVGTSpanElement: true, SVGTextContentElement: true, SVGTextElement: true, SVGTextPathElement: true, SVGTextPositioningElement: true, SVGTitleElement: true, SVGUseElement: true, SVGViewElement: true, SVGGradientElement: true, SVGComponentTransferFunctionElement: true, SVGFEDropShadowElement: true, SVGMPathElement: true, SVGElement: false});
+    hunkHelpers.setOrUpdateInterceptorsByTag({CanvasGradient: J.Interceptor, CanvasPattern: J.Interceptor, DOMError: J.Interceptor, DOMImplementation: J.Interceptor, MediaError: J.Interceptor, Navigator: J.Interceptor, NavigatorConcurrentHardware: J.Interceptor, NavigatorUserMediaError: J.Interceptor, OverconstrainedError: J.Interceptor, PositionError: J.Interceptor, Range: J.Interceptor, WebGLRenderingContext: J.Interceptor, WebGL2RenderingContext: J.Interceptor, SQLError: J.Interceptor, HTMLAudioElement: W.HtmlElement, HTMLBRElement: W.HtmlElement, HTMLContentElement: W.HtmlElement, HTMLDListElement: W.HtmlElement, HTMLDataElement: W.HtmlElement, HTMLDataListElement: W.HtmlElement, HTMLDetailsElement: W.HtmlElement, HTMLDialogElement: W.HtmlElement, HTMLEmbedElement: W.HtmlElement, HTMLFieldSetElement: W.HtmlElement, HTMLHRElement: W.HtmlElement, HTMLHeadElement: W.HtmlElement, HTMLHeadingElement: W.HtmlElement, HTMLHtmlElement: W.HtmlElement, HTMLIFrameElement: W.HtmlElement, HTMLLIElement: W.HtmlElement, HTMLLabelElement: W.HtmlElement, HTMLLegendElement: W.HtmlElement, HTMLLinkElement: W.HtmlElement, HTMLMapElement: W.HtmlElement, HTMLMediaElement: W.HtmlElement, HTMLMenuElement: W.HtmlElement, HTMLMetaElement: W.HtmlElement, HTMLMeterElement: W.HtmlElement, HTMLModElement: W.HtmlElement, HTMLOListElement: W.HtmlElement, HTMLObjectElement: W.HtmlElement, HTMLOptGroupElement: W.HtmlElement, HTMLOptionElement: W.HtmlElement, HTMLOutputElement: W.HtmlElement, HTMLParagraphElement: W.HtmlElement, HTMLParamElement: W.HtmlElement, HTMLPictureElement: W.HtmlElement, HTMLPreElement: W.HtmlElement, HTMLProgressElement: W.HtmlElement, HTMLQuoteElement: W.HtmlElement, HTMLScriptElement: W.HtmlElement, HTMLShadowElement: W.HtmlElement, HTMLSlotElement: W.HtmlElement, HTMLSourceElement: W.HtmlElement, HTMLSpanElement: W.HtmlElement, HTMLStyleElement: W.HtmlElement, HTMLTableCaptionElement: W.HtmlElement, HTMLTableColElement: W.HtmlElement, HTMLTextAreaElement: W.HtmlElement, HTMLTimeElement: W.HtmlElement, HTMLTitleElement: W.HtmlElement, HTMLTrackElement: W.HtmlElement, HTMLUListElement: W.HtmlElement, HTMLUnknownElement: W.HtmlElement, HTMLVideoElement: W.HtmlElement, HTMLDirectoryElement: W.HtmlElement, HTMLFontElement: W.HtmlElement, HTMLFrameElement: W.HtmlElement, HTMLFrameSetElement: W.HtmlElement, HTMLMarqueeElement: W.HtmlElement, HTMLElement: W.HtmlElement, HTMLAnchorElement: W.AnchorElement, HTMLAreaElement: W.AreaElement, HTMLBaseElement: W.BaseElement, HTMLBodyElement: W.BodyElement, HTMLButtonElement: W.ButtonElement, HTMLCanvasElement: W.CanvasElement, CanvasRenderingContext2D: W.CanvasRenderingContext2D, CDATASection: W.CharacterData, CharacterData: W.CharacterData, Comment: W.CharacterData, ProcessingInstruction: W.CharacterData, Text: W.CharacterData, CSSStyleDeclaration: W.CssStyleDeclaration, MSStyleCSSProperties: W.CssStyleDeclaration, CSS2Properties: W.CssStyleDeclaration, HTMLDivElement: W.DivElement, DOMException: W.DomException, DOMTokenList: W.DomTokenList, Element: W.Element, AbortPaymentEvent: W.Event, AnimationEvent: W.Event, AnimationPlaybackEvent: W.Event, ApplicationCacheErrorEvent: W.Event, BackgroundFetchClickEvent: W.Event, BackgroundFetchEvent: W.Event, BackgroundFetchFailEvent: W.Event, BackgroundFetchedEvent: W.Event, BeforeInstallPromptEvent: W.Event, BeforeUnloadEvent: W.Event, BlobEvent: W.Event, CanMakePaymentEvent: W.Event, ClipboardEvent: W.Event, CloseEvent: W.Event, CustomEvent: W.Event, DeviceMotionEvent: W.Event, DeviceOrientationEvent: W.Event, ErrorEvent: W.Event, ExtendableEvent: W.Event, ExtendableMessageEvent: W.Event, FetchEvent: W.Event, FontFaceSetLoadEvent: W.Event, ForeignFetchEvent: W.Event, GamepadEvent: W.Event, HashChangeEvent: W.Event, InstallEvent: W.Event, MediaEncryptedEvent: W.Event, MediaKeyMessageEvent: W.Event, MediaQueryListEvent: W.Event, MediaStreamEvent: W.Event, MediaStreamTrackEvent: W.Event, MessageEvent: W.Event, MIDIConnectionEvent: W.Event, MIDIMessageEvent: W.Event, MutationEvent: W.Event, NotificationEvent: W.Event, PageTransitionEvent: W.Event, PaymentRequestEvent: W.Event, PaymentRequestUpdateEvent: W.Event, PopStateEvent: W.Event, PresentationConnectionAvailableEvent: W.Event, PresentationConnectionCloseEvent: W.Event, PromiseRejectionEvent: W.Event, PushEvent: W.Event, RTCDataChannelEvent: W.Event, RTCDTMFToneChangeEvent: W.Event, RTCPeerConnectionIceEvent: W.Event, RTCTrackEvent: W.Event, SecurityPolicyViolationEvent: W.Event, SensorErrorEvent: W.Event, SpeechRecognitionError: W.Event, SpeechRecognitionEvent: W.Event, SpeechSynthesisEvent: W.Event, StorageEvent: W.Event, SyncEvent: W.Event, TrackEvent: W.Event, TransitionEvent: W.Event, WebKitTransitionEvent: W.Event, VRDeviceEvent: W.Event, VRDisplayEvent: W.Event, VRSessionEvent: W.Event, MojoInterfaceRequestEvent: W.Event, USBConnectionEvent: W.Event, AudioProcessingEvent: W.Event, OfflineAudioCompletionEvent: W.Event, WebGLContextEvent: W.Event, Event: W.Event, InputEvent: W.Event, EventTarget: W.EventTarget, HTMLFormElement: W.FormElement, HTMLCollection: W.HtmlCollection, HTMLFormControlsCollection: W.HtmlCollection, HTMLOptionsCollection: W.HtmlCollection, XMLHttpRequest: W.HttpRequest, XMLHttpRequestEventTarget: W.HttpRequestEventTarget, HTMLImageElement: W.ImageElement, HTMLInputElement: W.InputElement, KeyboardEvent: W.KeyboardEvent, Location: W.Location, MouseEvent: W.MouseEvent, DragEvent: W.MouseEvent, PointerEvent: W.MouseEvent, WheelEvent: W.MouseEvent, Document: W.Node, DocumentFragment: W.Node, HTMLDocument: W.Node, ShadowRoot: W.Node, XMLDocument: W.Node, DocumentType: W.Node, Node: W.Node, NodeList: W.NodeList, RadioNodeList: W.NodeList, ProgressEvent: W.ProgressEvent, ResourceProgressEvent: W.ProgressEvent, HTMLSelectElement: W.SelectElement, HTMLTableCellElement: W.TableCellElement, HTMLTableDataCellElement: W.TableCellElement, HTMLTableHeaderCellElement: W.TableCellElement, HTMLTableElement: W.TableElement, HTMLTableRowElement: W.TableRowElement, HTMLTableSectionElement: W.TableSectionElement, HTMLTemplateElement: W.TemplateElement, CompositionEvent: W.UIEvent, FocusEvent: W.UIEvent, TextEvent: W.UIEvent, TouchEvent: W.UIEvent, UIEvent: W.UIEvent, Window: W.Window, DOMWindow: W.Window, Attr: W._Attr, NamedNodeMap: W._NamedNodeMap, MozNamedAttrMap: W._NamedNodeMap, IDBOpenDBRequest: P.OpenDBRequest, IDBVersionChangeRequest: P.OpenDBRequest, IDBRequest: P.Request, IDBVersionChangeEvent: P.VersionChangeEvent, SVGScriptElement: P.ScriptElement, SVGAElement: P.SvgElement, SVGAnimateElement: P.SvgElement, SVGAnimateMotionElement: P.SvgElement, SVGAnimateTransformElement: P.SvgElement, SVGAnimationElement: P.SvgElement, SVGCircleElement: P.SvgElement, SVGClipPathElement: P.SvgElement, SVGDefsElement: P.SvgElement, SVGDescElement: P.SvgElement, SVGDiscardElement: P.SvgElement, SVGEllipseElement: P.SvgElement, SVGFEBlendElement: P.SvgElement, SVGFEColorMatrixElement: P.SvgElement, SVGFEComponentTransferElement: P.SvgElement, SVGFECompositeElement: P.SvgElement, SVGFEConvolveMatrixElement: P.SvgElement, SVGFEDiffuseLightingElement: P.SvgElement, SVGFEDisplacementMapElement: P.SvgElement, SVGFEDistantLightElement: P.SvgElement, SVGFEFloodElement: P.SvgElement, SVGFEFuncAElement: P.SvgElement, SVGFEFuncBElement: P.SvgElement, SVGFEFuncGElement: P.SvgElement, SVGFEFuncRElement: P.SvgElement, SVGFEGaussianBlurElement: P.SvgElement, SVGFEImageElement: P.SvgElement, SVGFEMergeElement: P.SvgElement, SVGFEMergeNodeElement: P.SvgElement, SVGFEMorphologyElement: P.SvgElement, SVGFEOffsetElement: P.SvgElement, SVGFEPointLightElement: P.SvgElement, SVGFESpecularLightingElement: P.SvgElement, SVGFESpotLightElement: P.SvgElement, SVGFETileElement: P.SvgElement, SVGFETurbulenceElement: P.SvgElement, SVGFilterElement: P.SvgElement, SVGForeignObjectElement: P.SvgElement, SVGGElement: P.SvgElement, SVGGeometryElement: P.SvgElement, SVGGraphicsElement: P.SvgElement, SVGImageElement: P.SvgElement, SVGLineElement: P.SvgElement, SVGLinearGradientElement: P.SvgElement, SVGMarkerElement: P.SvgElement, SVGMaskElement: P.SvgElement, SVGMetadataElement: P.SvgElement, SVGPathElement: P.SvgElement, SVGPatternElement: P.SvgElement, SVGPolygonElement: P.SvgElement, SVGPolylineElement: P.SvgElement, SVGRadialGradientElement: P.SvgElement, SVGRectElement: P.SvgElement, SVGSetElement: P.SvgElement, SVGStopElement: P.SvgElement, SVGStyleElement: P.SvgElement, SVGSVGElement: P.SvgElement, SVGSwitchElement: P.SvgElement, SVGSymbolElement: P.SvgElement, SVGTSpanElement: P.SvgElement, SVGTextContentElement: P.SvgElement, SVGTextElement: P.SvgElement, SVGTextPathElement: P.SvgElement, SVGTextPositioningElement: P.SvgElement, SVGTitleElement: P.SvgElement, SVGUseElement: P.SvgElement, SVGViewElement: P.SvgElement, SVGGradientElement: P.SvgElement, SVGComponentTransferFunctionElement: P.SvgElement, SVGFEDropShadowElement: P.SvgElement, SVGMPathElement: P.SvgElement, SVGElement: P.SvgElement});
+    hunkHelpers.setOrUpdateLeafTags({CanvasGradient: true, CanvasPattern: true, DOMError: true, DOMImplementation: true, MediaError: true, Navigator: true, NavigatorConcurrentHardware: true, NavigatorUserMediaError: true, OverconstrainedError: true, PositionError: true, Range: true, WebGLRenderingContext: true, WebGL2RenderingContext: true, SQLError: true, HTMLAudioElement: true, HTMLBRElement: true, HTMLContentElement: true, HTMLDListElement: true, HTMLDataElement: true, HTMLDataListElement: true, HTMLDetailsElement: true, HTMLDialogElement: true, HTMLEmbedElement: true, HTMLFieldSetElement: true, HTMLHRElement: true, HTMLHeadElement: true, HTMLHeadingElement: true, HTMLHtmlElement: true, HTMLIFrameElement: true, HTMLLIElement: true, HTMLLabelElement: true, HTMLLegendElement: true, HTMLLinkElement: true, HTMLMapElement: true, HTMLMediaElement: true, HTMLMenuElement: true, HTMLMetaElement: true, HTMLMeterElement: true, HTMLModElement: true, HTMLOListElement: true, HTMLObjectElement: true, HTMLOptGroupElement: true, HTMLOptionElement: true, HTMLOutputElement: true, HTMLParagraphElement: true, HTMLParamElement: true, HTMLPictureElement: true, HTMLPreElement: true, HTMLProgressElement: true, HTMLQuoteElement: true, HTMLScriptElement: true, HTMLShadowElement: true, HTMLSlotElement: true, HTMLSourceElement: true, HTMLSpanElement: true, HTMLStyleElement: true, HTMLTableCaptionElement: true, HTMLTableColElement: true, HTMLTextAreaElement: true, HTMLTimeElement: true, HTMLTitleElement: true, HTMLTrackElement: true, HTMLUListElement: true, HTMLUnknownElement: true, HTMLVideoElement: true, HTMLDirectoryElement: true, HTMLFontElement: true, HTMLFrameElement: true, HTMLFrameSetElement: true, HTMLMarqueeElement: true, HTMLElement: false, HTMLAnchorElement: true, HTMLAreaElement: true, HTMLBaseElement: true, HTMLBodyElement: true, HTMLButtonElement: true, HTMLCanvasElement: true, CanvasRenderingContext2D: true, CDATASection: true, CharacterData: true, Comment: true, ProcessingInstruction: true, Text: true, CSSStyleDeclaration: true, MSStyleCSSProperties: true, CSS2Properties: true, HTMLDivElement: true, DOMException: true, DOMTokenList: true, Element: false, AbortPaymentEvent: true, AnimationEvent: true, AnimationPlaybackEvent: true, ApplicationCacheErrorEvent: true, BackgroundFetchClickEvent: true, BackgroundFetchEvent: true, BackgroundFetchFailEvent: true, BackgroundFetchedEvent: true, BeforeInstallPromptEvent: true, BeforeUnloadEvent: true, BlobEvent: true, CanMakePaymentEvent: true, ClipboardEvent: true, CloseEvent: true, CustomEvent: true, DeviceMotionEvent: true, DeviceOrientationEvent: true, ErrorEvent: true, ExtendableEvent: true, ExtendableMessageEvent: true, FetchEvent: true, FontFaceSetLoadEvent: true, ForeignFetchEvent: true, GamepadEvent: true, HashChangeEvent: true, InstallEvent: true, MediaEncryptedEvent: true, MediaKeyMessageEvent: true, MediaQueryListEvent: true, MediaStreamEvent: true, MediaStreamTrackEvent: true, MessageEvent: true, MIDIConnectionEvent: true, MIDIMessageEvent: true, MutationEvent: true, NotificationEvent: true, PageTransitionEvent: true, PaymentRequestEvent: true, PaymentRequestUpdateEvent: true, PopStateEvent: true, PresentationConnectionAvailableEvent: true, PresentationConnectionCloseEvent: true, PromiseRejectionEvent: true, PushEvent: true, RTCDataChannelEvent: true, RTCDTMFToneChangeEvent: true, RTCPeerConnectionIceEvent: true, RTCTrackEvent: true, SecurityPolicyViolationEvent: true, SensorErrorEvent: true, SpeechRecognitionError: true, SpeechRecognitionEvent: true, SpeechSynthesisEvent: true, StorageEvent: true, SyncEvent: true, TrackEvent: true, TransitionEvent: true, WebKitTransitionEvent: true, VRDeviceEvent: true, VRDisplayEvent: true, VRSessionEvent: true, MojoInterfaceRequestEvent: true, USBConnectionEvent: true, AudioProcessingEvent: true, OfflineAudioCompletionEvent: true, WebGLContextEvent: true, Event: false, InputEvent: false, EventTarget: false, HTMLFormElement: true, HTMLCollection: true, HTMLFormControlsCollection: true, HTMLOptionsCollection: true, XMLHttpRequest: true, XMLHttpRequestEventTarget: false, HTMLImageElement: true, HTMLInputElement: true, KeyboardEvent: true, Location: true, MouseEvent: true, DragEvent: true, PointerEvent: true, WheelEvent: true, Document: true, DocumentFragment: true, HTMLDocument: true, ShadowRoot: true, XMLDocument: true, DocumentType: true, Node: false, NodeList: true, RadioNodeList: true, ProgressEvent: true, ResourceProgressEvent: true, HTMLSelectElement: true, HTMLTableCellElement: true, HTMLTableDataCellElement: true, HTMLTableHeaderCellElement: true, HTMLTableElement: true, HTMLTableRowElement: true, HTMLTableSectionElement: true, HTMLTemplateElement: true, CompositionEvent: true, FocusEvent: true, TextEvent: true, TouchEvent: true, UIEvent: false, Window: true, DOMWindow: true, Attr: true, NamedNodeMap: true, MozNamedAttrMap: true, IDBOpenDBRequest: true, IDBVersionChangeRequest: true, IDBRequest: false, IDBVersionChangeEvent: true, SVGScriptElement: true, SVGAElement: true, SVGAnimateElement: true, SVGAnimateMotionElement: true, SVGAnimateTransformElement: true, SVGAnimationElement: true, SVGCircleElement: true, SVGClipPathElement: true, SVGDefsElement: true, SVGDescElement: true, SVGDiscardElement: true, SVGEllipseElement: true, SVGFEBlendElement: true, SVGFEColorMatrixElement: true, SVGFEComponentTransferElement: true, SVGFECompositeElement: true, SVGFEConvolveMatrixElement: true, SVGFEDiffuseLightingElement: true, SVGFEDisplacementMapElement: true, SVGFEDistantLightElement: true, SVGFEFloodElement: true, SVGFEFuncAElement: true, SVGFEFuncBElement: true, SVGFEFuncGElement: true, SVGFEFuncRElement: true, SVGFEGaussianBlurElement: true, SVGFEImageElement: true, SVGFEMergeElement: true, SVGFEMergeNodeElement: true, SVGFEMorphologyElement: true, SVGFEOffsetElement: true, SVGFEPointLightElement: true, SVGFESpecularLightingElement: true, SVGFESpotLightElement: true, SVGFETileElement: true, SVGFETurbulenceElement: true, SVGFilterElement: true, SVGForeignObjectElement: true, SVGGElement: true, SVGGeometryElement: true, SVGGraphicsElement: true, SVGImageElement: true, SVGLineElement: true, SVGLinearGradientElement: true, SVGMarkerElement: true, SVGMaskElement: true, SVGMetadataElement: true, SVGPathElement: true, SVGPatternElement: true, SVGPolygonElement: true, SVGPolylineElement: true, SVGRadialGradientElement: true, SVGRectElement: true, SVGSetElement: true, SVGStopElement: true, SVGStyleElement: true, SVGSVGElement: true, SVGSwitchElement: true, SVGSymbolElement: true, SVGTSpanElement: true, SVGTextContentElement: true, SVGTextElement: true, SVGTextPathElement: true, SVGTextPositioningElement: true, SVGTitleElement: true, SVGUseElement: true, SVGViewElement: true, SVGGradientElement: true, SVGComponentTransferFunctionElement: true, SVGFEDropShadowElement: true, SVGMPathElement: true, SVGElement: false});
   })();
   convertAllToFastObject(holders);
   convertToFastObject($);

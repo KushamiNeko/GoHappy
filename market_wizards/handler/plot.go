@@ -1,20 +1,34 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"math"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 
-	//"github.com/KushamiNeko/go_chart/data"
-
 	"github.com/KushamiNeko/go_fun/chart/data"
+	"github.com/KushamiNeko/go_fun/chart/indicator"
+	"github.com/KushamiNeko/go_fun/chart/plot"
+	"github.com/KushamiNeko/go_fun/chart/plotter"
+	"github.com/KushamiNeko/go_fun/chart/utils"
+	"github.com/KushamiNeko/go_fun/utils/pretty"
+
+	"golang.org/x/text/message"
 )
 
-//const (
-//timeFormatLong  = "20060102150405"
-//timeFormatShort = "20060102"
-//)
+func init() {
+	plot.SmallChart()
+}
+
+const (
+	timeFormatL = "20060102150405"
+	timeFormatS = "20060102"
+)
 
 type cache struct {
 	symbol    string
@@ -55,10 +69,7 @@ func (p *PlotHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
-	//var err error
-
-	//const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(time|frequency|forward|backward|info)*/*(\d{14})*/*(records)*/*(\d+)*`
-	const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(simple|refresh|forward|backward|info|inspect)*/*(\d{8}|\d{14})*/*(records)*/*(\d+)*`
+	const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(simple|refresh|forward|backward|info|inspect)/*(\d{8}|\d{14})*/*(records)*/*(\d+)*`
 
 	regex := regexp.MustCompile(pattern)
 	match := regex.FindAllStringSubmatch(r.RequestURI, -1)
@@ -67,129 +78,274 @@ func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//symbol := match[0][1]
-	//freq := data.ParseFrequency(match[0][2])
+	symbol := match[0][1]
+	freq := data.ParseFrequency(match[0][2])
 	function := match[0][3]
-	//dtime := match[0][4]
-	//showRecords := match[0][5] != ""
+	dtime := match[0][4]
+	showRecords := match[0][5] != ""
 
 	//_ = match[0][6] // version
 
-	//src := p.symbolSource(symbol)
+	var tfmt string
+	regex = regexp.MustCompile(`^\d{8}$`)
+	if regex.MatchString(dtime) {
+		tfmt = timeFormatS
+	} else {
+		tfmt = timeFormatL
+	}
+
+	dt, err := time.Parse(tfmt, dtime)
+	if err != nil {
+		panic(err)
+	}
 
 	switch function {
 	case "simple":
+		err = p.lookup(dt, symbol, freq, false)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		goto plotting
+
 	case "refresh":
+		err = p.lookup(dt, symbol, freq, true)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		goto plotting
+
 	case "forward":
-		//p.quotes.Forward()
+		p.series.Forward()
+
+		goto plotting
 
 	case "backward":
-		//p.quotes.Backward()
-	//case "frequency":
-	//case "frequency":
-	//dt, err := time.Parse(timeFormatLong, dtime)
-	//if err != nil {
-	//http.Error(w, fmt.Sprintf("invalid time parameter: %s", dtime), http.StatusNotFound)
-	//return
-	//}
+		p.series.Backward()
 
-	//err = p.lookup(src, dt, symbol, freq)
-	//if err != nil {
-	//http.Error(w, err.Error(), http.StatusInternalServerError)
-	//return
-	//}
+		goto plotting
+
 	case "info":
-		//if dtime == "" {
-		//http.Error(w, "missing time parameter", http.StatusNotFound)
-		//return
-		//}
+		if p.series == nil {
+			http.NotFound(w, r)
+			return
+		}
 
-		//dt, err := time.Parse(timeFormatLong, dtime)
-		//if err != nil {
-		//http.Error(w, fmt.Sprintf("invalid time parameter: %s", dtime), http.StatusNotFound)
-		//return
-		//}
+		data := struct {
+			Time  string
+			Open  float64
+			High  float64
+			Low   float64
+			Close float64
+			//Volume   float64
+			//Interest float64
+		}{
+			Time:  p.series.EndTime().Format(timeFormatS),
+			Open:  p.series.EndValue("open"),
+			High:  p.series.EndValue("high"),
+			Low:   p.series.EndValue("low"),
+			Close: p.series.EndValue("close"),
+			//Volume:   p.series.EndValue("volume"),
+			//Interest: p.series.EndValue("openinterest"),
+		}
 
-		//err = p.lookup(src, dt, symbol, freq)
-		//if err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//return
-		//}
+		jd, err := json.Marshal(&data)
+		if err != nil {
+			pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-		//start, end := p.chartPeriod(dt, freq)
+		_, err = w.Write(jd)
+		if err != nil {
+			pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+		}
 
-		//p.quotes.TimeSlice(start, end)
-
+		return
 	case "inspect":
-		//var err error
-		//var tf string
+		if p.series == nil {
+			http.NotFound(w, r)
+			return
+		}
 
-		//if freq == data.Hourly {
-		//tf = "20060102 15:04:05"
-		//} else {
-		//tf = "20060102"
-		//}
+		snx := r.URL.Query().Get("x")
+		sny := r.URL.Query().Get("y")
 
-		//msg := fmt.Sprintf(
-		//"%s  %s  %s    O:%.2f  H:%.2f  L:%.2f  C:%.2f",
-		//p.quotes.SliceEndTime().Format(tf),
-		//strings.ToUpper(symbol),
-		//strings.ToUpper(freq.FullString()),
-		//p.quotes.SliceEndQuote().Open(),
-		//p.quotes.SliceEndQuote().High(),
-		//p.quotes.SliceEndQuote().Low(),
-		//p.quotes.SliceEndQuote().Close(),
-		//)
+		x, y, err := p.inverseXY(snx, sny)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-		//if !math.IsNaN(p.quotes.SliceEndQuote().Volume()) && p.quotes.SliceEndQuote().Volume() != 0 {
-		//msg = fmt.Sprintf("%s  V:%.0f", msg, p.quotes.SliceEndQuote().Volume())
-		//}
+		msn := message.NewPrinter(message.MatchLanguage("en"))
 
-		//if !math.IsNaN(p.quotes.SliceEndQuote().OpenInterest()) && p.quotes.SliceEndQuote().OpenInterest() != 0 {
-		//msg = fmt.Sprintf("%s  OI:%.0f", msg, p.quotes.SliceEndQuote().OpenInterest())
-		//}
+		is := fmt.Sprintf(
+			"time: %s\nprice: %s\nopen: %s\nhigh: %s\nlow: %s\nclose: %s\nvolume: %s\ninterest: %s\n",
+			p.series.Times()[x].Format("2006-01-02"),
+			msn.Sprintf("%.2f", y),
+			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "open", 0)),
+			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "high", 0)),
+			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "low", 0)),
+			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "close", 0)),
+			msn.Sprintf("%.0f", p.series.ValueAtIndex(x, "volume", 0)),
+			msn.Sprintf("%.0f", p.series.ValueAtIndex(x, "openinterest", 0)),
+		)
 
-		//_, err = w.Write([]byte(msg))
-		//if err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//return
-		//}
+		sanx := r.URL.Query().Get("ax")
+		sany := r.URL.Query().Get("ay")
 
-		//return
+		if sanx != "" && sany != "" {
+			ax, ay, err := p.inverseXY(sanx, sany)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 
+			dt := p.series.Times()[x]
+			da := p.series.Times()[ax]
+
+			d := dt.Sub(da)
+			days := int(math.Ceil(d.Hours() / 24))
+
+			is = fmt.Sprintf(
+				"%sdiff(days): %s\ndiff($): %s\ndiff(%%): %s\n",
+				is,
+				msn.Sprintf("%d", days),
+				msn.Sprintf("%.2f", y-ay),
+				msn.Sprintf("%.2f", ((y-ay)/ay)*100.0),
+			)
+		}
+
+		_, err = w.Write([]byte(is))
+		if err != nil {
+			pretty.ColorPrintln(pretty.PaperRed500, err.Error())
+			return
+		}
+
+		return
 	default:
 		http.Error(w, fmt.Sprintf("unknown function: %s", function), http.StatusNotFound)
 		return
 	}
 
-	//if showRecords {
-	//err = p.recordsLookup(symbol)
-	//if err != nil {
-	//http.Error(w, err.Error(), http.StatusInternalServerError)
-	//return
-	//}
-	//}
+plotting:
 
-	//var buffer bytes.Buffer
+	var buffer bytes.Buffer
 
-	//err = p.plot(&buffer, p.quotes, freq, showRecords)
-	//if err != nil {
-	//http.Error(w, err.Error(), http.StatusInternalServerError)
-	//return
-	//}
+	err = p.plot(&buffer, freq, showRecords)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	//w.Header().Add("Cache-Control", "no-cache")
-	//w.Header().Add("Cache-Control", "no-store")
+	w.Header().Add("Cache-Control", "no-cache")
+	w.Header().Add("Cache-Control", "no-store")
 
-	//_, err = w.Write(buffer.Bytes())
-	//if err != nil {
-	//log.Println(err.Error())
-	//return
-	//}
+	_, err = w.Write(buffer.Bytes())
+	if err != nil {
+		pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+		return
+	}
 }
 
-func (p *PlotHandler) lookup(src data.DataSource, dt time.Time, symbol string, freq data.Frequency) error {
+func inverseX(min, max, nx float64) float64 {
+	/*
 
+			linear scale function
+
+		  func (LinearScale) Normalize(min, max, x float64) float64 {
+				return (x - min) / (max - min)
+		  }
+
+			math of inverse linear scale
+
+		  y = (x - min) / (max - min)
+		  y * (max - min) = (x - min)
+		  (y * (max - min)) + min = x
+
+	*/
+
+	const wm = 0.032817628
+
+	r := (max - min) / (1.0 - wm)
+	return (nx - wm) * r
+}
+
+func inverseY(min, max, ny float64) float64 {
+
+	/*
+
+		log scale function
+
+		func (LogScale) Normalize(min, max, x float64) float64 {
+			if min <= 0 || max <= 0 || x <= 0 {
+				panic("Values must be greater than 0 for a log scale.")
+			}
+
+			logMin := math.Log(min)
+			return (math.Log(x) - logMin) / (math.Log(max) - logMin)
+		}
+
+		math of inverse log scale
+
+		y = (log x - log min) / (log max - log min)
+		y * (log max - log min) = (log x - log min)
+		(y * (log max - log min)) + log min = log x
+		e ^ ((y * (log max - log min)) + log min) = x
+
+	*/
+
+	const hm = 0.025
+
+	r := 1.0 / (1.0 - hm)
+	ly := (ny - hm) * r
+
+	logMin := math.Log(min)
+	logMax := math.Log(max)
+
+	return math.Exp(
+		(ly * (logMax - logMin)) + logMin,
+	)
+}
+
+func (p *PlotHandler) inverseXY(snx, sny string) (int, float64, error) {
+	nx, err := strconv.ParseFloat(snx, 64)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	ny, err := strconv.ParseFloat(sny, 64)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	ymin, ymax := utils.RangeExtend(
+		utils.Min(p.series.Values("low")),
+		utils.Max(p.series.Values("high")),
+		25.0,
+	)
+
+	x := int(math.Round(inverseX(-0.5, float64(len(p.series.Times()))-0.5, nx)))
+	if x < 0 {
+		x = 0
+	} else if x > len(p.series.Times())-1 {
+		x = len(p.series.Times()) - 1
+	}
+
+	y := inverseY(ymin, ymax, ny)
+	if y < ymin {
+		y = ymin
+	} else if y > ymax {
+		y = ymax
+	}
+
+	return x, y, nil
+}
+
+func (p *PlotHandler) lookup(dt time.Time, symbol string, freq data.Frequency, timeSliced bool) error {
 	start, end := p.chartPeriod(dt, freq)
 
 	for _, q := range p.store {
@@ -197,11 +353,18 @@ func (p *PlotHandler) lookup(src data.DataSource, dt time.Time, symbol string, f
 
 			if (start.After(q.exstart) || start.Equal(q.exstart)) && (end.Before(q.exend) || end.Equal(q.exend)) {
 				p.series = q.series
+
+				if timeSliced {
+					p.series.TimeSlice(start, end)
+				}
+
 				return nil
 			}
 
 		}
 	}
+
+	src := p.symbolSource(symbol)
 
 	exstart := start.Add(-500 * 24 * time.Hour)
 	exend := end.Add(500 * 24 * time.Hour)
@@ -211,7 +374,19 @@ func (p *PlotHandler) lookup(src data.DataSource, dt time.Time, symbol string, f
 		return err
 	}
 
-	//ts.TimeSlice(start, end)
+	ts.SetColumn("sma5", indicator.SimpleMovingAverge(ts.FullValues("close"), 5))
+	ts.SetColumn("sma20", indicator.SimpleMovingAverge(ts.FullValues("close"), 20))
+
+	ts.SetColumn("bb+15", indicator.BollingerBand(ts.FullValues("close"), 20, 1.5))
+	ts.SetColumn("bb-15", indicator.BollingerBand(ts.FullValues("close"), 20, -1.5))
+	ts.SetColumn("bb+20", indicator.BollingerBand(ts.FullValues("close"), 20, 2.0))
+	ts.SetColumn("bb-20", indicator.BollingerBand(ts.FullValues("close"), 20, -2.0))
+	ts.SetColumn("bb+25", indicator.BollingerBand(ts.FullValues("close"), 20, 2.5))
+	ts.SetColumn("bb-25", indicator.BollingerBand(ts.FullValues("close"), 20, -2.5))
+	ts.SetColumn("bb+30", indicator.BollingerBand(ts.FullValues("close"), 20, 3.0))
+	ts.SetColumn("bb-30", indicator.BollingerBand(ts.FullValues("close"), 20, -3.0))
+
+	ts.TimeSlice(start, end)
 
 	p.store = append(
 		p.store,
@@ -296,198 +471,119 @@ func (p *PlotHandler) chartPeriod(end time.Time, freq data.Frequency) (time.Time
 	return s, end
 }
 
-//func (p *PlotHandler) recordsLookup(symbol string) error {
+func (p *PlotHandler) plot(out io.Writer, freq data.Frequency, showRecords bool) error {
 
-//switch symbol[:2] {
-//case "es":
-//symbol = "es"
-//case "qr":
-//symbol = "rty"
-//case "zn":
-//symbol = "ty"
-//case "ge":
-//symbol = "ed"
-//default:
-//return fmt.Errorf("unknown symbol: %s", symbol)
-//}
+	pt := &plot.Plot{}
+	err := pt.Init()
+	if err != nil {
+		return err
+	}
 
-//root := filepath.Join(os.Getenv("HOME"), "Documents/database/json/market_wizards")
+	pt.AddTickMarker(
+		&plotter.TimeTicker{
+			TimeSeries: p.series,
+			Frequency:  freq,
+		},
+		&plotter.PriceTicker{
+			TimeSeries: p.series,
+			Step:       20,
+		},
+		plot.ThemeColor("ColorTick"),
+		plot.ChartConfig("TickFontSize"),
+	)
 
-//files, err := ioutil.ReadDir(root)
-//if err != nil {
-//return err
-//}
+	pt.AddPlotter(
+		plotter.GridPlotter(
+			plot.ChartConfig("GridLineWidth"),
+			plot.ThemeColor("ColorGrid"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("sma5"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorSMA1"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("sma20"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorSMA2"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb+15"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB1"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb-15"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB1"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb+20"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB2"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb-20"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB2"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb+25"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB3"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb-25"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB3"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb+30"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB4"),
+		),
+		plotter.LinePlotter(
+			p.series.Values("bb-30"),
+			plot.ChartConfig("LineWidth"),
+			plot.ThemeColor("ColorBB4"),
+		),
+		&plotter.CandleStick{
+			TimeSeries:   p.series,
+			ColorUp:      plot.ThemeColor("ColorUp"),
+			ColorDown:    plot.ThemeColor("ColorDown"),
+			ColorNeutral: plot.ThemeColor("ColorNeutral"),
+			BodyWidth:    plot.ChartConfig("CandleBodyWidth"),
+			ShadowWidth:  plot.ChartConfig("CandleShadowWidth"),
+		},
+	)
 
-//tcss := make([][]*model.FuturesTransaction, 0)
-//rds := make([]*data.TradeRecord, 0)
+	if showRecords {
+		//pt.AddPlotter(
+		//&plotter.TradesRecorder{
+		//TimeSeries: p.series,
+		//Records:    rs,
+		//FontSize:   plot.ChartConfig("RecordsFontSize"),
+		//Color:      plot.ThemeColor("ColorText"),
+		//},
+		//)
+	}
 
-//for _, file := range files {
+	ymin, ymax := utils.RangeExtend(
+		utils.Min(p.series.Values("low")),
+		utils.Max(p.series.Values("high")),
+		25.0,
+	)
 
-//if m, _ := regexp.MatchString(`(?:paper|live)_trading_[a-zA-Z0-9]+\.json`, file.Name()); !m {
-//continue
-//}
+	pt.YRange(ymin, ymax)
 
-//path := filepath.Join(root, file.Name())
-//ctn, err := ioutil.ReadFile(path)
-//if err != nil {
-//return err
-//}
+	err = pt.Plot(
+		out,
+		plot.ChartConfig("ChartWidth"),
+		plot.ChartConfig("ChartHeight"),
+	)
+	if err != nil {
+		return err
+	}
 
-//dbs := make([]map[string]string, 0)
-
-//err = json.Unmarshal(ctn, &dbs)
-//if err != nil {
-//return err
-//}
-
-//if len(dbs) == 0 {
-//return nil
-//}
-
-//tcs := make([]*model.FuturesTransaction, len(dbs))
-
-//for i, db := range dbs {
-//tc, err := model.NewFuturesTransactionFromEntity(db)
-//if err != nil {
-//return err
-//}
-
-//tcs[i] = tc
-//}
-
-//if symbol != tcs[0].Symbol() {
-//continue
-//}
-
-//tcss = append(tcss, tcs)
-//}
-
-//sort.Slice(tcss, func(i, j int) bool {
-//f := tcss[i][int((len(tcss[i])-1)/2.0)].Time()
-//s := tcss[j][int((len(tcss[j])-1)/2.0)].Time()
-
-//return f.Year() < s.Year()
-//})
-
-//for _, tcs := range tcss {
-//for _, tc := range tcs {
-//s := (tc.Time().After(p.quotes.SliceStartTime()) || tc.Time().Equal(p.quotes.SliceStartTime()))
-//e := (tc.Time().Before(p.quotes.SliceEndTime()) || tc.Time().Equal(p.quotes.SliceEndTime()))
-
-//if s && e {
-//rds = append(rds, data.NewTradeRecord(tc.Time(), tc.Operation()))
-//}
-//}
-//}
-
-//p.records = rds
-
-//return nil
-//}
-
-//func (p *PlotHandler) plot(out io.Writer, qs *data.Quotes, freq data.Frequency, showRecords bool) error {
-
-//err := qs.NewPlot(config.ColorBackground)
-//if err != nil {
-//return err
-//}
-
-//qs.AddTickMarker(
-//&plotter.TimeTicker{
-//Quotes:    qs,
-//Frequency: freq,
-//},
-//&plotter.PriceTicker{
-//Quotes: qs,
-//},
-//config.ColorTick,
-//config.FontSize,
-//)
-
-//qs.AddPlotter(
-//utils.GridPlotter(
-//utils.PixelsToPoints(config.GridLineWidth),
-//config.ColorGrid,
-//),
-//utils.LinePlotter(
-//indicator.SimpleMovingAverge(qs, 5),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorSMA5,
-//),
-//utils.LinePlotter(
-//indicator.SimpleMovingAverge(qs, 20),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorSMA20,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, 1.5),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB15,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, 2),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB20,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, 2.5),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB25,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, 3),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB30,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, -1.5),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB15,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, -2),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB20,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, -2.5),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB25,
-//),
-//utils.LinePlotter(
-//indicator.BollingerBand(qs, 20, -3),
-//utils.PixelsToPoints(config.LineWidth),
-//config.ColorBB30,
-//),
-//&plotter.CandleStick{
-//Quotes:       qs,
-//ColorUp:      config.ColorUp,
-//ColorDown:    config.ColorDown,
-//ColorNeutral: config.ColorNeutral,
-//BodyWidth:    config.CandleBodyWidth,
-//ShadowWidth:  config.CandleShadowWidth,
-//},
-//)
-
-//if p.records != nil && showRecords {
-//qs.AddPlotter(
-//&plotter.TradesRecorder{
-//Quotes:   qs,
-//Records:  p.records,
-//FontSize: config.FontSize,
-//Color:    config.ColorRecord,
-//},
-//)
-//}
-
-//err = qs.Plot(
-//out,
-//utils.PixelsToPoints(config.ChartWidth),
-//utils.PixelsToPoints(config.ChartHeight),
-//)
-//if err != nil {
-//return err
-//}
-
-//return nil
-//}
+	return nil
+}
