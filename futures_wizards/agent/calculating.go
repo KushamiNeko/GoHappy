@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/KushamiNeko/futures_wizards/utils"
+	"github.com/KushamiNeko/go_fun/utils/input"
 )
 
 type CalculatingAgent struct{}
@@ -53,7 +53,7 @@ func (c *CalculatingAgent) validateInputs(inputs map[string]string, keys []strin
 }
 
 func (c *CalculatingAgent) Profit(inputs map[string]string) (float64, error) {
-	n := utils.InputsAbbreviation(
+	n := input.InputsAbbreviation(
 		inputs,
 		map[string]string{
 			"p": "price",
@@ -85,7 +85,7 @@ func (c *CalculatingAgent) Profit(inputs map[string]string) (float64, error) {
 }
 
 func (c *CalculatingAgent) Stop(inputs map[string]string) (float64, error) {
-	n := utils.InputsAbbreviation(
+	n := input.InputsAbbreviation(
 		inputs,
 		map[string]string{
 			"p": "price",
@@ -117,7 +117,7 @@ func (c *CalculatingAgent) Stop(inputs map[string]string) (float64, error) {
 }
 
 func (c *CalculatingAgent) Depth(inputs map[string]string) (float64, error) {
-	n := utils.InputsAbbreviation(
+	n := input.InputsAbbreviation(
 		inputs,
 		map[string]string{
 			"s": "start",

@@ -5,8 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/KushamiNeko/futures_wizards/config"
+	"github.com/KushamiNeko/go_fun/utils/foreign"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/futures_wizards/config"
 )
 
 type Pages interface {
@@ -61,7 +62,7 @@ func (p *Page) Main() {
 }
 
 func (p *Page) readCommand() (string, error) {
-	cmd := pretty.ColorInput(
+	cmd := foreign.ColorInput(
 		config.ColorCommand,
 		fmt.Sprintf("command: '%s'", strings.Join(p.actions, "' '")),
 	)

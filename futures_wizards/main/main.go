@@ -2,17 +2,25 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
-	"github.com/KushamiNeko/futures_wizards/config"
-	"github.com/KushamiNeko/futures_wizards/context"
-	"github.com/KushamiNeko/futures_wizards/database"
-	"github.com/KushamiNeko/futures_wizards/view"
+	"github.com/KushamiNeko/go_fun/utils/database"
+	"github.com/KushamiNeko/go_fun/utils/foreign"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/futures_wizards/config"
+	"github.com/KushamiNeko/go_happy/futures_wizards/context"
+	"github.com/KushamiNeko/go_happy/futures_wizards/view"
 )
 
 func main() {
-	db := database.NewJsonDB(false)
+	db := database.NewFileDB(
+		filepath.Join(
+			os.Getenv("HOME"),
+			"Documents/database/yaml/futures_wizards"),
+		database.YamlEngine,
+	)
+
 	ctx := context.NewContext(db)
 
 	var err error
@@ -21,7 +29,7 @@ func main() {
 
 	pretty.ColorPrintln(config.ColorInfo, "Welcome to Futures Wizards Wealthy Interface")
 
-	user := pretty.ColorInput(config.ColorWhite, "user name:")
+	user := foreign.ColorInput(config.ColorWhite, "user name:")
 	user = strings.TrimSpace(user)
 
 	err = ctx.Login(user)

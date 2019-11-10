@@ -3,11 +3,11 @@ package view
 import (
 	"fmt"
 
-	"github.com/KushamiNeko/futures_wizards/agent"
-	"github.com/KushamiNeko/futures_wizards/config"
-	"github.com/KushamiNeko/futures_wizards/context"
-	"github.com/KushamiNeko/futures_wizards/utils"
+	"github.com/KushamiNeko/go_fun/utils/input"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/futures_wizards/agent"
+	"github.com/KushamiNeko/go_happy/futures_wizards/config"
+	"github.com/KushamiNeko/go_happy/futures_wizards/context"
 )
 
 type Calculator struct {
@@ -45,7 +45,7 @@ func NewCalculator(ctx *context.Context) *Calculator {
 }
 
 func (c *Calculator) cmdProfit() error {
-	inputs, err := utils.KeyValueInput(
+	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
 		"calculating profit target: (price, %, operation)",
 	)
@@ -64,7 +64,7 @@ func (c *Calculator) cmdProfit() error {
 }
 
 func (c *Calculator) cmdStop() error {
-	inputs, err := utils.KeyValueInput(
+	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
 		"calculating stop target: (price, %, operation)",
 	)
@@ -83,7 +83,7 @@ func (c *Calculator) cmdStop() error {
 }
 
 func (c *Calculator) cmdDepth() error {
-	inputs, err := utils.KeyValueInput(
+	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
 		"calculating depth: (start, end)",
 	)

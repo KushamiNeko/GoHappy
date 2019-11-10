@@ -3,12 +3,12 @@ package view
 import (
 	"fmt"
 
-	"github.com/KushamiNeko/futures_wizards/agent"
-	"github.com/KushamiNeko/futures_wizards/config"
-	"github.com/KushamiNeko/futures_wizards/context"
-	"github.com/KushamiNeko/futures_wizards/model"
-	"github.com/KushamiNeko/futures_wizards/utils"
+	"github.com/KushamiNeko/go_fun/trading/model"
+	"github.com/KushamiNeko/go_fun/utils/input"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/futures_wizards/agent"
+	"github.com/KushamiNeko/go_happy/futures_wizards/config"
+	"github.com/KushamiNeko/go_happy/futures_wizards/context"
 )
 
 type Trading struct {
@@ -139,9 +139,9 @@ func (t *Trading) cmdReading() error {
 }
 
 func (t *Trading) cmdNewBook() error {
-	inputs, err := utils.KeyValueInput(
+	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
-		"create a new trading book: (date, note)",
+		"create a new trading book: (time, note, version)",
 	)
 	if err != nil {
 		return err
@@ -158,7 +158,7 @@ func (t *Trading) cmdNewBook() error {
 }
 
 func (t *Trading) cmdChangeBook() error {
-	inputs, err := utils.KeyValueInput(
+	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
 		"change to another book: (index)",
 	)
@@ -177,9 +177,9 @@ func (t *Trading) cmdChangeBook() error {
 }
 
 func (t *Trading) cmdNewTransaction() error {
-	inputs, err := utils.KeyValueInput(
+	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
-		"new transaction: (date, symbol, operation, quantity, price, note)",
+		"new transaction: (time, symbol, operation, quantity, price, note)",
 	)
 	if err != nil {
 		return err
@@ -290,7 +290,7 @@ func (t *Trading) cmdStatistic() error {
 }
 
 func (t *Trading) cmdPlot() error {
-	//inputs, err := utils.KeyValueInput(
+	//inputs, err := input.KeyValueInput(
 	//config.ColorInfo,
 	//"plot candlestick: (period, file)",
 	//)
@@ -303,7 +303,7 @@ func (t *Trading) cmdPlot() error {
 }
 
 func (t *Trading) cmdPlotAll() error {
-	//inputs, err := utils.KeyValueInput(
+	//inputs, err := input.KeyValueInput(
 	//config.ColorInfo,
 	//"plot all books: (folder)",
 	//)

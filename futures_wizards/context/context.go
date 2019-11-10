@@ -3,9 +3,9 @@ package context
 import (
 	"fmt"
 
-	"github.com/KushamiNeko/futures_wizards/config"
-	"github.com/KushamiNeko/futures_wizards/model"
-	"github.com/KushamiNeko/futures_wizards/utils"
+	"github.com/KushamiNeko/go_fun/trading/model"
+	"github.com/KushamiNeko/go_fun/utils/hashutils"
+	"github.com/KushamiNeko/go_happy/futures_wizards/config"
 )
 
 type database interface {
@@ -84,7 +84,7 @@ func (c *Context) NewUser(name string) error {
 	}
 
 	if len(es) == 0 {
-		user := model.NewUser(name, utils.RandString(config.IdLen))
+		user := model.NewUser(name, hashutils.RandString(config.IdLen))
 
 		c.db.Insert(
 			config.DbAdmin,
