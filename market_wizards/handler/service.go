@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -46,7 +47,7 @@ type cache struct {
 	series *data.TimeSeries
 }
 
-type PlotHandler struct {
+type ServiceHandler struct {
 	store  []*cache
 	rstore map[string][]*model.FuturesTransaction
 	nstore map[string][]*model.TradingNote
@@ -56,36 +57,45 @@ type PlotHandler struct {
 	notes   []*model.TradingNote
 }
 
-func (p *PlotHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (p *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if p.store == nil {
 		p.store = make([]*cache, 0, 6)
 	}
 
 	if p.rstore == nil {
 		p.rstore = make(map[string][]*model.FuturesTransaction)
+	}
+
+	if p.nstore == nil {
 		p.nstore = make(map[string][]*model.TradingNote)
 	}
 
 	switch r.Method {
 
 	case http.MethodGet:
-		const pattern = `/plot/practice/.+`
-		regex := regexp.MustCompile(pattern)
+		var regex *regexp.Regexp
 
-		if !regex.MatchString(r.RequestURI) {
-			http.NotFound(w, r)
+		regex = regexp.MustCompile(`/service/plot/practice/.+`)
+		if regex.MatchString(r.RequestURI) {
+			p.getPlot(w, r)
 			return
 		}
 
-		p.get(w, r)
+		regex = regexp.MustCompile(`/service/record/note/.+`)
+		if regex.MatchString(r.RequestURI) {
+			p.getNote(w, r)
+			return
+		}
+
+		http.NotFound(w, r)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 }
 
-func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
-	const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(simple|refresh|forward|backward|info|inspect)/*(\d{8}|\d{14})*/*(records)*/*([a-zA-Z0-9_-]+)*`
+func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
+	const pattern = `/plot/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(simple|refresh|forward|backward|info|inspect)/*(\d{8}|\d{14})*/*(records)*/*([a-zA-Z0-9_-]+)*`
 
 	regex := regexp.MustCompile(pattern)
 	match := regex.FindAllStringSubmatch(r.RequestURI, -1)
@@ -255,6 +265,12 @@ plotting:
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		err = p.notesLookup(book)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	var buffer bytes.Buffer
@@ -275,7 +291,54 @@ plotting:
 	}
 }
 
-func (p *PlotHandler) recordsLookup(book, symbol string) error {
+func (p *ServiceHandler) getNote(w http.ResponseWriter, r *http.Request) {
+	if p.series == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	const pattern = `/record/note/([a-zA-Z0-9_-]+)`
+	regex := regexp.MustCompile(pattern)
+
+	m := regex.FindAllStringSubmatch(r.RequestURI, -1)
+	if m == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	book := m[0][1]
+
+	p.notesLookup(book)
+
+	snx := r.URL.Query().Get("x")
+	sny := r.URL.Query().Get("y")
+
+	x, _, err := p.inverseXY(snx, sny)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	dt := p.series.Times()[x]
+
+	for _, n := range p.notes {
+		if n.Time().Equal(dt) {
+			_, err = w.Write([]byte(n.Note()))
+			if err != nil {
+				pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+				return
+			}
+		}
+	}
+
+	_, err = w.Write([]byte(""))
+	if err != nil {
+		pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+		return
+	}
+}
+
+func (p *ServiceHandler) recordsLookup(book, symbol string) error {
 	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb")
 
 	var (
@@ -283,9 +346,7 @@ func (p *PlotHandler) recordsLookup(book, symbol string) error {
 		err  error
 
 		rse []map[string]string
-		nse []map[string]string
-
-		ok bool
+		ok  bool
 	)
 
 	_, ok = p.rstore[book]
@@ -311,6 +372,14 @@ func (p *PlotHandler) recordsLookup(book, symbol string) error {
 			rs = append(rs, t)
 		}
 
+		sort.Slice(rs, func(i, j int) bool {
+			if rs[i].Time().Equal(rs[j].Time()) {
+				return rs[i].TimeStamp() < rs[j].TimeStamp()
+			} else {
+				return rs[i].Time().Before(rs[j].Time())
+			}
+		})
+
 		p.rstore[book] = rs
 	}
 
@@ -322,9 +391,23 @@ func (p *PlotHandler) recordsLookup(book, symbol string) error {
 	}
 	p.records = rs
 
+	return nil
+}
+
+func (p *ServiceHandler) notesLookup(book string) error {
+	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb")
+
+	var (
+		data []byte
+		err  error
+
+		nse []map[string]string
+		ok  bool
+	)
+
 	_, ok = p.nstore[book]
 	if !ok {
-		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.json", book)))
+		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.yaml", book)))
 		if err != nil {
 			return err
 		}
@@ -347,6 +430,7 @@ func (p *PlotHandler) recordsLookup(book, symbol string) error {
 
 		p.nstore[book] = ns
 	}
+
 	p.notes = p.nstore[book]
 
 	return nil
@@ -412,7 +496,7 @@ func inverseY(min, max, ny float64) float64 {
 	)
 }
 
-func (p *PlotHandler) inverseXY(snx, sny string) (int, float64, error) {
+func (p *ServiceHandler) inverseXY(snx, sny string) (int, float64, error) {
 	nx, err := strconv.ParseFloat(snx, 64)
 	if err != nil {
 		return 0, 0, err
@@ -446,7 +530,7 @@ func (p *PlotHandler) inverseXY(snx, sny string) (int, float64, error) {
 	return x, y, nil
 }
 
-func (p *PlotHandler) lookup(dt time.Time, symbol string, freq data.Frequency, timeSliced bool) error {
+func (p *ServiceHandler) lookup(dt time.Time, symbol string, freq data.Frequency, timeSliced bool) error {
 	start, end := p.chartPeriod(dt, freq)
 
 	for _, q := range p.store {
@@ -505,7 +589,7 @@ func (p *PlotHandler) lookup(dt time.Time, symbol string, freq data.Frequency, t
 	return nil
 }
 
-func (p *PlotHandler) symbolSource(symbol string) data.DataSource {
+func (p *ServiceHandler) symbolSource(symbol string) data.DataSource {
 	const pattern = `^[a-zA-Z]+$`
 	regex := regexp.MustCompile(pattern)
 
@@ -516,7 +600,7 @@ func (p *PlotHandler) symbolSource(symbol string) data.DataSource {
 	}
 }
 
-func (p *PlotHandler) chartPeriod(end time.Time, freq data.Frequency) (time.Time, time.Time) {
+func (p *ServiceHandler) chartPeriod(end time.Time, freq data.Frequency) (time.Time, time.Time) {
 	var s time.Time
 
 	switch freq {
@@ -572,7 +656,7 @@ func (p *PlotHandler) chartPeriod(end time.Time, freq data.Frequency) (time.Time
 	return s, end
 }
 
-func (p *PlotHandler) plot(out io.Writer, freq data.Frequency, showRecords bool) error {
+func (p *ServiceHandler) plot(out io.Writer, freq data.Frequency, showRecords bool) error {
 
 	pt := &plot.Plot{}
 	err := pt.Init()
@@ -669,6 +753,7 @@ func (p *PlotHandler) plot(out io.Writer, freq data.Frequency, showRecords bool)
 			&plotter.TradesRecorder{
 				TimeSeries: p.series,
 				Records:    p.records,
+				Notes:      p.notes,
 				FontSize:   plot.ChartConfig("RecordsFontSize"),
 				Color:      plot.ThemeColor("ColorText"),
 			},

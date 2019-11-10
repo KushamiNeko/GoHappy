@@ -2064,6 +2064,9 @@
     contains$1$asx: function(receiver, a0) {
       return J.getInterceptor$asx(receiver).contains$1(receiver, a0);
     },
+    contains$2$asx: function(receiver, a0, a1) {
+      return J.getInterceptor$asx(receiver).contains$2(receiver, a0, a1);
+    },
     elementAt$1$ax: function(receiver, a0) {
       return J.getInterceptor$ax(receiver).elementAt$1(receiver, a0);
     },
@@ -3055,6 +3058,9 @@
     FormatException$: function(message, source) {
       return new P.FormatException(message, source);
     },
+    print: function(object) {
+      H.printString(H.S(object));
+    },
     bool: function bool() {
     },
     DateTime: function DateTime(t0, t1) {
@@ -3146,6 +3152,29 @@
     },
     StringBuffer: function StringBuffer(t0) {
       this._contents = t0;
+    },
+    Device_isOpera: function() {
+      var t1 = $.Device__isOpera;
+      return t1 == null ? $.Device__isOpera = J.contains$2$asx(window.navigator.userAgent, "Opera", 0) : t1;
+    },
+    Device_cssPrefix: function() {
+      var t1,
+        prefix = $.Device__cachedCssPrefix;
+      if (prefix != null)
+        return prefix;
+      t1 = $.Device__isFirefox;
+      if (t1 == null ? $.Device__isFirefox = J.contains$2$asx(window.navigator.userAgent, "Firefox", 0) : t1)
+        prefix = "-moz-";
+      else {
+        t1 = $.Device__isIE;
+        if (t1 == null)
+          t1 = $.Device__isIE = !H.boolConversionCheck(P.Device_isOpera()) && J.contains$2$asx(window.navigator.userAgent, "Trident/", 0);
+        if (t1)
+          prefix = "-ms-";
+        else
+          prefix = H.boolConversionCheck(P.Device_isOpera()) ? "-o-" : "-webkit-";
+      }
+      return $.Device__cachedCssPrefix = prefix;
     },
     CssClassSetImpl: function CssClassSetImpl() {
     },
@@ -3678,6 +3707,7 @@
       _._$symbol = t2;
       _._book = "stocks_2018";
       _._$book = t3;
+      _._server$_note = "";
       _._$note = t4;
       _._function = "refresh";
       _._server$_showRecords = false;
@@ -6171,6 +6201,29 @@
     }
   };
   W.CssStyleDeclaration.prototype = {
+    _browserPropertyName$1: function(receiver, propertyName) {
+      var t1 = $.$get$CssStyleDeclaration__propertyCache(),
+        $name = t1[propertyName];
+      if (typeof $name === "string")
+        return $name;
+      $name = this._supportedBrowserPropertyName$1(receiver, propertyName);
+      t1[propertyName] = $name;
+      return $name;
+    },
+    _supportedBrowserPropertyName$1: function(receiver, propertyName) {
+      var prefixed;
+      if (propertyName.replace(/^-ms-/, "ms-").replace(/-([\da-z])/ig, function(_, letter) {
+        return letter.toUpperCase();
+      }) in receiver)
+        return propertyName;
+      prefixed = P.Device_cssPrefix() + propertyName;
+      if (prefixed in receiver)
+        return prefixed;
+      return propertyName;
+    },
+    _setPropertyHelper$3: function(receiver, propertyName, value, priority) {
+      receiver.setProperty(propertyName, value, priority);
+    },
     get$length: function(receiver) {
       return receiver.length;
     }
@@ -7545,9 +7598,7 @@
       t1._$symbol.add$1(0, t1._symbol);
       t4.add$1(0, t1._frequency);
       t5.add$1(0, t1._book);
-      t5 = t1._$note;
-      t1.toString;
-      t5.add$1(0, "");
+      t1._$note.add$1(0, t1._server$_note);
       t2.add$1(0, t1._server$_showRecords);
       for (t1 = _this._symbols, _i = 0; _i < 6; ++_i)
         _this._addSymbol$1(t1[_i]);
@@ -7723,10 +7774,12 @@
       t2._frequency = t5;
       t2._time = t4;
       if (t2._server$_showRecords) {
-        t3 = P.RegExp_RegExp("^[a-z_0-9]$");
+        P.print(t6);
+        t3 = P.RegExp_RegExp("^[a-zA-Z_0-9]+$");
         if (typeof t6 !== "string")
           H.throwExpression(H.argumentErrorValue(t6));
         H.assertHelper(t3._nativeRegExp.test(t6));
+        P.print("assert");
         t2._book = t6;
       }
       t2.getChart$0();
@@ -7806,7 +7859,7 @@
       t2 = t1._chartInputs;
       if (t2.isFocus$0())
         return;
-      H.printString(H.S($event.which));
+      P.print($event.which);
       t3 = $event.which;
       if (typeof t3 !== "number")
         return t3.$ge();
@@ -7867,8 +7920,11 @@
             if (t1._note$_isOpen)
               t1.close$0(0);
             else {
-              t2 = t1._note$_container.style;
-              t2.bottom = "0px";
+              t2 = t1._note$_container;
+              t3 = t2.style;
+              t3.bottom = "0px";
+              t2 = t2.style;
+              C.CssStyleDeclaration_methods._setPropertyHelper$3(t2, (t2 && C.CssStyleDeclaration_methods)._browserPropertyName$1(t2, "opacity"), "1", "");
               t1._note$_isOpen = true;
             }
             break;
@@ -7937,28 +7993,33 @@
     },
     close$0: function(_) {
       var t1 = this._note$_container,
-        t2 = t1.style;
-      t1 = t1.clientHeight;
-      if (typeof t1 !== "number")
-        return t1.$negate();
-      t1 = "" + -t1 + "px";
-      t2.bottom = t1;
+        t2 = t1.style,
+        t3 = t1.clientHeight;
+      if (typeof t3 !== "number")
+        return t3.$negate();
+      t3 = "" + -t3 + "px";
+      t2.bottom = t3;
+      t1 = t1.style;
+      C.CssStyleDeclaration_methods._setPropertyHelper$3(t1, (t1 && C.CssStyleDeclaration_methods)._browserPropertyName$1(t1, "opacity"), "0", "");
       this._note$_isOpen = false;
     }
   };
   F.Note_closure.prototype = {
     call$1: function(note) {
-      var t1 = this.$this,
+      var t1, t2;
+      if (!J.$eq$(note, "")) {
+        t1 = this.$this;
         t2 = t1._note$_content;
-      (t2 && C.DivElement_methods).setInnerHtml$1(t2, H.stringTypeCheck(note));
-      if (!t1._note$_isOpen) {
-        t1 = t1._note$_container;
-        t2 = t1.style;
-        t1 = t1.clientHeight;
-        if (typeof t1 !== "number")
-          return t1.$negate();
-        t1 = "" + -t1 + "px";
-        t2.bottom = t1;
+        (t2 && C.DivElement_methods).setInnerHtml$1(t2, H.stringTypeCheck(note));
+        if (!t1._note$_isOpen) {
+          t1 = t1._note$_container;
+          t2 = t1.style;
+          t1 = t1.clientHeight;
+          if (typeof t1 !== "number")
+            return t1.$negate();
+          t1 = "" + -t1 + "px";
+          t2.bottom = t1;
+        }
       }
     },
     $signature: 0
@@ -7976,7 +8037,7 @@
     _requestUrl$0: function() {
       var _this = this,
         t1 = window.location,
-        url = (t1 && C.Location_methods).get$origin(t1) + "/plot/practice/" + H.S(_this._symbol) + "/" + H.S(_this._frequency) + "/" + _this._function + "/" + H.S(_this._time);
+        url = (t1 && C.Location_methods).get$origin(t1) + "/service/plot/practice/" + H.S(_this._symbol) + "/" + H.S(_this._frequency) + "/" + _this._function + "/" + H.S(_this._time);
       return (_this._server$_showRecords ? url + "/records/" + H.S(_this._book) : url) + "?timestemp=" + Date.now();
     },
     infoRequest$0: function() {
@@ -8030,6 +8091,7 @@
                 $async$goto = 1;
                 break;
               }
+              $async$self.noteRequest$2(x, y);
               $async$self._function = "inspect";
               url = $async$self._requestUrl$0() + "&x=" + H.S(x) + "&y=" + H.S(y);
               $async$temp1 = $async$self._$chartInspect;
@@ -8047,6 +8109,37 @@
     },
     inspectRequest$2: function(x, y) {
       return this.inspectRequest$4$ax$ay(x, y, null, null);
+    },
+    noteRequest$2: function(x, y) {
+      var $async$goto = 0,
+        $async$completer = P._makeAsyncAwaitCompleter(null),
+        $async$returnValue, $async$self = this, t1, note;
+      var $async$noteRequest$2 = P._wrapJsFunctionForAsync(function($async$errorCode, $async$result) {
+        if ($async$errorCode === 1)
+          return P._asyncRethrow($async$result, $async$completer);
+        while (true)
+          switch ($async$goto) {
+            case 0:
+              // Function start
+              if ($async$self._working) {
+                // goto return
+                $async$goto = 1;
+                break;
+              }
+              t1 = window.location;
+              $async$goto = 3;
+              return P._asyncAwait(W.HttpRequest_getString((t1 && C.Location_methods).get$origin(t1) + "/service/record/note/" + H.S($async$self._book) + "?timestemp=" + Date.now() + "&x=" + H.S(x) + "&y=" + H.S(y)), $async$noteRequest$2);
+            case 3:
+              // returning from await.
+              note = $async$result;
+              $async$self._server$_note = note;
+              $async$self._$note.add$1(0, note);
+            case 1:
+              // return
+              return P._asyncReturn($async$returnValue, $async$completer);
+          }
+      });
+      return P._asyncStartSync($async$noteRequest$2, $async$completer);
     },
     getChart$0: function() {
       var _this = this;
@@ -8244,6 +8337,7 @@
     var makeConstList = hunkHelpers.makeConstList;
     C.BodyElement_methods = W.BodyElement.prototype;
     C.CanvasElement_methods = W.CanvasElement.prototype;
+    C.CssStyleDeclaration_methods = W.CssStyleDeclaration.prototype;
     C.DivElement_methods = W.DivElement.prototype;
     C.HttpRequest_methods = W.HttpRequest.prototype;
     C.Interceptor_methods = J.Interceptor.prototype;
@@ -8410,6 +8504,10 @@
     $.Element__defaultValidator = null;
     $.Element__defaultSanitizer = null;
     $._Html5NodeValidator__attributeValidators = P.LinkedHashMap_LinkedHashMap$_empty(P.String, P.Function);
+    $.Device__isOpera = null;
+    $.Device__isIE = null;
+    $.Device__isFirefox = null;
+    $.Device__cachedCssPrefix = null;
     $.Server__server = null;
   })();
   (function lazyInitializers() {
@@ -8486,6 +8584,9 @@
     });
     _lazy($, "_AsyncRun__scheduleImmediateClosure", "$get$_AsyncRun__scheduleImmediateClosure", function() {
       return P._AsyncRun__initializeScheduleImmediate();
+    });
+    _lazy($, "CssStyleDeclaration__propertyCache", "$get$CssStyleDeclaration__propertyCache", function() {
+      return {};
     });
     _lazy($, "_Html5NodeValidator__allowedElements", "$get$_Html5NodeValidator__allowedElements", function() {
       return P.LinkedHashSet_LinkedHashSet$from(["A", "ABBR", "ACRONYM", "ADDRESS", "AREA", "ARTICLE", "ASIDE", "AUDIO", "B", "BDI", "BDO", "BIG", "BLOCKQUOTE", "BR", "BUTTON", "CANVAS", "CAPTION", "CENTER", "CITE", "CODE", "COL", "COLGROUP", "COMMAND", "DATA", "DATALIST", "DD", "DEL", "DETAILS", "DFN", "DIR", "DIV", "DL", "DT", "EM", "FIELDSET", "FIGCAPTION", "FIGURE", "FONT", "FOOTER", "FORM", "H1", "H2", "H3", "H4", "H5", "H6", "HEADER", "HGROUP", "HR", "I", "IFRAME", "IMG", "INPUT", "INS", "KBD", "LABEL", "LEGEND", "LI", "MAP", "MARK", "MENU", "METER", "NAV", "NOBR", "OL", "OPTGROUP", "OPTION", "OUTPUT", "P", "PRE", "PROGRESS", "Q", "S", "SAMP", "SECTION", "SELECT", "SMALL", "SOURCE", "SPAN", "STRIKE", "STRONG", "SUB", "SUMMARY", "SUP", "TABLE", "TBODY", "TD", "TEXTAREA", "TFOOT", "TH", "THEAD", "TIME", "TR", "TRACK", "TT", "U", "UL", "VAR", "VIDEO", "WBR"], P.String);

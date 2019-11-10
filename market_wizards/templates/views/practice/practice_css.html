@@ -368,8 +368,11 @@ body {
   position: absolute;
   bottom: -100vh;
   will-change: bottom;
-  -webkit-transition: bottom 0.05s ease;
-  transition: bottom 0.05s ease;
+  -webkit-transition: bottom 0.1s ease;
+  transition: bottom 0.1s ease;
+  will-change: opacity;
+  -webkit-transition: opacity 0.1s ease;
+  transition: opacity 0.1s ease;
   background-color: rgba(13, 71, 161, 0.8);
   border-radius: 1.5em;
 }
@@ -377,9 +380,9 @@ body {
 .-note-content {
   font-family: "Ubuntu", sans-serif;
   -webkit-font-smoothing: antialiased;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 20px;
+  line-height: 24px;
   color: white;
   word-wrap: break-word;
   overflow-wrap: break-word;

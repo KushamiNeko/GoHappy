@@ -129,7 +129,9 @@ class Server {
     _time = time;
 
     if (_showRecords) {
-      assert(new RegExp(r"^[a-z_0-9]$").hasMatch(book));
+      print(book);
+      assert(new RegExp(r"^[a-zA-Z_0-9]+$").hasMatch(book));
+      print("assert");
       _book = book;
     }
 
@@ -138,7 +140,7 @@ class Server {
 
   String _requestUrl() {
     var url =
-        "${window.location.origin}/plot/practice/${_symbol}/${_frequency}/${_function}/${_time}";
+        "${window.location.origin}/service/plot/practice/${_symbol}/${_frequency}/${_function}/${_time}";
 
     if (_showRecords) {
       url = "${url}/records/${_book}";
@@ -172,6 +174,8 @@ class Server {
       return;
     }
 
+    noteRequest(x, y);
+
     _function = "inspect";
     var url = _requestUrl();
 
@@ -191,7 +195,7 @@ class Server {
       return;
     }
 
-    var url = "${window.location.origin}/records/practice/${_book}";
+    var url = "${window.location.origin}/service/record/note/${_book}";
     url = "${url}?timestemp=${new DateTime.now().millisecondsSinceEpoch}";
     url = "${url}&x=${x}&y=${y}";
 

@@ -19,10 +19,12 @@ class Note {
     close();
 
     _server.$note.listen((note) {
-      _content.innerHtml = note;
+      if (note != "") {
+        _content.innerHtml = note;
 
-      if (!_isOpen) {
-        _container.style.bottom = "${-_container.clientHeight}px";
+        if (!_isOpen) {
+          _container.style.bottom = "${-_container.clientHeight}px";
+        }
       }
     });
   }
@@ -31,11 +33,13 @@ class Note {
 
   void open() {
     _container.style.bottom = "0px";
+    _container.style.opacity = "1";
     _isOpen = true;
   }
 
   void close() {
     _container.style.bottom = "${-_container.clientHeight}px";
+    _container.style.opacity = "0";
     _isOpen = false;
   }
 }

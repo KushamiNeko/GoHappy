@@ -17,7 +17,7 @@ func main() {
 
 	mux.Handle("/view/", &handler.ViewHandler{})
 
-	mux.Handle("/plot/", &handler.PlotHandler{})
+	mux.Handle("/service/", &handler.ServiceHandler{})
 
 	mux.HandleFunc("/resources/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, filepath.Join("./market_wizards", r.RequestURI))

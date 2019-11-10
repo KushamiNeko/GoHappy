@@ -8,14 +8,15 @@
   width: 100%;
   position: absolute;
   bottom: -100vh;
-  @include will-change(bottom, 0.05s, ease);
+  @include will-change(bottom, 0.1s, ease);
+  @include will-change(opacity, 0.1s, ease);
   background-color: rgba($paper-blue-900, 0.8);
   border-radius: 1.5em;
 }
 
 .-note-content {
   @include my-style-font-family;
-  @include font-body1;
+  @include font-subhead;
   color: white;
   word-wrap: break-word;
   overflow-wrap: break-word;
