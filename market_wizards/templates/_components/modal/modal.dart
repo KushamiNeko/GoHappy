@@ -33,7 +33,7 @@ class Modal {
     _modal.classes.remove("${_cls}-modal-open");
     _content.classes.remove("${_cls}-modal-content-open");
     _childElement.remove();
-    _parentElement.children.add(_childElement);
+    _parentElement.children.insert(0, _childElement);
     _isOpen = false;
   }
 }

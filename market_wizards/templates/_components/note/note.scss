@@ -1,0 +1,25 @@
+@import "../../_common_scss/material_design_style/layout";
+@import "../../_common_scss/material_design_style/colors";
+@import "../../_common_scss/my_style/_my_style.scss";
+@import "../../_common_scss/common/_common.scss";
+
+.-note {
+  z-index: 10;
+  width: 100%;
+  position: absolute;
+  bottom: -100vh;
+  @include will-change(bottom, 0.05s, ease);
+  background-color: rgba($paper-blue-900, 0.8);
+  border-radius: 1.5em;
+}
+
+.-note-content {
+  @include my-style-font-family;
+  @include font-body1;
+  color: white;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  margin: 1em;
+  opacity: $dark-primary-opacity;
+}

@@ -7,6 +7,33 @@
   class="{{.Class}}-trade-inputs-container"
 >
   <div class="{{.Class}}-trade-inputs-set">
+    <span class="{{.Class}}-trade-inputs-label">book</span>
+    <input
+      id="{{.ID}}-trade-inputs-book"
+      type="text"
+      class="{{.Class}}-trade-inputs-text"
+    />
+  </div>
+
+  <div class="{{.Class}}-trade-inputs-set">
+    <span class="{{.Class}}-trade-inputs-label">time</span>
+    <input
+      id="{{.ID}}-trade-inputs-time"
+      type="text"
+      class="{{.Class}}-trade-inputs-text"
+    />
+  </div>
+
+  <div class="{{.Class}}-trade-inputs-set">
+    <span class="{{.Class}}-trade-inputs-label">symbol</span>
+    <input
+      id="{{.ID}}-trade-inputs-symbol"
+      type="text"
+      class="{{.Class}}-trade-inputs-text"
+    />
+  </div>
+
+  <div class="{{.Class}}-trade-inputs-set">
     <span class="{{.Class}}-trade-inputs-label">price</span>
     <input
       id="{{.ID}}-trade-inputs-price"
@@ -28,7 +55,7 @@
     <span class="{{.Class}}-trade-inputs-label">operation</span>
     <div class="{{.Class}}-trade-inputs-operation-btns-container">
       <button
-        id="{{.ID}}-trade-inputs-button"
+        id="{{.ID}}-trade-inputs-increase"
         class="{{.Class}}-trade-inputs-operation-btn"
       >
         <i class="material-icons {{.Class}}-trade-inputs-operation-icon">
@@ -36,7 +63,7 @@
         </i>
       </button>
       <button
-        id="{{.ID}}-trade-inputs-button"
+        id="{{.ID}}-trade-inputs-decrease"
         class="{{.Class}}-trade-inputs-operation-btn"
       >
         <i class="material-icons {{.Class}}-trade-inputs-operation-icon">
@@ -46,18 +73,18 @@
     </div>
   </div>
 
-  <div class="{{.Class}}-trade-inputs-set">
-    <span class="{{.Class}}-trade-inputs-label">note</span>
-    <textarea
-      id="{{.ID}}-trade-inputs-note"
-      class="{{.Class}}-trade-inputs-text"
-      rows="10"
-    ></textarea>
-  </div>
+  <!--<div class="{{.Class}}-trade-inputs-set">-->
+  <!--<span class="{{.Class}}-trade-inputs-label">note</span>-->
+  <!--<textarea-->
+  <!--id="{{.ID}}-trade-inputs-note"-->
+  <!--class="{{.Class}}-trade-inputs-text"-->
+  <!--rows="10"-->
+  <!--></textarea>-->
+  <!--</div>-->
 
   <button
-    id="{{.ID}}-trade-inputs-button"
-    class="{{.Class}}-trade-inputs-button"
+    id="{{.ID}}-trade-inputs-ok"
+    class="{{.Class}}-trade-inputs-btn"
   >
     ok
   </button>

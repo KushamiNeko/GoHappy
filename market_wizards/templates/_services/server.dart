@@ -10,9 +10,13 @@ class Server {
   StreamController<String> _$frequency;
 
   String _symbol = "esz19";
+  StreamController<String> _$symbol;
 
-  String _version = "1";
-  StreamController<String> _$version;
+  String _book = "stocks_2018";
+  StreamController<String> _$book;
+
+  String _note = "";
+  StreamController<String> _$note;
 
   String _function = "refresh";
 
@@ -39,9 +43,11 @@ class Server {
 
   Server._internal()
       : _$time = StreamController.broadcast(),
+        _$symbol = StreamController.broadcast(),
         _$frequency = StreamController.broadcast(),
         _$showRecords = StreamController.broadcast(),
-        _$version = StreamController.broadcast(),
+        _$book = StreamController.broadcast(),
+        _$note = StreamController.broadcast(),
         _$chartUrl = StreamController.broadcast(),
         _$chartInspect = StreamController.broadcast(),
         _$info = StreamController.broadcast() {
@@ -52,8 +58,10 @@ class Server {
   }
 
   Stream get $time => _$time.stream;
+  Stream get $symbol => _$symbol.stream;
   Stream get $frequency => _$frequency.stream;
-  Stream get $version => _$version.stream;
+  Stream get $book => _$book.stream;
+  Stream get $note => _$note.stream;
   Stream get $showRecords => _$showRecords.stream;
 
   Stream get $chartUrl => _$chartUrl.stream;
@@ -62,8 +70,10 @@ class Server {
 
   void broadcast() {
     _$time.add(_time);
+    _$symbol.add(_symbol);
     _$frequency.add(_frequency);
-    _$version.add(_version);
+    _$book.add(_book);
+    _$note.add(_note);
     _$showRecords.add(_showRecords);
   }
 
@@ -91,6 +101,7 @@ class Server {
     _function = "refresh";
 
     _symbol = symbol;
+    _$symbol.add(symbol);
 
     getChart();
   }
@@ -106,7 +117,7 @@ class Server {
   }
 
   void inputsRequest(String symbol, String time, String freq,
-      {String version = "1"}) {
+      {String book = "1"}) {
     assert(new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$").hasMatch(symbol));
     assert(new RegExp(r"h|d|w|m").hasMatch(freq));
     assert(new RegExp(r"^\d{8}$").hasMatch(time));
@@ -118,8 +129,8 @@ class Server {
     _time = time;
 
     if (_showRecords) {
-      assert(new RegExp(r"^\d+$").hasMatch(version));
-      _version = version;
+      assert(new RegExp(r"^[a-z_0-9]$").hasMatch(book));
+      _book = book;
     }
 
     getChart();
@@ -130,7 +141,7 @@ class Server {
         "${window.location.origin}/plot/practice/${_symbol}/${_frequency}/${_function}/${_time}";
 
     if (_showRecords) {
-      url = "${url}/records/${_version}";
+      url = "${url}/records/${_book}";
     }
 
     url = "${url}?timestemp=${new DateTime.now().millisecondsSinceEpoch}";
@@ -173,6 +184,20 @@ class Server {
     var info = await HttpRequest.getString(url);
 
     _$chartInspect.add(info);
+  }
+
+  void noteRequest(num x, num y) async {
+    if (_working) {
+      return;
+    }
+
+    var url = "${window.location.origin}/records/practice/${_book}";
+    url = "${url}?timestemp=${new DateTime.now().millisecondsSinceEpoch}";
+    url = "${url}&x=${x}&y=${y}";
+
+    var note = await HttpRequest.getString(url);
+    _note = note;
+    _$note.add(note);
   }
 
   void getChart() {

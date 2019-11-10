@@ -1,6 +1,7 @@
 import "dart:html";
 import "../_components/chart_inputs/chart_inputs.dart";
 import "../_components/modal/modal.dart";
+import "../_components/note/note.dart";
 import "../_components/navbar/navbar.dart";
 import "../_components/sidebar/sidebar.dart";
 import "server.dart";
@@ -13,9 +14,12 @@ class MainControl {
   final Sidebar _sidebar;
   final Modal _modal;
 
+  final Note _note;
+
   bool _isFullScreen = false;
 
-  MainControl(this._navbar, this._sidebar, this._modal, this._chartInputs)
+  MainControl(
+      this._navbar, this._sidebar, this._modal, this._chartInputs, this._note)
       : _server = new Server() {
     window.onKeyDown.listen((KeyboardEvent event) {
       if (_chartInputs.isFocus()) {
@@ -70,6 +74,7 @@ class MainControl {
   }
 
   void _keyPressSwitch(KeyboardEvent event) {
+    print(event.which);
     if (event.which >= 49 && event.which <= 57) {
       //1-9 number keys
       _chartInputs.symbolIndex(event.which - 49);
@@ -101,6 +106,14 @@ class MainControl {
             _modal.close();
           } else {
             _modal.open();
+          }
+          break;
+        case (110):
+          // n
+          if (_note.isOpen) {
+            _note.close();
+          } else {
+            _note.open();
           }
           break;
         default:

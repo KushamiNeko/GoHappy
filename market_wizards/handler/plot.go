@@ -5,10 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/KushamiNeko/go_fun/chart/data"
@@ -16,7 +20,9 @@ import (
 	"github.com/KushamiNeko/go_fun/chart/plot"
 	"github.com/KushamiNeko/go_fun/chart/plotter"
 	"github.com/KushamiNeko/go_fun/chart/utils"
+	"github.com/KushamiNeko/go_fun/trading/model"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"gopkg.in/yaml.v2"
 
 	"golang.org/x/text/message"
 )
@@ -42,12 +48,22 @@ type cache struct {
 
 type PlotHandler struct {
 	store  []*cache
-	series *data.TimeSeries
+	rstore map[string][]*model.FuturesTransaction
+	nstore map[string][]*model.TradingNote
+
+	series  *data.TimeSeries
+	records []*model.FuturesTransaction
+	notes   []*model.TradingNote
 }
 
 func (p *PlotHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if p.store == nil {
 		p.store = make([]*cache, 0, 6)
+	}
+
+	if p.rstore == nil {
+		p.rstore = make(map[string][]*model.FuturesTransaction)
+		p.nstore = make(map[string][]*model.TradingNote)
 	}
 
 	switch r.Method {
@@ -69,7 +85,7 @@ func (p *PlotHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
-	const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(simple|refresh|forward|backward|info|inspect)/*(\d{8}|\d{14})*/*(records)*/*(\d+)*`
+	const pattern = `/practice/([a-zA-Z0-9]+)/(h|d|w|m)/(simple|refresh|forward|backward|info|inspect)/*(\d{8}|\d{14})*/*(records)*/*([a-zA-Z0-9_-]+)*`
 
 	regex := regexp.MustCompile(pattern)
 	match := regex.FindAllStringSubmatch(r.RequestURI, -1)
@@ -84,7 +100,7 @@ func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
 	dtime := match[0][4]
 	showRecords := match[0][5] != ""
 
-	//_ = match[0][6] // version
+	book := match[0][6]
 
 	var tfmt string
 	regex = regexp.MustCompile(`^\d{8}$`)
@@ -233,6 +249,14 @@ func (p *PlotHandler) get(w http.ResponseWriter, r *http.Request) {
 
 plotting:
 
+	if showRecords {
+		err = p.recordsLookup(book, symbol)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	var buffer bytes.Buffer
 
 	err = p.plot(&buffer, freq, showRecords)
@@ -249,6 +273,83 @@ plotting:
 		pretty.ColorPrintln(pretty.PaperRed400, err.Error())
 		return
 	}
+}
+
+func (p *PlotHandler) recordsLookup(book, symbol string) error {
+	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb")
+
+	var (
+		data []byte
+		err  error
+
+		rse []map[string]string
+		nse []map[string]string
+
+		ok bool
+	)
+
+	_, ok = p.rstore[book]
+	if !ok {
+		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.json", book)))
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(data, &rse)
+		if err != nil {
+			return err
+		}
+
+		rs := make([]*model.FuturesTransaction, 0, len(rse))
+
+		for _, e := range rse {
+			t, err := model.NewFuturesTransactionFromEntity(e)
+			if err != nil {
+				return err
+			}
+
+			rs = append(rs, t)
+		}
+
+		p.rstore[book] = rs
+	}
+
+	rs := make([]*model.FuturesTransaction, 0, len(p.rstore[book]))
+	for _, r := range p.rstore[book] {
+		if strings.Contains(symbol, r.Symbol()) {
+			rs = append(rs, r)
+		}
+	}
+	p.records = rs
+
+	_, ok = p.nstore[book]
+	if !ok {
+		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.json", book)))
+		if err != nil {
+			return err
+		}
+
+		err = yaml.Unmarshal(data, &nse)
+		if err != nil {
+			return err
+		}
+
+		ns := make([]*model.TradingNote, 0, len(nse))
+
+		for _, e := range nse {
+			n, err := model.NewTradingNoteFromEntity(e)
+			if err != nil {
+				return err
+			}
+
+			ns = append(ns, n)
+		}
+
+		p.nstore[book] = ns
+	}
+	p.notes = p.nstore[book]
+
+	return nil
 }
 
 func inverseX(min, max, nx float64) float64 {
@@ -564,14 +665,14 @@ func (p *PlotHandler) plot(out io.Writer, freq data.Frequency, showRecords bool)
 	)
 
 	if showRecords {
-		//pt.AddPlotter(
-		//&plotter.TradesRecorder{
-		//TimeSeries: p.series,
-		//Records:    rs,
-		//FontSize:   plot.ChartConfig("RecordsFontSize"),
-		//Color:      plot.ThemeColor("ColorText"),
-		//},
-		//)
+		pt.AddPlotter(
+			&plotter.TradesRecorder{
+				TimeSeries: p.series,
+				Records:    p.records,
+				FontSize:   plot.ChartConfig("RecordsFontSize"),
+				Color:      plot.ThemeColor("ColorText"),
+			},
+		)
 	}
 
 	ymin, ymax := utils.RangeExtend(

@@ -143,6 +143,8 @@ func (p *Processor) Process() error {
 	nfs := make([]string, 0, len(caches))
 	cfs := make([]string, 0, len(caches))
 
+	sc := make(map[string]bool)
+
 	for k, _ := range caches {
 		stat, err := os.Stat(k)
 		if err != nil {
@@ -165,6 +167,12 @@ func (p *Processor) Process() error {
 		if p.isShadowFile(k) {
 			if diff {
 				shadowChanged = true
+
+				ext := filepath.Ext(k)
+				if _, ok := sc[ext]; !ok {
+					sc[ext] = true
+				}
+
 				err = cacheFile(k)
 				if err != nil {
 					return err
@@ -179,9 +187,21 @@ func (p *Processor) Process() error {
 		}
 	}
 
-	if !p.Initialized || shadowChanged {
+	//if !p.Initialized || shadowChanged {
+	//for _, f := range nfs {
+	//p.operate(f)
+	//}
+	if !p.Initialized {
 		for _, f := range nfs {
 			p.operate(f)
+		}
+	} else if shadowChanged {
+		for ext, _ := range sc {
+			for _, f := range nfs {
+				if filepath.Ext(f) == ext {
+					p.operate(f)
+				}
+			}
 		}
 	} else {
 		for _, c := range cfs {

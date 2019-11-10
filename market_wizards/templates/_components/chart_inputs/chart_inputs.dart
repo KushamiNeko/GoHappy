@@ -6,7 +6,7 @@ class ChartInputs {
 
   final InputElement _itime;
   final InputElement _ifreq;
-  final InputElement _iversion;
+  final InputElement _ibook;
 
   final TableSectionElement _tsymbols;
   final InputElement _isymbol;
@@ -41,13 +41,13 @@ class ChartInputs {
         _bsymbol = querySelector("#${id}-chart-inputs-symbol-button"),
         _itime = querySelector("#${id}-chart-inputs-time"),
         _ifreq = querySelector("#${id}-chart-inputs-frequency"),
-        _iversion = querySelector("#${id}-chart-inputs-version"),
+        _ibook = querySelector("#${id}-chart-inputs-book"),
         _btn = querySelector("#${id}-chart-inputs-button") {
     _server.$showRecords.listen((show) {
       if (show) {
-        _iversion.parent.classes.remove("${cls}-chart-inputs-text-hidden");
+        _ibook.parent.classes.remove("${cls}-chart-inputs-text-hidden");
       } else {
-        _iversion.parent.classes.add("${cls}-chart-inputs-text-hidden");
+        _ibook.parent.classes.add("${cls}-chart-inputs-text-hidden");
       }
     });
 
@@ -59,8 +59,8 @@ class ChartInputs {
       _ifreq.value = freq;
     });
 
-    _server.$version.listen((verison) {
-      _iversion.value = verison;
+    _server.$book.listen((book) {
+      _ibook.value = book;
     });
 
     _server.broadcast();
@@ -92,7 +92,7 @@ class ChartInputs {
 
     _btn.onClick.listen((MouseEvent event) {
       _server.inputsRequest(_selectedCell.innerHtml, _itime.value, _ifreq.value,
-          version: _iversion.value);
+          book: _ibook.value);
 
       _btn.blur();
     });
@@ -150,7 +150,7 @@ class ChartInputs {
         focused == _bsymbol ||
         focused == _isymbol ||
         focused == _ifreq ||
-        focused == _iversion ||
+        focused == _ibook ||
         focused == _btn);
   }
 }

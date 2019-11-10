@@ -15,19 +15,9 @@
 
 .-trade-inputs-container {
   @include layout-vertical;
-  @include layout-around-justified;
+  @include layout-start-justified;
 }
 
-//.-trade-inputs-separator {
-//@include my-style-separator;
-//background-color: white;
-//width: 85%;
-//color: white;
-//}
-
-//.-trade-inputs-table {
-//cursor: pointer;
-//}
 
 .-trade-inputs-set {
   @include font-body1;
@@ -84,24 +74,16 @@
   margin-bottom: 0.25em;
 }
 
-.-trade-inputs-button {
+.-trade-inputs-btn {
   @include btn;
-  //@include font-button;
-  //@include my-style-font-family;
-  //@include h-margin;
-  //@include border-outline;
-  //color: white;
-  //background-color: $paper-blue-grey-700;
-  //margin-top: 1em;
-  //margin-bottom: 0.25em;
 }
 
-.-trade-inputs-button:focus,
-.-trade-inputs-button:hover {
+.-trade-inputs-btn:focus,
+.-trade-inputs-btn:hover {
   background-color: $paper-grey-500;
 }
 
-.-trade-inputs-button:active {
+.-trade-inputs-btn:active {
   color: black;
   background-color: $paper-grey-200;
 }
@@ -129,5 +111,5 @@
 }
 
 .-trade-inputs-operation-btn-selected {
-  background-color: $paper-amber-400;
+  background-color: $paper-amber-600;
 }

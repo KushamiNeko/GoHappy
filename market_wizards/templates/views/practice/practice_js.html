@@ -916,6 +916,15 @@
         return value;
       H.propertyTypeCastError(value, property);
     },
+    stringSuperNativeTypeCheck: function(value, property) {
+      if (value == null)
+        return value;
+      if (typeof value === "string")
+        return value;
+      if (J.getInterceptor$(value)[property])
+        return value;
+      H.propertyTypeError(value, property);
+    },
     listTypeCheck: function(value) {
       if (value == null)
         return value;
@@ -1679,6 +1688,13 @@
         return regexp;
       throw H.wrapException(P.FormatException$("Illegal RegExp pattern (" + String(regexp) + ")", source));
     },
+    _MatchImplementation$: function(pattern, _match) {
+      var t1 = _match.input;
+      H.assertHelper(typeof t1 === "string");
+      t1 = _match.index;
+      H.assertHelper(typeof t1 === "number" && Math.floor(t1) === t1);
+      return new H._MatchImplementation(_match);
+    },
     stringContainsUnchecked: function(receiver, other, startIndex) {
       var t1 = receiver.indexOf(other, startIndex);
       return t1 >= 0;
@@ -1784,11 +1800,31 @@
       _._nativeRegExp = t1;
       _._nativeAnchoredRegExp = _._nativeGlobalRegExp = null;
     },
+    _MatchImplementation: function _MatchImplementation(t0) {
+      this._match = t0;
+    },
     extractKeys: function(victim) {
       return J.JSArray_JSArray$markFixed(victim ? Object.keys(victim) : [], null);
     },
     unmangleGlobalNameIfPreservedAnyways: function($name) {
       return init.mangledGlobalNames[$name];
+    },
+    printString: function(string) {
+      if (typeof dartPrint == "function") {
+        dartPrint(string);
+        return;
+      }
+      if (typeof console == "object" && typeof console.log != "undefined") {
+        console.log(string);
+        return;
+      }
+      if (typeof window == "object")
+        return;
+      if (typeof print == "function") {
+        print(string);
+        return;
+      }
+      throw "Unable to print message: " + String(string);
     }
   },
   J = {
@@ -3491,7 +3527,7 @@
       t5 = H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-symbols-table"), "$isTableSectionElement");
       t6 = H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-symbol"), "$isInputElement");
       t7 = H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-symbol-button"), "$isButtonElement");
-      t1 = new M.ChartInputs(t3, H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-time"), "$isInputElement"), H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-frequency"), "$isInputElement"), H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-version"), "$isInputElement"), t5, t6, t7, H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-button"), "$isButtonElement"), t2, t1);
+      t1 = new M.ChartInputs(t3, H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-time"), "$isInputElement"), H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-frequency"), "$isInputElement"), H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-book"), "$isInputElement"), t5, t6, t7, H.interceptedTypeCheck(t4.querySelector("#" + id + "-chart-inputs-button"), "$isButtonElement"), t2, t1);
       t1.ChartInputs$2$cls(id, "");
       return t1;
     },
@@ -3500,7 +3536,7 @@
       _._container = t0;
       _._itime = t1;
       _._ifreq = t2;
-      _._iversion = t3;
+      _._ibook = t3;
       _._tsymbols = t4;
       _._isymbol = t5;
       _._bsymbol = t6;
@@ -3537,19 +3573,20 @@
     }
   },
   X = {
-    MainControl$: function(_navbar, _sidebar, _modal, _chartInputs) {
+    MainControl$: function(_navbar, _sidebar, _modal, _chartInputs, _note) {
       var t1 = $.Server__server;
-      t1 = new X.MainControl(t1 == null ? $.Server__server = R.Server$_internal() : t1, _chartInputs, _navbar, _sidebar, _modal);
-      t1.MainControl$4(_navbar, _sidebar, _modal, _chartInputs);
+      t1 = new X.MainControl(t1 == null ? $.Server__server = R.Server$_internal() : t1, _chartInputs, _navbar, _sidebar, _modal, _note);
+      t1.MainControl$5(_navbar, _sidebar, _modal, _chartInputs, _note);
       return t1;
     },
-    MainControl: function MainControl(t0, t1, t2, t3, t4) {
+    MainControl: function MainControl(t0, t1, t2, t3, t4, t5) {
       var _ = this;
-      _._server = t0;
+      _._control$_server = t0;
       _._chartInputs = t1;
       _._navbar = t2;
       _._sidebar = t3;
       _._modal = t4;
+      _._note = t5;
       _._isFullScreen = false;
     },
     MainControl_closure: function MainControl_closure(t0) {
@@ -3583,8 +3620,8 @@
       _._navbar$_container = t0;
       _._practice = t1;
       _._records = t2;
-      _._navbar$_server = t3;
-      _._navbar$_showRecords = false;
+      _._server = t3;
+      _._showRecords = false;
     },
     Navbar_closure: function Navbar_closure() {
     },
@@ -3593,64 +3630,139 @@
       this.cls = t1;
     }
   },
+  F = {
+    Note$: function(id) {
+      var t2, t3,
+        t1 = $.Server__server;
+      if (t1 == null)
+        t1 = $.Server__server = R.Server$_internal();
+      t2 = "#" + id + "-note";
+      t3 = document;
+      t1 = new F.Note(H.interceptedTypeCheck(t3.querySelector(t2), "$isDivElement"), H.interceptedTypeCheck(t3.querySelector("#" + id + "-note-content"), "$isDivElement"), t1);
+      t1.Note$2$cls(id, "");
+      return t1;
+    },
+    Note: function Note(t0, t1, t2) {
+      var _ = this;
+      _._note$_container = t0;
+      _._note$_content = t1;
+      _._note$_isOpen = false;
+      _._note$_server = t2;
+    },
+    Note_closure: function Note_closure(t0) {
+      this.$this = t0;
+    }
+  },
   R = {
     Server$_internal: function() {
       var now,
         t1 = P.String,
         t2 = P.StreamController_StreamController$broadcast(t1),
         t3 = P.StreamController_StreamController$broadcast(t1),
-        t4 = P.StreamController_StreamController$broadcast(P.bool);
-      t1 = new R.Server(t2, t3, P.StreamController_StreamController$broadcast(t1), t4, P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast([P.Map, P.String,,]));
+        t4 = P.StreamController_StreamController$broadcast(t1),
+        t5 = P.StreamController_StreamController$broadcast(P.bool);
+      t1 = new R.Server(t2, t4, t3, P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast(t1), t5, P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast(t1), P.StreamController_StreamController$broadcast([P.Map, P.String,,]));
       now = new P.DateTime(Date.now(), false);
-      t4 = C.JSInt_methods.toString$0(H.Primitives_getYear(now)) + C.JSString_methods.padLeft$2(C.JSInt_methods.toString$0(H.Primitives_getMonth(now)), 2, "0") + C.JSString_methods.padLeft$2(C.JSInt_methods.toString$0(H.Primitives_getDay(now)), 2, "0");
-      t1._time = t4;
-      t2.add$1(0, t4);
+      t5 = C.JSInt_methods.toString$0(H.Primitives_getYear(now)) + C.JSString_methods.padLeft$2(C.JSInt_methods.toString$0(H.Primitives_getMonth(now)), 2, "0") + C.JSString_methods.padLeft$2(C.JSInt_methods.toString$0(H.Primitives_getDay(now)), 2, "0");
+      t1._time = t5;
+      t2.add$1(0, t5);
       return t1;
     },
-    Server: function Server(t0, t1, t2, t3, t4, t5, t6) {
+    Server: function Server(t0, t1, t2, t3, t4, t5, t6, t7, t8) {
       var _ = this;
       _._time = null;
       _._$time = t0;
       _._frequency = "d";
       _._$frequency = t1;
       _._symbol = "esz19";
-      _._version = "1";
-      _._$version = t2;
+      _._$symbol = t2;
+      _._book = "stocks_2018";
+      _._$book = t3;
+      _._$note = t4;
       _._function = "refresh";
-      _._showRecords = false;
-      _._$showRecords = t3;
-      _._$chartUrl = t4;
-      _._$chartInspect = t5;
-      _._$info = t6;
+      _._server$_showRecords = false;
+      _._$showRecords = t5;
+      _._$chartUrl = t6;
+      _._$chartInspect = t7;
+      _._$info = t8;
       _._working = false;
     }
   },
   Y = {
+    TradeInputs$: function(id) {
+      var t2, t3, t4, t5, t6, t7, t8, t9,
+        t1 = $.Server__server;
+      if (t1 == null)
+        t1 = $.Server__server = R.Server$_internal();
+      t2 = "#" + id + "-trade-inputs-book";
+      t3 = document;
+      t2 = H.interceptedTypeCheck(t3.querySelector(t2), "$isInputElement");
+      t4 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-time"), "$isInputElement");
+      t5 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-symbol"), "$isInputElement");
+      t6 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-price"), "$isInputElement");
+      t7 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-quantity"), "$isInputElement");
+      t8 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-increase"), "$isButtonElement");
+      t9 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-decrease"), "$isButtonElement");
+      H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-ok"), "$isButtonElement");
+      t1 = new Y.TradeInputs(t2, t4, t5, t6, t7, t8, t9, t1);
+      t1.TradeInputs$2$cls(id, "");
+      return t1;
+    },
+    TradeInputs: function TradeInputs(t0, t1, t2, t3, t4, t5, t6, t7) {
+      var _ = this;
+      _._trade_inputs$_ibook = t0;
+      _._trade_inputs$_itime = t1;
+      _._trade_inputs$_isymbol = t2;
+      _._iprice = t3;
+      _._iquantity = t4;
+      _._binc = t5;
+      _._bdec = t6;
+      _._trade_inputs$_server = t7;
+    },
+    TradeInputs_closure: function TradeInputs_closure(t0) {
+      this.$this = t0;
+    },
+    TradeInputs_closure0: function TradeInputs_closure0(t0) {
+      this.$this = t0;
+    },
+    TradeInputs_closure1: function TradeInputs_closure1(t0) {
+      this.$this = t0;
+    },
+    TradeInputs_closure2: function TradeInputs_closure2(t0) {
+      this.$this = t0;
+    },
+    TradeInputs_closure3: function TradeInputs_closure3(t0) {
+      this.$this = t0;
+    },
+    TradeInputs_closure4: function TradeInputs_closure4(t0) {
+      this.$this = t0;
+    },
     main: function() {
-      var navbar, t4, t5, t6,
-        inputs = M.ChartInputs$("view"),
-        t1 = document,
-        t2 = H.interceptedTypeCheck(t1.querySelector("#view-sidebar-container"), "$isDivElement"),
-        t3 = inputs._container,
-        modal = new D.Modal(H.interceptedTypeCheck(t1.querySelector("#view-modal"), "$isDivElement"), H.interceptedTypeCheck(t1.querySelector("#view-modal-content"), "$isDivElement"));
-      modal._childElement = t3;
-      modal._parentElement = t3.parentElement;
-      navbar = O.Navbar$("view");
-      t3 = $.Server__server;
-      if (t3 == null)
-        t3 = $.Server__server = R.Server$_internal();
-      t4 = H.interceptedTypeCheck(t1.querySelector("#view-canvas-chart-info"), "$isDivElement");
-      t5 = H.interceptedTypeCheck(t1.querySelector("#view-canvas-chart-image"), "$isImageElement");
-      t6 = H.interceptedTypeCheck(t1.querySelector("#view-canvas-chart-inspect"), "$isCanvasElement");
-      t1 = H.interceptedTypeCheck(t1.querySelector("#view-canvas-chart-cover"), "$isCanvasElement");
-      t3 = new G.Canvas(t4, t5, t6, t1, t3);
-      t3._ictx = H.interceptedTypeCheck((t6 && C.CanvasElement_methods).getContext$1(t6, "2d"), "$isCanvasRenderingContext2D");
-      t3._cctx = H.interceptedTypeCheck((t1 && C.CanvasElement_methods).getContext$1(t1, "2d"), "$isCanvasRenderingContext2D");
-      t3._attachListener$0();
-      X.MainControl$(navbar, new M.Sidebar(t2), modal, inputs);
+      var t1, t2, t3, t4, t5, t6, note, inputs, modal, _s4_ = "view";
+      Y.TradeInputs$(_s4_);
+      t1 = $.Server__server;
+      if (t1 == null)
+        t1 = $.Server__server = R.Server$_internal();
+      t2 = document;
+      t3 = H.interceptedTypeCheck(t2.querySelector("#view-canvas-chart-info"), "$isDivElement");
+      t4 = H.interceptedTypeCheck(t2.querySelector("#view-canvas-chart-image"), "$isImageElement");
+      t5 = H.interceptedTypeCheck(t2.querySelector("#view-canvas-chart-inspect"), "$isCanvasElement");
+      t6 = H.interceptedTypeCheck(t2.querySelector("#view-canvas-chart-cover"), "$isCanvasElement");
+      t1 = new G.Canvas(t3, t4, t5, t6, t1);
+      t1._ictx = H.interceptedTypeCheck((t5 && C.CanvasElement_methods).getContext$1(t5, "2d"), "$isCanvasRenderingContext2D");
+      t1._cctx = H.interceptedTypeCheck((t6 && C.CanvasElement_methods).getContext$1(t6, "2d"), "$isCanvasRenderingContext2D");
+      t1._attachListener$0();
+      note = F.Note$(_s4_);
+      inputs = M.ChartInputs$(_s4_);
+      t1 = H.interceptedTypeCheck(t2.querySelector("#view-sidebar-container"), "$isDivElement");
+      t6 = inputs._container;
+      modal = new D.Modal(H.interceptedTypeCheck(t2.querySelector("#view-modal"), "$isDivElement"), H.interceptedTypeCheck(t2.querySelector("#view-modal-content"), "$isDivElement"));
+      modal._childElement = t6;
+      modal._parentElement = t6.parentElement;
+      X.MainControl$(O.Navbar$(_s4_), new M.Sidebar(t1), modal, inputs, note);
     }
   };
-  var holders = [C, H, J, P, W, G, M, X, D, O, R, Y];
+  var holders = [C, H, J, P, W, G, M, X, D, O, F, R, Y];
   hunkHelpers.setFunctionNamesIfNecessary(holders);
   var $ = {};
   H.JS_CONST.prototype = {};
@@ -3764,6 +3876,12 @@
         throw H.wrapException(P.RangeError$range(newLength, 0, null, "newLength", null));
       receiver.length = newLength;
     },
+    $index: function(receiver, index) {
+      H.intTypeCheck(index);
+      if (index >= receiver.length || index < 0)
+        throw H.wrapException(H.diagnoseIndexError(receiver, index));
+      return receiver[index];
+    },
     $indexSet: function(receiver, index, value) {
       H.assertSubtypeOfRuntimeType(value, H.getTypeArgumentByIndex(receiver, 0));
       if (!!receiver.immutable$list)
@@ -3864,6 +3982,16 @@
     },
     _shrBothPositive$1: function(receiver, other) {
       return other > 31 ? 0 : receiver >>> other;
+    },
+    $lt: function(receiver, other) {
+      if (typeof other !== "number")
+        throw H.wrapException(H.argumentErrorValue(other));
+      return receiver < other;
+    },
+    $ge: function(receiver, other) {
+      if (typeof other !== "number")
+        throw H.wrapException(H.argumentErrorValue(other));
+      return receiver >= other;
     },
     $isnum: 1
   };
@@ -3976,6 +4104,12 @@
     },
     get$length: function(receiver) {
       return receiver.length;
+    },
+    $index: function(receiver, index) {
+      H.intTypeCheck(index);
+      if (index.$ge(index, receiver.length) || index.$lt(index, 0))
+        throw H.wrapException(H.diagnoseIndexError(receiver, index));
+      return receiver[index];
     },
     $isPattern: 1,
     $isString: 1
@@ -4425,7 +4559,18 @@
     toString$0: function(_) {
       return "RegExp/" + this.pattern + "/" + this._nativeRegExp.flags;
     },
+    firstMatch$1: function(string) {
+      var m = this._nativeRegExp.exec(string);
+      if (m == null)
+        return;
+      return H._MatchImplementation$(this, m);
+    },
     $isPattern: 1
+  };
+  H._MatchImplementation.prototype = {
+    $index: function(_, index) {
+      return C.JSArray_methods.$index(this._match, H.intTypeCheck(index));
+    }
   };
   P._AsyncRun__initializeScheduleImmediate_internalCallback.prototype = {
     call$1: function(_) {
@@ -4434,7 +4579,7 @@
       t1.storedCallback = null;
       f.call$0();
     },
-    $signature: 1
+    $signature: 0
   };
   P._AsyncRun__initializeScheduleImmediate_closure.prototype = {
     call$1: function(callback) {
@@ -4453,13 +4598,13 @@
     call$0: function() {
       this.callback.call$0();
     },
-    $signature: 0
+    $signature: 1
   };
   P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback.prototype = {
     call$0: function() {
       this.callback.call$0();
     },
-    $signature: 0
+    $signature: 1
   };
   P._TimerImpl.prototype = {
     _TimerImpl$2: function(milliseconds, callback) {
@@ -4827,13 +4972,13 @@
     call$0: function() {
       P._Future__propagateToListeners(this.$this, this.listener);
     },
-    $signature: 0
+    $signature: 1
   };
   P._Future__prependListeners_closure.prototype = {
     call$0: function() {
       P._Future__propagateToListeners(this.$this, this._box_0.listeners);
     },
-    $signature: 0
+    $signature: 1
   };
   P._Future__chainForeignFuture_closure.prototype = {
     call$1: function(value) {
@@ -4843,7 +4988,7 @@
       t1._state = 0;
       t1._complete$1(value);
     },
-    $signature: 1
+    $signature: 0
   };
   P._Future__chainForeignFuture_closure0.prototype = {
     call$2: function(error, stackTrace) {
@@ -4862,26 +5007,26 @@
     call$0: function() {
       this.target._completeError$2(this.e, this.s);
     },
-    $signature: 0
+    $signature: 1
   };
   P._Future__asyncComplete_closure.prototype = {
     call$0: function() {
       var t1 = this.$this;
       t1._completeWithValue$1(H.assertSubtypeOfRuntimeType(this.value, H.getTypeArgumentByIndex(t1, 0)));
     },
-    $signature: 0
+    $signature: 1
   };
   P._Future__chainFuture_closure.prototype = {
     call$0: function() {
       P._Future__chainCoreFuture(this.value, this.$this);
     },
-    $signature: 0
+    $signature: 1
   };
   P._Future__asyncCompleteError_closure.prototype = {
     call$0: function() {
       this.$this._completeError$2(this.error, this.stackTrace);
     },
-    $signature: 0
+    $signature: 1
   };
   P._Future__propagateToListeners_handleWhenCompleteCallback.prototype = {
     call$0: function() {
@@ -5024,7 +5169,7 @@
     call$0: function() {
       this.future._complete$1(this._box_0.count);
     },
-    $signature: 0
+    $signature: 1
   };
   P.StreamSubscription.prototype = {};
   P.StreamTransformerBase.prototype = {};
@@ -5199,7 +5344,7 @@
         t1.lastPendingEvent = null;
       H.assertSubtype(t2, "$is_EventDispatch", [H.getTypeArgumentByIndex($event, 0)], "$as_EventDispatch")._sendData$1($event.value);
     },
-    $signature: 0
+    $signature: 1
   };
   P._StreamImplEvents.prototype = {};
   P._DoneStreamSubscription.prototype = {
@@ -5241,7 +5386,7 @@
       error.stack = t2.toString$0(0);
       throw error;
     },
-    $signature: 0
+    $signature: 1
   };
   P._RootZone.prototype = {
     runGuarded$1: function(f) {
@@ -5283,6 +5428,9 @@
     },
     bindUnaryCallbackGuarded$1$1: function(f, $T) {
       return new P._RootZone_bindUnaryCallbackGuarded_closure(this, H.functionTypeCheck(f, {func: 1, ret: -1, args: [$T]}), $T);
+    },
+    $index: function(_, key) {
+      return;
     },
     run$1$1: function(f, $R) {
       H.functionTypeCheck(f, {func: 1, ret: $R});
@@ -6051,13 +6199,24 @@
         return H.ioore(t1, index);
       return H.interceptedTypeCheck(t1[index], "$isElement");
     },
-    add$1: function(_, value) {
-      this._element.appendChild(value);
-      return value;
-    },
     get$iterator: function(_) {
       var t1 = this.toList$0(this);
       return new J.ArrayIterator(t1, t1.length, [H.getTypeArgumentByIndex(t1, 0)]);
+    },
+    insert$2: function(_, index, element) {
+      var t3, _this = this,
+        t1 = _this._childElements,
+        t2 = t1.length;
+      if (index > t2)
+        throw H.wrapException(P.RangeError$range(index, 0, _this.get$length(_this), null, null));
+      t3 = _this._element;
+      if (index === t2)
+        t3.appendChild(element);
+      else {
+        if (index >= t2)
+          return H.ioore(t1, index);
+        t3.insertBefore(element, H.interceptedTypeCheck(t1[index], "$isElement"));
+      }
     },
     $asEfficientLengthIterable: function() {
       return [W.Element];
@@ -6942,8 +7101,15 @@
         t3 = W.Element;
       return new H.MappedIterable(new H.WhereIterable(t1, H.functionTypeCheck(new P.FilteredElementList__iterable_closure(), {func: 1, ret: P.bool, args: [t2]}), [t2]), H.functionTypeCheck(new P.FilteredElementList__iterable_closure0(), {func: 1, ret: t3, args: [t2]}), [t2, t3]);
     },
-    add$1: function(_, value) {
-      this._childNodes._this.appendChild(value);
+    insert$2: function(_, index, value) {
+      var t1, element;
+      if (index === J.get$length$asx(this.get$_html_common$_iterable().__internal$_iterable))
+        this._childNodes._this.appendChild(value);
+      else {
+        t1 = this.get$_html_common$_iterable();
+        element = t1._f.call$1(J.elementAt$1$ax(t1.__internal$_iterable, index));
+        element.parentNode.insertBefore(value, element);
+      }
     },
     get$length: function(_) {
       return J.get$length$asx(this.get$_html_common$_iterable().__internal$_iterable);
@@ -7162,7 +7328,7 @@
     call$1: function($event) {
       this.$this.initCanvasSize$0();
     },
-    $signature: 3
+    $signature: 4
   };
   G.Canvas__attachListener_closure0.prototype = {
     call$1: function($event) {
@@ -7177,20 +7343,20 @@
       if (!t2)
         t1.classList.add("-canvas-chart-info-hidden");
     },
-    $signature: 3
+    $signature: 4
   };
   G.Canvas__attachListener_closure1.prototype = {
     call$1: function(url) {
       this.$this._image.src = H.stringTypeCheck(url);
     },
-    $signature: 1
+    $signature: 0
   };
   G.Canvas__attachListener_closure2.prototype = {
     call$1: function(info) {
       var t1 = this.$this._info;
       (t1 && C.DivElement_methods).setInnerHtml$1(t1, H.stringTypeCheck(info));
     },
-    $signature: 1
+    $signature: 0
   };
   G.Canvas__attachListener_closure3.prototype = {
     call$1: function($event) {
@@ -7317,7 +7483,7 @@
         t1._ictx.closePath();
       }
     },
-    $signature: 4
+    $signature: 3
   };
   G.Canvas__attachListener_closure4.prototype = {
     call$1: function($event) {
@@ -7351,7 +7517,7 @@
       if (H.boolConversionCheck($event.altKey))
         t1._doubleCover$1($event);
     },
-    $signature: 4
+    $signature: 3
   };
   G.Canvas__attachListener_closure5.prototype = {
     call$1: function($event) {
@@ -7361,7 +7527,7 @@
       t1._double = t1._coverR = t1._coverL = t1._calculate = false;
       t1._doubleAnchorX = 0;
     },
-    $signature: 4
+    $signature: 3
   };
   M.ChartInputs.prototype = {
     ChartInputs$2$cls: function(id, cls) {
@@ -7373,12 +7539,16 @@
       new P._BroadcastStream(t3, [H.getTypeArgumentByIndex(t3, 0)]).listen$1(new M.ChartInputs_closure0(_this));
       t4 = t1._$frequency;
       new P._BroadcastStream(t4, [H.getTypeArgumentByIndex(t4, 0)]).listen$1(new M.ChartInputs_closure1(_this));
-      t5 = t1._$version;
+      t5 = t1._$book;
       new P._BroadcastStream(t5, [H.getTypeArgumentByIndex(t5, 0)]).listen$1(new M.ChartInputs_closure2(_this));
       t3.add$1(0, t1._time);
+      t1._$symbol.add$1(0, t1._symbol);
       t4.add$1(0, t1._frequency);
-      t5.add$1(0, t1._version);
-      t2.add$1(0, t1._showRecords);
+      t5.add$1(0, t1._book);
+      t5 = t1._$note;
+      t1.toString;
+      t5.add$1(0, "");
+      t2.add$1(0, t1._server$_showRecords);
       for (t1 = _this._symbols, _i = 0; _i < 6; ++_i)
         _this._addSymbol$1(t1[_i]);
       t1 = _this._bsymbol;
@@ -7450,7 +7620,7 @@
             if (focused == null ? t1 != null : focused !== t1) {
               t1 = _this._ifreq;
               if (focused == null ? t1 != null : focused !== t1) {
-                t1 = _this._iversion;
+                t1 = _this._ibook;
                 if (focused == null ? t1 != null : focused !== t1) {
                   t1 = _this._btn;
                   t1 = focused == null ? t1 == null : focused === t1;
@@ -7473,31 +7643,31 @@
     call$1: function(show) {
       var _s25_ = "-chart-inputs-text-hidden",
         t1 = this.cls,
-        t2 = this.$this._iversion;
+        t2 = this.$this._ibook;
       if (H.boolConversionCheck(H.boolTypeCheck(show)))
         J.get$classes$x(t2.parentElement).remove$1(0, t1 + _s25_);
       else
         J.get$classes$x(t2.parentElement).add$1(0, t1 + _s25_);
     },
-    $signature: 1
+    $signature: 0
   };
   M.ChartInputs_closure0.prototype = {
     call$1: function(time) {
       this.$this._itime.value = H.stringTypeCheck(time);
     },
-    $signature: 1
+    $signature: 0
   };
   M.ChartInputs_closure1.prototype = {
     call$1: function(freq) {
       this.$this._ifreq.value = H.stringTypeCheck(freq);
     },
-    $signature: 1
+    $signature: 0
   };
   M.ChartInputs_closure2.prototype = {
-    call$1: function(verison) {
-      this.$this._iversion.value = H.stringTypeCheck(verison);
+    call$1: function(book) {
+      this.$this._ibook.value = H.stringTypeCheck(book);
     },
-    $signature: 1
+    $signature: 0
   };
   M.ChartInputs_closure3.prototype = {
     call$1: function($event) {
@@ -7523,7 +7693,7 @@
       }
       t1._bsymbol.blur();
     },
-    $signature: 4
+    $signature: 3
   };
   M.ChartInputs_closure4.prototype = {
     call$1: function($event) {
@@ -7534,7 +7704,7 @@
       t3 = t1._selectedCell.innerHTML;
       t4 = t1._itime.value;
       t5 = t1._ifreq.value;
-      t6 = t1._iversion.value;
+      t6 = t1._ibook.value;
       t2.toString;
       t7 = P.RegExp_RegExp("^[a-zA-Z]{2,6}(?:\\d{2})*$");
       if (typeof t3 !== "string")
@@ -7552,17 +7722,17 @@
       t2._symbol = t3;
       t2._frequency = t5;
       t2._time = t4;
-      if (t2._showRecords) {
-        t3 = P.RegExp_RegExp("^\\d+$");
+      if (t2._server$_showRecords) {
+        t3 = P.RegExp_RegExp("^[a-z_0-9]$");
         if (typeof t6 !== "string")
           H.throwExpression(H.argumentErrorValue(t6));
         H.assertHelper(t3._nativeRegExp.test(t6));
-        t2._version = t6;
+        t2._book = t6;
       }
       t2.getChart$0();
       t1._btn.blur();
     },
-    $signature: 4
+    $signature: 3
   };
   M.ChartInputs__addSymbol_closure.prototype = {
     call$1: function($event) {
@@ -7584,12 +7754,13 @@
       H.assertHelper(t3._nativeRegExp.test(t2));
       t1._function = "refresh";
       t1._symbol = t2;
+      t1._$symbol.add$1(0, t2);
       t1.getChart$0();
     },
-    $signature: 3
+    $signature: 4
   };
   X.MainControl.prototype = {
-    MainControl$4: function(_navbar, _sidebar, _modal, _chartInputs) {
+    MainControl$5: function(_navbar, _sidebar, _modal, _chartInputs, _note) {
       var t1 = W.KeyboardEvent,
         t2 = {func: 1, ret: -1, args: [t1]};
       W._EventStreamSubscription$(window, "keydown", H.functionTypeCheck(new X.MainControl_closure(this), t2), false, t1);
@@ -7608,7 +7779,7 @@
         case 27:
           break;
         case 37:
-          t1 = t1._server;
+          t1 = t1._control$_server;
           t1._function = "backward";
           t1.getChart$0();
           break;
@@ -7616,7 +7787,7 @@
           t2.symbolStep$1("b");
           break;
         case 39:
-          t1 = t1._server;
+          t1 = t1._control$_server;
           t1._function = "forward";
           t1.getChart$0();
           break;
@@ -7635,6 +7806,7 @@
       t2 = t1._chartInputs;
       if (t2.isFocus$0())
         return;
+      H.printString(H.S($event.which));
       t3 = $event.which;
       if (typeof t3 !== "number")
         return t3.$ge();
@@ -7643,16 +7815,16 @@
       else
         switch (t3) {
           case 104:
-            t1._server.freqRequest$1("h");
+            t1._control$_server.freqRequest$1("h");
             break;
           case 100:
-            t1._server.freqRequest$1("d");
+            t1._control$_server.freqRequest$1("d");
             break;
           case 119:
-            t1._server.freqRequest$1("w");
+            t1._control$_server.freqRequest$1("w");
             break;
           case 109:
-            t1._server.freqRequest$1("m");
+            t1._control$_server.freqRequest$1("m");
             break;
           case 13:
             t2 = !t1._isFullScreen;
@@ -7679,7 +7851,7 @@
               t2.classList.remove("-modal-open");
               t1._content.classList.remove("-modal-content-open");
               J.remove$0$x(t1._childElement);
-              J.get$children$x(t1._parentElement).add$1(0, t1._childElement);
+              J.get$children$x(t1._parentElement).insert$2(0, 0, t1._childElement);
               t1._isOpen = false;
             } else {
               t2.classList.add("-modal-open");
@@ -7688,6 +7860,16 @@
               J.remove$0$x(t1._childElement);
               t2.appendChild(t1._childElement);
               t1._isOpen = true;
+            }
+            break;
+          case 110:
+            t1 = t1._note;
+            if (t1._note$_isOpen)
+              t1.close$0(0);
+            else {
+              t2 = t1._note$_container.style;
+              t2.bottom = "0px";
+              t1._note$_isOpen = true;
             }
             break;
           default:
@@ -7718,15 +7900,15 @@
     call$1: function($event) {
       window.location.pathname = "/view/practice";
     },
-    $signature: 3
+    $signature: 4
   };
   O.Navbar_closure0.prototype = {
     call$1: function($event) {
       var t3, t4,
         _s21_ = "-navbar-button-active",
         t1 = this.$this,
-        t2 = !t1._navbar$_showRecords;
-      t1._navbar$_showRecords = t2;
+        t2 = !t1._showRecords;
+      t1._showRecords = t2;
       t3 = this.cls;
       t4 = t1._records;
       if (t2) {
@@ -7736,15 +7918,50 @@
         t2 = t3 + _s21_;
         t4.classList.remove(t2);
       }
-      t2 = t1._navbar$_server;
-      t1 = t1._navbar$_showRecords;
+      t2 = t1._server;
+      t1 = t1._showRecords;
       t2._function = "simple";
-      t2._showRecords = t1;
+      t2._server$_showRecords = t1;
       t2._$showRecords.add$1(0, t1);
       t2.getChart$0();
       t4.blur();
     },
-    $signature: 3
+    $signature: 4
+  };
+  F.Note.prototype = {
+    Note$2$cls: function(id, cls) {
+      var t1;
+      this.close$0(0);
+      t1 = this._note$_server._$note;
+      new P._BroadcastStream(t1, [H.getTypeArgumentByIndex(t1, 0)]).listen$1(new F.Note_closure(this));
+    },
+    close$0: function(_) {
+      var t1 = this._note$_container,
+        t2 = t1.style;
+      t1 = t1.clientHeight;
+      if (typeof t1 !== "number")
+        return t1.$negate();
+      t1 = "" + -t1 + "px";
+      t2.bottom = t1;
+      this._note$_isOpen = false;
+    }
+  };
+  F.Note_closure.prototype = {
+    call$1: function(note) {
+      var t1 = this.$this,
+        t2 = t1._note$_content;
+      (t2 && C.DivElement_methods).setInnerHtml$1(t2, H.stringTypeCheck(note));
+      if (!t1._note$_isOpen) {
+        t1 = t1._note$_container;
+        t2 = t1.style;
+        t1 = t1.clientHeight;
+        if (typeof t1 !== "number")
+          return t1.$negate();
+        t1 = "" + -t1 + "px";
+        t2.bottom = t1;
+      }
+    },
+    $signature: 0
   };
   R.Server.prototype = {
     freqRequest$1: function(freq) {
@@ -7760,7 +7977,7 @@
       var _this = this,
         t1 = window.location,
         url = (t1 && C.Location_methods).get$origin(t1) + "/plot/practice/" + H.S(_this._symbol) + "/" + H.S(_this._frequency) + "/" + _this._function + "/" + H.S(_this._time);
-      return (_this._showRecords ? url + "/records/" + H.S(_this._version) : url) + "?timestemp=" + Date.now();
+      return (_this._server$_showRecords ? url + "/records/" + H.S(_this._book) : url) + "?timestemp=" + Date.now();
     },
     infoRequest$0: function() {
       var $async$goto = 0,
@@ -7840,6 +8057,85 @@
     }
   };
   M.Sidebar.prototype = {};
+  Y.TradeInputs.prototype = {
+    TradeInputs$2$cls: function(id, cls) {
+      var t1, t2, t3, _this = this;
+      _this._iquantity.value = "100";
+      t1 = _this._binc;
+      t1.classList.add("-trade-inputs-operation-btn-selected");
+      t2 = W.MouseEvent;
+      t3 = {func: 1, ret: -1, args: [t2]};
+      W._EventStreamSubscription$(t1, "click", H.functionTypeCheck(new Y.TradeInputs_closure(_this), t3), false, t2);
+      t1 = _this._bdec;
+      t1.toString;
+      W._EventStreamSubscription$(t1, "click", H.functionTypeCheck(new Y.TradeInputs_closure0(_this), t3), false, t2);
+      t2 = _this._trade_inputs$_server;
+      t3 = t2._$book;
+      new P._BroadcastStream(t3, [H.getTypeArgumentByIndex(t3, 0)]).listen$1(new Y.TradeInputs_closure1(_this));
+      t3 = t2._$symbol;
+      new P._BroadcastStream(t3, [H.getTypeArgumentByIndex(t3, 0)]).listen$1(new Y.TradeInputs_closure2(_this));
+      t3 = t2._$time;
+      new P._BroadcastStream(t3, [H.getTypeArgumentByIndex(t3, 0)]).listen$1(new Y.TradeInputs_closure3(_this));
+      t2 = t2._$info;
+      new P._BroadcastStream(t2, [H.getTypeArgumentByIndex(t2, 0)]).listen$1(new Y.TradeInputs_closure4(_this));
+    }
+  };
+  Y.TradeInputs_closure.prototype = {
+    call$1: function($event) {
+      var t1, t2;
+      H.interceptedTypeCheck($event, "$isMouseEvent");
+      t1 = this.$this;
+      t2 = t1._binc;
+      t2.classList.add("-trade-inputs-operation-btn-selected");
+      t1._bdec.classList.remove("-trade-inputs-operation-btn-selected");
+      t2.blur();
+    },
+    $signature: 3
+  };
+  Y.TradeInputs_closure0.prototype = {
+    call$1: function($event) {
+      var t1, t2;
+      H.interceptedTypeCheck($event, "$isMouseEvent");
+      t1 = this.$this;
+      t2 = t1._bdec;
+      t2.classList.add("-trade-inputs-operation-btn-selected");
+      t1._binc.classList.remove("-trade-inputs-operation-btn-selected");
+      t2.blur();
+    },
+    $signature: 3
+  };
+  Y.TradeInputs_closure1.prototype = {
+    call$1: function(book) {
+      this.$this._trade_inputs$_ibook.value = H.stringTypeCheck(book);
+    },
+    $signature: 0
+  };
+  Y.TradeInputs_closure2.prototype = {
+    call$1: function(symbol) {
+      var t1,
+        regex = P.RegExp_RegExp("^([a-z]+)(?:[fghjkmnquvxz])\\d{2}$"),
+        lsymbol = J.toLowerCase$0$s(symbol);
+      if (regex._nativeRegExp.test(lsymbol)) {
+        t1 = regex.firstMatch$1(lsymbol)._match;
+        if (1 >= t1.length)
+          return H.ioore(t1, 1);
+        this.$this._trade_inputs$_isymbol.value = t1[1];
+      }
+    },
+    $signature: 0
+  };
+  Y.TradeInputs_closure3.prototype = {
+    call$1: function(time) {
+      this.$this._trade_inputs$_itime.value = H.stringTypeCheck(time);
+    },
+    $signature: 0
+  };
+  Y.TradeInputs_closure4.prototype = {
+    call$1: function(info) {
+      this.$this._iprice.value = J.toString$0$(J.$index$asx(info, "Close"));
+    },
+    $signature: 0
+  };
   (function aliases() {
     var _ = J.Interceptor.prototype;
     _.super$Interceptor$toString = _.toString$0;
@@ -7877,7 +8173,7 @@
       _inherit = hunkHelpers.inherit,
       _inheritMany = hunkHelpers.inheritMany;
     _inherit(P.Object, null);
-    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, P.Iterator, H.TypeErrorDecoder, P.Error, H.ExceptionAndStackTrace, H.Closure, H._StackTrace, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, H.JSSyntaxRegExp, P._TimerImpl, P._AsyncAwaitCompleter, P.Stream, P._BufferingStreamSubscription, P._BroadcastStreamController, P._Completer, P._FutureListener, P._Future, P._AsyncCallbackEntry, P.StreamSubscription, P.StreamTransformerBase, P._DelayedEvent, P._PendingEvents, P._DoneStreamSubscription, P._StreamIterator, P.AsyncError, P._Zone, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P._ListBase_Object_ListMixin, P.ListMixin, P.SetMixin, P._SetBase_Object_SetMixin, P.Codec, P.bool, P.DateTime, P.num, P.OutOfMemoryError, P.StackOverflowError, P._Exception, P.FormatException, P.Function, P.List, P.Map, P.Null, P.StackTrace, P.String, P.StringBuffer, W.CssStyleDeclarationBase, W._Html5NodeValidator, W.ImmutableListMixin, W.NodeValidatorBuilder, W._SimpleNodeValidator, W._SvgNodeValidator, W.FixedSizeListIterator, W._DOMWindowCrossFrame, W.NodeValidator, W._SameOriginUriPolicy, W._ValidatingTreeSanitizer, G.Canvas, M.ChartInputs, X.MainControl, D.Modal, O.Navbar, R.Server, M.Sidebar]);
+    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, P.Iterator, H.TypeErrorDecoder, P.Error, H.ExceptionAndStackTrace, H.Closure, H._StackTrace, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, H.JSSyntaxRegExp, H._MatchImplementation, P._TimerImpl, P._AsyncAwaitCompleter, P.Stream, P._BufferingStreamSubscription, P._BroadcastStreamController, P._Completer, P._FutureListener, P._Future, P._AsyncCallbackEntry, P.StreamSubscription, P.StreamTransformerBase, P._DelayedEvent, P._PendingEvents, P._DoneStreamSubscription, P._StreamIterator, P.AsyncError, P._Zone, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P._ListBase_Object_ListMixin, P.ListMixin, P.SetMixin, P._SetBase_Object_SetMixin, P.Codec, P.bool, P.DateTime, P.num, P.OutOfMemoryError, P.StackOverflowError, P._Exception, P.FormatException, P.Function, P.List, P.Map, P.Null, P.StackTrace, P.String, P.StringBuffer, W.CssStyleDeclarationBase, W._Html5NodeValidator, W.ImmutableListMixin, W.NodeValidatorBuilder, W._SimpleNodeValidator, W._SvgNodeValidator, W.FixedSizeListIterator, W._DOMWindowCrossFrame, W.NodeValidator, W._SameOriginUriPolicy, W._ValidatingTreeSanitizer, G.Canvas, M.ChartInputs, X.MainControl, D.Modal, O.Navbar, F.Note, R.Server, M.Sidebar, Y.TradeInputs]);
     _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JSArray, J.JSNumber, J.JSString, W.EventTarget, W.CanvasRenderingContext2D, W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase, W.DomException, W.DomTokenList, W.Event, W._HtmlCollection_Interceptor_ListMixin, W.Location, W._NodeList_Interceptor_ListMixin, W.__NamedNodeMap_Interceptor_ListMixin]);
     _inheritMany(J.JavaScriptObject, [J.PlainJavaScriptObject, J.UnknownJavaScriptObject, J.JavaScriptFunction]);
     _inherit(J.JSUnmodifiableArray, J.JSArray);
@@ -7887,7 +8183,7 @@
     _inheritMany(P.Iterator, [H.MappedIterator, H.WhereIterator]);
     _inheritMany(H.ListIterable, [H.MappedListIterable, P._JsonMapKeyIterable]);
     _inheritMany(P.Error, [H.NullError, H.JsNoSuchMethodError, H.UnknownJsTypeError, H.TypeErrorImplementation, H.CastErrorImplementation, H.RuntimeError, P.AssertionError, P.NullThrownError, P.ArgumentError, P.UnsupportedError, P.UnimplementedError, P.StateError, P.ConcurrentModificationError, P.CyclicInitializationError]);
-    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P._AsyncRun__initializeScheduleImmediate_internalCallback, P._AsyncRun__initializeScheduleImmediate_closure, P._AsyncRun__scheduleImmediateJsOverride_internalCallback, P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, P._TimerImpl_internalCallback, P._awaitOnObject_closure, P._awaitOnObject_closure0, P._wrapJsFunctionForAsync_closure, P._Future__addListener_closure, P._Future__prependListeners_closure, P._Future__chainForeignFuture_closure, P._Future__chainForeignFuture_closure0, P._Future__chainForeignFuture_closure1, P._Future__asyncComplete_closure, P._Future__chainFuture_closure, P._Future__asyncCompleteError_closure, P._Future__propagateToListeners_handleWhenCompleteCallback, P._Future__propagateToListeners_handleWhenCompleteCallback_closure, P._Future__propagateToListeners_handleValueCallback, P._Future__propagateToListeners_handleError, P.Stream_length_closure, P.Stream_length_closure0, P._PendingEvents_schedule_closure, P._rootHandleUncaughtError_closure, P._RootZone_bindCallback_closure, P._RootZone_bindCallbackGuarded_closure, P._RootZone_bindUnaryCallbackGuarded_closure, P.MapBase_mapToString_closure, W.Element_Element$html_closure, W.HttpRequest_getString_closure, W.HttpRequest_request_closure, W._EventStreamSubscription_closure, W.NodeValidatorBuilder_allowsElement_closure, W.NodeValidatorBuilder_allowsAttribute_closure, W._SimpleNodeValidator_closure, W._SimpleNodeValidator_closure0, W._TemplatingNodeValidator_closure, W._ValidatingTreeSanitizer_sanitizeTree_walk, P.CssClassSetImpl_add_closure, P.FilteredElementList__iterable_closure, P.FilteredElementList__iterable_closure0, G.Canvas__attachListener_closure, G.Canvas__attachListener_closure0, G.Canvas__attachListener_closure1, G.Canvas__attachListener_closure2, G.Canvas__attachListener_closure3, G.Canvas__attachListener_closure4, G.Canvas__attachListener_closure5, M.ChartInputs_closure, M.ChartInputs_closure0, M.ChartInputs_closure1, M.ChartInputs_closure2, M.ChartInputs_closure3, M.ChartInputs_closure4, M.ChartInputs__addSymbol_closure, X.MainControl_closure, X.MainControl_closure0, O.Navbar_closure, O.Navbar_closure0]);
+    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P._AsyncRun__initializeScheduleImmediate_internalCallback, P._AsyncRun__initializeScheduleImmediate_closure, P._AsyncRun__scheduleImmediateJsOverride_internalCallback, P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, P._TimerImpl_internalCallback, P._awaitOnObject_closure, P._awaitOnObject_closure0, P._wrapJsFunctionForAsync_closure, P._Future__addListener_closure, P._Future__prependListeners_closure, P._Future__chainForeignFuture_closure, P._Future__chainForeignFuture_closure0, P._Future__chainForeignFuture_closure1, P._Future__asyncComplete_closure, P._Future__chainFuture_closure, P._Future__asyncCompleteError_closure, P._Future__propagateToListeners_handleWhenCompleteCallback, P._Future__propagateToListeners_handleWhenCompleteCallback_closure, P._Future__propagateToListeners_handleValueCallback, P._Future__propagateToListeners_handleError, P.Stream_length_closure, P.Stream_length_closure0, P._PendingEvents_schedule_closure, P._rootHandleUncaughtError_closure, P._RootZone_bindCallback_closure, P._RootZone_bindCallbackGuarded_closure, P._RootZone_bindUnaryCallbackGuarded_closure, P.MapBase_mapToString_closure, W.Element_Element$html_closure, W.HttpRequest_getString_closure, W.HttpRequest_request_closure, W._EventStreamSubscription_closure, W.NodeValidatorBuilder_allowsElement_closure, W.NodeValidatorBuilder_allowsAttribute_closure, W._SimpleNodeValidator_closure, W._SimpleNodeValidator_closure0, W._TemplatingNodeValidator_closure, W._ValidatingTreeSanitizer_sanitizeTree_walk, P.CssClassSetImpl_add_closure, P.FilteredElementList__iterable_closure, P.FilteredElementList__iterable_closure0, G.Canvas__attachListener_closure, G.Canvas__attachListener_closure0, G.Canvas__attachListener_closure1, G.Canvas__attachListener_closure2, G.Canvas__attachListener_closure3, G.Canvas__attachListener_closure4, G.Canvas__attachListener_closure5, M.ChartInputs_closure, M.ChartInputs_closure0, M.ChartInputs_closure1, M.ChartInputs_closure2, M.ChartInputs_closure3, M.ChartInputs_closure4, M.ChartInputs__addSymbol_closure, X.MainControl_closure, X.MainControl_closure0, O.Navbar_closure, O.Navbar_closure0, F.Note_closure, Y.TradeInputs_closure, Y.TradeInputs_closure0, Y.TradeInputs_closure1, Y.TradeInputs_closure2, Y.TradeInputs_closure3, Y.TradeInputs_closure4]);
     _inheritMany(H.TearOffClosure, [H.StaticClosure, H.BoundClosure]);
     _inherit(H._AssertionError, P.AssertionError);
     _inherit(P.MapBase, P.MapMixin);
@@ -7943,7 +8239,7 @@
     _mixin(W.__NamedNodeMap_Interceptor_ListMixin, P.ListMixin);
     _mixin(W.__NamedNodeMap_Interceptor_ListMixin_ImmutableListMixin, W.ImmutableListMixin);
   })();
-  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: P.Null}, {func: 1, ret: P.Null, args: [,]}, {func: 1, ret: -1}, {func: 1, ret: P.Null, args: [W.Event]}, {func: 1, ret: P.Null, args: [W.MouseEvent]}, {func: 1, ret: -1, args: [P.Object], opt: [P.StackTrace]}, {func: 1, ret: -1, args: [{func: 1, ret: -1}]}, {func: 1, args: [,]}, {func: 1, ret: P.bool, args: [W.Node]}, {func: 1, ret: P.bool, args: [W.NodeValidator]}, {func: 1, ret: P.bool, args: [P.String]}, {func: 1, ret: P.Null, args: [W.KeyboardEvent]}, {func: 1, ret: P.bool, args: [W.Element, P.String, P.String, W._Html5NodeValidator]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.Null, args: [{func: 1, ret: -1}]}, {func: 1, ret: -1, args: [,]}, {func: 1, ret: P.Null, args: [, P.StackTrace]}, {func: 1, ret: P.Null, args: [P.int,,]}, {func: 1, ret: P.Null, args: [,], opt: [P.StackTrace]}, {func: 1, ret: [P._Future,,], args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [W.HttpRequest]}, {func: 1, ret: P.Null, args: [W.ProgressEvent]}, {func: 1, args: [W.Event]}, {func: 1, ret: P.String, args: [P.String]}, {func: 1, ret: -1, args: [W.Node, W.Node]}, {func: 1, ret: P.bool, args: [[P.Set, P.String]]}, {func: 1, ret: W.Element, args: [W.Node]}], interceptorsByTag: null, leafTags: null};
+  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: P.Null, args: [,]}, {func: 1, ret: P.Null}, {func: 1, ret: -1}, {func: 1, ret: P.Null, args: [W.MouseEvent]}, {func: 1, ret: P.Null, args: [W.Event]}, {func: 1, ret: -1, args: [P.Object], opt: [P.StackTrace]}, {func: 1, ret: -1, args: [{func: 1, ret: -1}]}, {func: 1, args: [,]}, {func: 1, ret: P.bool, args: [W.Node]}, {func: 1, ret: P.bool, args: [W.NodeValidator]}, {func: 1, ret: P.bool, args: [P.String]}, {func: 1, ret: P.Null, args: [W.KeyboardEvent]}, {func: 1, ret: P.bool, args: [W.Element, P.String, P.String, W._Html5NodeValidator]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.Null, args: [{func: 1, ret: -1}]}, {func: 1, ret: -1, args: [,]}, {func: 1, ret: P.Null, args: [, P.StackTrace]}, {func: 1, ret: P.Null, args: [P.int,,]}, {func: 1, ret: P.Null, args: [,], opt: [P.StackTrace]}, {func: 1, ret: [P._Future,,], args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [W.HttpRequest]}, {func: 1, ret: P.Null, args: [W.ProgressEvent]}, {func: 1, args: [W.Event]}, {func: 1, ret: P.String, args: [P.String]}, {func: 1, ret: -1, args: [W.Node, W.Node]}, {func: 1, ret: P.bool, args: [[P.Set, P.String]]}, {func: 1, ret: W.Element, args: [W.Node]}], interceptorsByTag: null, leafTags: null};
   (function constants() {
     var makeConstList = hunkHelpers.makeConstList;
     C.BodyElement_methods = W.BodyElement.prototype;
