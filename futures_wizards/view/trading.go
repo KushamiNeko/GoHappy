@@ -141,7 +141,8 @@ func (t *Trading) cmdReading() error {
 func (t *Trading) cmdNewBook() error {
 	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
-		"create a new trading book: (time, note, version)",
+		//"create a new trading book: (time, note, version)",
+		"create a new trading book: (title)",
 	)
 	if err != nil {
 		return err

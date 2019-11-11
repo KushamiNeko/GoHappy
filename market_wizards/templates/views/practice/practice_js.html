@@ -916,15 +916,6 @@
         return value;
       H.propertyTypeCastError(value, property);
     },
-    stringSuperNativeTypeCheck: function(value, property) {
-      if (value == null)
-        return value;
-      if (typeof value === "string")
-        return value;
-      if (J.getInterceptor$(value)[property])
-        return value;
-      H.propertyTypeError(value, property);
-    },
     listTypeCheck: function(value) {
       if (value == null)
         return value;
@@ -1688,13 +1679,6 @@
         return regexp;
       throw H.wrapException(P.FormatException$("Illegal RegExp pattern (" + String(regexp) + ")", source));
     },
-    _MatchImplementation$: function(pattern, _match) {
-      var t1 = _match.input;
-      H.assertHelper(typeof t1 === "string");
-      t1 = _match.index;
-      H.assertHelper(typeof t1 === "number" && Math.floor(t1) === t1);
-      return new H._MatchImplementation(_match);
-    },
     stringContainsUnchecked: function(receiver, other, startIndex) {
       var t1 = receiver.indexOf(other, startIndex);
       return t1 >= 0;
@@ -1799,9 +1783,6 @@
       _.pattern = t0;
       _._nativeRegExp = t1;
       _._nativeAnchoredRegExp = _._nativeGlobalRegExp = null;
-    },
-    _MatchImplementation: function _MatchImplementation(t0) {
-      this._match = t0;
     },
     extractKeys: function(victim) {
       return J.JSArray_JSArray$markFixed(victim ? Object.keys(victim) : [], null);
@@ -3719,58 +3700,9 @@
     }
   },
   Y = {
-    TradeInputs$: function(id) {
-      var t2, t3, t4, t5, t6, t7, t8, t9,
-        t1 = $.Server__server;
-      if (t1 == null)
-        t1 = $.Server__server = R.Server$_internal();
-      t2 = "#" + id + "-trade-inputs-book";
-      t3 = document;
-      t2 = H.interceptedTypeCheck(t3.querySelector(t2), "$isInputElement");
-      t4 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-time"), "$isInputElement");
-      t5 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-symbol"), "$isInputElement");
-      t6 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-price"), "$isInputElement");
-      t7 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-quantity"), "$isInputElement");
-      t8 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-increase"), "$isButtonElement");
-      t9 = H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-decrease"), "$isButtonElement");
-      H.interceptedTypeCheck(t3.querySelector("#" + id + "-trade-inputs-ok"), "$isButtonElement");
-      t1 = new Y.TradeInputs(t2, t4, t5, t6, t7, t8, t9, t1);
-      t1.TradeInputs$2$cls(id, "");
-      return t1;
-    },
-    TradeInputs: function TradeInputs(t0, t1, t2, t3, t4, t5, t6, t7) {
-      var _ = this;
-      _._trade_inputs$_ibook = t0;
-      _._trade_inputs$_itime = t1;
-      _._trade_inputs$_isymbol = t2;
-      _._iprice = t3;
-      _._iquantity = t4;
-      _._binc = t5;
-      _._bdec = t6;
-      _._trade_inputs$_server = t7;
-    },
-    TradeInputs_closure: function TradeInputs_closure(t0) {
-      this.$this = t0;
-    },
-    TradeInputs_closure0: function TradeInputs_closure0(t0) {
-      this.$this = t0;
-    },
-    TradeInputs_closure1: function TradeInputs_closure1(t0) {
-      this.$this = t0;
-    },
-    TradeInputs_closure2: function TradeInputs_closure2(t0) {
-      this.$this = t0;
-    },
-    TradeInputs_closure3: function TradeInputs_closure3(t0) {
-      this.$this = t0;
-    },
-    TradeInputs_closure4: function TradeInputs_closure4(t0) {
-      this.$this = t0;
-    },
     main: function() {
-      var t1, t2, t3, t4, t5, t6, note, inputs, modal, _s4_ = "view";
-      Y.TradeInputs$(_s4_);
-      t1 = $.Server__server;
+      var t2, t3, t4, t5, t6, note, inputs, modal, _s4_ = "view",
+        t1 = $.Server__server;
       if (t1 == null)
         t1 = $.Server__server = R.Server$_internal();
       t2 = document;
@@ -3906,12 +3838,6 @@
         throw H.wrapException(P.RangeError$range(newLength, 0, null, "newLength", null));
       receiver.length = newLength;
     },
-    $index: function(receiver, index) {
-      H.intTypeCheck(index);
-      if (index >= receiver.length || index < 0)
-        throw H.wrapException(H.diagnoseIndexError(receiver, index));
-      return receiver[index];
-    },
     $indexSet: function(receiver, index, value) {
       H.assertSubtypeOfRuntimeType(value, H.getTypeArgumentByIndex(receiver, 0));
       if (!!receiver.immutable$list)
@@ -4012,16 +3938,6 @@
     },
     _shrBothPositive$1: function(receiver, other) {
       return other > 31 ? 0 : receiver >>> other;
-    },
-    $lt: function(receiver, other) {
-      if (typeof other !== "number")
-        throw H.wrapException(H.argumentErrorValue(other));
-      return receiver < other;
-    },
-    $ge: function(receiver, other) {
-      if (typeof other !== "number")
-        throw H.wrapException(H.argumentErrorValue(other));
-      return receiver >= other;
     },
     $isnum: 1
   };
@@ -4134,12 +4050,6 @@
     },
     get$length: function(receiver) {
       return receiver.length;
-    },
-    $index: function(receiver, index) {
-      H.intTypeCheck(index);
-      if (index.$ge(index, receiver.length) || index.$lt(index, 0))
-        throw H.wrapException(H.diagnoseIndexError(receiver, index));
-      return receiver[index];
     },
     $isPattern: 1,
     $isString: 1
@@ -4589,18 +4499,7 @@
     toString$0: function(_) {
       return "RegExp/" + this.pattern + "/" + this._nativeRegExp.flags;
     },
-    firstMatch$1: function(string) {
-      var m = this._nativeRegExp.exec(string);
-      if (m == null)
-        return;
-      return H._MatchImplementation$(this, m);
-    },
     $isPattern: 1
-  };
-  H._MatchImplementation.prototype = {
-    $index: function(_, index) {
-      return C.JSArray_methods.$index(this._match, H.intTypeCheck(index));
-    }
   };
   P._AsyncRun__initializeScheduleImmediate_internalCallback.prototype = {
     call$1: function(_) {
@@ -4609,7 +4508,7 @@
       t1.storedCallback = null;
       f.call$0();
     },
-    $signature: 0
+    $signature: 1
   };
   P._AsyncRun__initializeScheduleImmediate_closure.prototype = {
     call$1: function(callback) {
@@ -4628,13 +4527,13 @@
     call$0: function() {
       this.callback.call$0();
     },
-    $signature: 1
+    $signature: 0
   };
   P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback.prototype = {
     call$0: function() {
       this.callback.call$0();
     },
-    $signature: 1
+    $signature: 0
   };
   P._TimerImpl.prototype = {
     _TimerImpl$2: function(milliseconds, callback) {
@@ -5002,13 +4901,13 @@
     call$0: function() {
       P._Future__propagateToListeners(this.$this, this.listener);
     },
-    $signature: 1
+    $signature: 0
   };
   P._Future__prependListeners_closure.prototype = {
     call$0: function() {
       P._Future__propagateToListeners(this.$this, this._box_0.listeners);
     },
-    $signature: 1
+    $signature: 0
   };
   P._Future__chainForeignFuture_closure.prototype = {
     call$1: function(value) {
@@ -5018,7 +4917,7 @@
       t1._state = 0;
       t1._complete$1(value);
     },
-    $signature: 0
+    $signature: 1
   };
   P._Future__chainForeignFuture_closure0.prototype = {
     call$2: function(error, stackTrace) {
@@ -5037,26 +4936,26 @@
     call$0: function() {
       this.target._completeError$2(this.e, this.s);
     },
-    $signature: 1
+    $signature: 0
   };
   P._Future__asyncComplete_closure.prototype = {
     call$0: function() {
       var t1 = this.$this;
       t1._completeWithValue$1(H.assertSubtypeOfRuntimeType(this.value, H.getTypeArgumentByIndex(t1, 0)));
     },
-    $signature: 1
+    $signature: 0
   };
   P._Future__chainFuture_closure.prototype = {
     call$0: function() {
       P._Future__chainCoreFuture(this.value, this.$this);
     },
-    $signature: 1
+    $signature: 0
   };
   P._Future__asyncCompleteError_closure.prototype = {
     call$0: function() {
       this.$this._completeError$2(this.error, this.stackTrace);
     },
-    $signature: 1
+    $signature: 0
   };
   P._Future__propagateToListeners_handleWhenCompleteCallback.prototype = {
     call$0: function() {
@@ -5199,7 +5098,7 @@
     call$0: function() {
       this.future._complete$1(this._box_0.count);
     },
-    $signature: 1
+    $signature: 0
   };
   P.StreamSubscription.prototype = {};
   P.StreamTransformerBase.prototype = {};
@@ -5374,7 +5273,7 @@
         t1.lastPendingEvent = null;
       H.assertSubtype(t2, "$is_EventDispatch", [H.getTypeArgumentByIndex($event, 0)], "$as_EventDispatch")._sendData$1($event.value);
     },
-    $signature: 1
+    $signature: 0
   };
   P._StreamImplEvents.prototype = {};
   P._DoneStreamSubscription.prototype = {
@@ -5416,7 +5315,7 @@
       error.stack = t2.toString$0(0);
       throw error;
     },
-    $signature: 1
+    $signature: 0
   };
   P._RootZone.prototype = {
     runGuarded$1: function(f) {
@@ -5458,9 +5357,6 @@
     },
     bindUnaryCallbackGuarded$1$1: function(f, $T) {
       return new P._RootZone_bindUnaryCallbackGuarded_closure(this, H.functionTypeCheck(f, {func: 1, ret: -1, args: [$T]}), $T);
-    },
-    $index: function(_, key) {
-      return;
     },
     run$1$1: function(f, $R) {
       H.functionTypeCheck(f, {func: 1, ret: $R});
@@ -7381,7 +7277,7 @@
     call$1: function($event) {
       this.$this.initCanvasSize$0();
     },
-    $signature: 4
+    $signature: 3
   };
   G.Canvas__attachListener_closure0.prototype = {
     call$1: function($event) {
@@ -7396,20 +7292,20 @@
       if (!t2)
         t1.classList.add("-canvas-chart-info-hidden");
     },
-    $signature: 4
+    $signature: 3
   };
   G.Canvas__attachListener_closure1.prototype = {
     call$1: function(url) {
       this.$this._image.src = H.stringTypeCheck(url);
     },
-    $signature: 0
+    $signature: 1
   };
   G.Canvas__attachListener_closure2.prototype = {
     call$1: function(info) {
       var t1 = this.$this._info;
       (t1 && C.DivElement_methods).setInnerHtml$1(t1, H.stringTypeCheck(info));
     },
-    $signature: 0
+    $signature: 1
   };
   G.Canvas__attachListener_closure3.prototype = {
     call$1: function($event) {
@@ -7536,7 +7432,7 @@
         t1._ictx.closePath();
       }
     },
-    $signature: 3
+    $signature: 4
   };
   G.Canvas__attachListener_closure4.prototype = {
     call$1: function($event) {
@@ -7570,7 +7466,7 @@
       if (H.boolConversionCheck($event.altKey))
         t1._doubleCover$1($event);
     },
-    $signature: 3
+    $signature: 4
   };
   G.Canvas__attachListener_closure5.prototype = {
     call$1: function($event) {
@@ -7580,7 +7476,7 @@
       t1._double = t1._coverR = t1._coverL = t1._calculate = false;
       t1._doubleAnchorX = 0;
     },
-    $signature: 3
+    $signature: 4
   };
   M.ChartInputs.prototype = {
     ChartInputs$2$cls: function(id, cls) {
@@ -7700,25 +7596,25 @@
       else
         J.get$classes$x(t2.parentElement).add$1(0, t1 + _s25_);
     },
-    $signature: 0
+    $signature: 1
   };
   M.ChartInputs_closure0.prototype = {
     call$1: function(time) {
       this.$this._itime.value = H.stringTypeCheck(time);
     },
-    $signature: 0
+    $signature: 1
   };
   M.ChartInputs_closure1.prototype = {
     call$1: function(freq) {
       this.$this._ifreq.value = H.stringTypeCheck(freq);
     },
-    $signature: 0
+    $signature: 1
   };
   M.ChartInputs_closure2.prototype = {
     call$1: function(book) {
       this.$this._ibook.value = H.stringTypeCheck(book);
     },
-    $signature: 0
+    $signature: 1
   };
   M.ChartInputs_closure3.prototype = {
     call$1: function($event) {
@@ -7744,7 +7640,7 @@
       }
       t1._bsymbol.blur();
     },
-    $signature: 3
+    $signature: 4
   };
   M.ChartInputs_closure4.prototype = {
     call$1: function($event) {
@@ -7785,7 +7681,7 @@
       t2.getChart$0();
       t1._btn.blur();
     },
-    $signature: 3
+    $signature: 4
   };
   M.ChartInputs__addSymbol_closure.prototype = {
     call$1: function($event) {
@@ -7810,7 +7706,7 @@
       t1._$symbol.add$1(0, t2);
       t1.getChart$0();
     },
-    $signature: 4
+    $signature: 3
   };
   X.MainControl.prototype = {
     MainControl$5: function(_navbar, _sidebar, _modal, _chartInputs, _note) {
@@ -7956,7 +7852,7 @@
     call$1: function($event) {
       window.location.pathname = "/view/practice";
     },
-    $signature: 4
+    $signature: 3
   };
   O.Navbar_closure0.prototype = {
     call$1: function($event) {
@@ -7982,7 +7878,7 @@
       t2.getChart$0();
       t4.blur();
     },
-    $signature: 4
+    $signature: 3
   };
   F.Note.prototype = {
     Note$2$cls: function(id, cls) {
@@ -8022,7 +7918,7 @@
         }
       }
     },
-    $signature: 0
+    $signature: 1
   };
   R.Server.prototype = {
     freqRequest$1: function(freq) {
@@ -8150,85 +8046,6 @@
     }
   };
   M.Sidebar.prototype = {};
-  Y.TradeInputs.prototype = {
-    TradeInputs$2$cls: function(id, cls) {
-      var t1, t2, t3, _this = this;
-      _this._iquantity.value = "100";
-      t1 = _this._binc;
-      t1.classList.add("-trade-inputs-operation-btn-selected");
-      t2 = W.MouseEvent;
-      t3 = {func: 1, ret: -1, args: [t2]};
-      W._EventStreamSubscription$(t1, "click", H.functionTypeCheck(new Y.TradeInputs_closure(_this), t3), false, t2);
-      t1 = _this._bdec;
-      t1.toString;
-      W._EventStreamSubscription$(t1, "click", H.functionTypeCheck(new Y.TradeInputs_closure0(_this), t3), false, t2);
-      t2 = _this._trade_inputs$_server;
-      t3 = t2._$book;
-      new P._BroadcastStream(t3, [H.getTypeArgumentByIndex(t3, 0)]).listen$1(new Y.TradeInputs_closure1(_this));
-      t3 = t2._$symbol;
-      new P._BroadcastStream(t3, [H.getTypeArgumentByIndex(t3, 0)]).listen$1(new Y.TradeInputs_closure2(_this));
-      t3 = t2._$time;
-      new P._BroadcastStream(t3, [H.getTypeArgumentByIndex(t3, 0)]).listen$1(new Y.TradeInputs_closure3(_this));
-      t2 = t2._$info;
-      new P._BroadcastStream(t2, [H.getTypeArgumentByIndex(t2, 0)]).listen$1(new Y.TradeInputs_closure4(_this));
-    }
-  };
-  Y.TradeInputs_closure.prototype = {
-    call$1: function($event) {
-      var t1, t2;
-      H.interceptedTypeCheck($event, "$isMouseEvent");
-      t1 = this.$this;
-      t2 = t1._binc;
-      t2.classList.add("-trade-inputs-operation-btn-selected");
-      t1._bdec.classList.remove("-trade-inputs-operation-btn-selected");
-      t2.blur();
-    },
-    $signature: 3
-  };
-  Y.TradeInputs_closure0.prototype = {
-    call$1: function($event) {
-      var t1, t2;
-      H.interceptedTypeCheck($event, "$isMouseEvent");
-      t1 = this.$this;
-      t2 = t1._bdec;
-      t2.classList.add("-trade-inputs-operation-btn-selected");
-      t1._binc.classList.remove("-trade-inputs-operation-btn-selected");
-      t2.blur();
-    },
-    $signature: 3
-  };
-  Y.TradeInputs_closure1.prototype = {
-    call$1: function(book) {
-      this.$this._trade_inputs$_ibook.value = H.stringTypeCheck(book);
-    },
-    $signature: 0
-  };
-  Y.TradeInputs_closure2.prototype = {
-    call$1: function(symbol) {
-      var t1,
-        regex = P.RegExp_RegExp("^([a-z]+)(?:[fghjkmnquvxz])\\d{2}$"),
-        lsymbol = J.toLowerCase$0$s(symbol);
-      if (regex._nativeRegExp.test(lsymbol)) {
-        t1 = regex.firstMatch$1(lsymbol)._match;
-        if (1 >= t1.length)
-          return H.ioore(t1, 1);
-        this.$this._trade_inputs$_isymbol.value = t1[1];
-      }
-    },
-    $signature: 0
-  };
-  Y.TradeInputs_closure3.prototype = {
-    call$1: function(time) {
-      this.$this._trade_inputs$_itime.value = H.stringTypeCheck(time);
-    },
-    $signature: 0
-  };
-  Y.TradeInputs_closure4.prototype = {
-    call$1: function(info) {
-      this.$this._iprice.value = J.toString$0$(J.$index$asx(info, "Close"));
-    },
-    $signature: 0
-  };
   (function aliases() {
     var _ = J.Interceptor.prototype;
     _.super$Interceptor$toString = _.toString$0;
@@ -8266,7 +8083,7 @@
       _inherit = hunkHelpers.inherit,
       _inheritMany = hunkHelpers.inheritMany;
     _inherit(P.Object, null);
-    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, P.Iterator, H.TypeErrorDecoder, P.Error, H.ExceptionAndStackTrace, H.Closure, H._StackTrace, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, H.JSSyntaxRegExp, H._MatchImplementation, P._TimerImpl, P._AsyncAwaitCompleter, P.Stream, P._BufferingStreamSubscription, P._BroadcastStreamController, P._Completer, P._FutureListener, P._Future, P._AsyncCallbackEntry, P.StreamSubscription, P.StreamTransformerBase, P._DelayedEvent, P._PendingEvents, P._DoneStreamSubscription, P._StreamIterator, P.AsyncError, P._Zone, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P._ListBase_Object_ListMixin, P.ListMixin, P.SetMixin, P._SetBase_Object_SetMixin, P.Codec, P.bool, P.DateTime, P.num, P.OutOfMemoryError, P.StackOverflowError, P._Exception, P.FormatException, P.Function, P.List, P.Map, P.Null, P.StackTrace, P.String, P.StringBuffer, W.CssStyleDeclarationBase, W._Html5NodeValidator, W.ImmutableListMixin, W.NodeValidatorBuilder, W._SimpleNodeValidator, W._SvgNodeValidator, W.FixedSizeListIterator, W._DOMWindowCrossFrame, W.NodeValidator, W._SameOriginUriPolicy, W._ValidatingTreeSanitizer, G.Canvas, M.ChartInputs, X.MainControl, D.Modal, O.Navbar, F.Note, R.Server, M.Sidebar, Y.TradeInputs]);
+    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, P.Iterator, H.TypeErrorDecoder, P.Error, H.ExceptionAndStackTrace, H.Closure, H._StackTrace, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, H.JSSyntaxRegExp, P._TimerImpl, P._AsyncAwaitCompleter, P.Stream, P._BufferingStreamSubscription, P._BroadcastStreamController, P._Completer, P._FutureListener, P._Future, P._AsyncCallbackEntry, P.StreamSubscription, P.StreamTransformerBase, P._DelayedEvent, P._PendingEvents, P._DoneStreamSubscription, P._StreamIterator, P.AsyncError, P._Zone, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P._ListBase_Object_ListMixin, P.ListMixin, P.SetMixin, P._SetBase_Object_SetMixin, P.Codec, P.bool, P.DateTime, P.num, P.OutOfMemoryError, P.StackOverflowError, P._Exception, P.FormatException, P.Function, P.List, P.Map, P.Null, P.StackTrace, P.String, P.StringBuffer, W.CssStyleDeclarationBase, W._Html5NodeValidator, W.ImmutableListMixin, W.NodeValidatorBuilder, W._SimpleNodeValidator, W._SvgNodeValidator, W.FixedSizeListIterator, W._DOMWindowCrossFrame, W.NodeValidator, W._SameOriginUriPolicy, W._ValidatingTreeSanitizer, G.Canvas, M.ChartInputs, X.MainControl, D.Modal, O.Navbar, F.Note, R.Server, M.Sidebar]);
     _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JSArray, J.JSNumber, J.JSString, W.EventTarget, W.CanvasRenderingContext2D, W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase, W.DomException, W.DomTokenList, W.Event, W._HtmlCollection_Interceptor_ListMixin, W.Location, W._NodeList_Interceptor_ListMixin, W.__NamedNodeMap_Interceptor_ListMixin]);
     _inheritMany(J.JavaScriptObject, [J.PlainJavaScriptObject, J.UnknownJavaScriptObject, J.JavaScriptFunction]);
     _inherit(J.JSUnmodifiableArray, J.JSArray);
@@ -8276,7 +8093,7 @@
     _inheritMany(P.Iterator, [H.MappedIterator, H.WhereIterator]);
     _inheritMany(H.ListIterable, [H.MappedListIterable, P._JsonMapKeyIterable]);
     _inheritMany(P.Error, [H.NullError, H.JsNoSuchMethodError, H.UnknownJsTypeError, H.TypeErrorImplementation, H.CastErrorImplementation, H.RuntimeError, P.AssertionError, P.NullThrownError, P.ArgumentError, P.UnsupportedError, P.UnimplementedError, P.StateError, P.ConcurrentModificationError, P.CyclicInitializationError]);
-    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P._AsyncRun__initializeScheduleImmediate_internalCallback, P._AsyncRun__initializeScheduleImmediate_closure, P._AsyncRun__scheduleImmediateJsOverride_internalCallback, P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, P._TimerImpl_internalCallback, P._awaitOnObject_closure, P._awaitOnObject_closure0, P._wrapJsFunctionForAsync_closure, P._Future__addListener_closure, P._Future__prependListeners_closure, P._Future__chainForeignFuture_closure, P._Future__chainForeignFuture_closure0, P._Future__chainForeignFuture_closure1, P._Future__asyncComplete_closure, P._Future__chainFuture_closure, P._Future__asyncCompleteError_closure, P._Future__propagateToListeners_handleWhenCompleteCallback, P._Future__propagateToListeners_handleWhenCompleteCallback_closure, P._Future__propagateToListeners_handleValueCallback, P._Future__propagateToListeners_handleError, P.Stream_length_closure, P.Stream_length_closure0, P._PendingEvents_schedule_closure, P._rootHandleUncaughtError_closure, P._RootZone_bindCallback_closure, P._RootZone_bindCallbackGuarded_closure, P._RootZone_bindUnaryCallbackGuarded_closure, P.MapBase_mapToString_closure, W.Element_Element$html_closure, W.HttpRequest_getString_closure, W.HttpRequest_request_closure, W._EventStreamSubscription_closure, W.NodeValidatorBuilder_allowsElement_closure, W.NodeValidatorBuilder_allowsAttribute_closure, W._SimpleNodeValidator_closure, W._SimpleNodeValidator_closure0, W._TemplatingNodeValidator_closure, W._ValidatingTreeSanitizer_sanitizeTree_walk, P.CssClassSetImpl_add_closure, P.FilteredElementList__iterable_closure, P.FilteredElementList__iterable_closure0, G.Canvas__attachListener_closure, G.Canvas__attachListener_closure0, G.Canvas__attachListener_closure1, G.Canvas__attachListener_closure2, G.Canvas__attachListener_closure3, G.Canvas__attachListener_closure4, G.Canvas__attachListener_closure5, M.ChartInputs_closure, M.ChartInputs_closure0, M.ChartInputs_closure1, M.ChartInputs_closure2, M.ChartInputs_closure3, M.ChartInputs_closure4, M.ChartInputs__addSymbol_closure, X.MainControl_closure, X.MainControl_closure0, O.Navbar_closure, O.Navbar_closure0, F.Note_closure, Y.TradeInputs_closure, Y.TradeInputs_closure0, Y.TradeInputs_closure1, Y.TradeInputs_closure2, Y.TradeInputs_closure3, Y.TradeInputs_closure4]);
+    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P._AsyncRun__initializeScheduleImmediate_internalCallback, P._AsyncRun__initializeScheduleImmediate_closure, P._AsyncRun__scheduleImmediateJsOverride_internalCallback, P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, P._TimerImpl_internalCallback, P._awaitOnObject_closure, P._awaitOnObject_closure0, P._wrapJsFunctionForAsync_closure, P._Future__addListener_closure, P._Future__prependListeners_closure, P._Future__chainForeignFuture_closure, P._Future__chainForeignFuture_closure0, P._Future__chainForeignFuture_closure1, P._Future__asyncComplete_closure, P._Future__chainFuture_closure, P._Future__asyncCompleteError_closure, P._Future__propagateToListeners_handleWhenCompleteCallback, P._Future__propagateToListeners_handleWhenCompleteCallback_closure, P._Future__propagateToListeners_handleValueCallback, P._Future__propagateToListeners_handleError, P.Stream_length_closure, P.Stream_length_closure0, P._PendingEvents_schedule_closure, P._rootHandleUncaughtError_closure, P._RootZone_bindCallback_closure, P._RootZone_bindCallbackGuarded_closure, P._RootZone_bindUnaryCallbackGuarded_closure, P.MapBase_mapToString_closure, W.Element_Element$html_closure, W.HttpRequest_getString_closure, W.HttpRequest_request_closure, W._EventStreamSubscription_closure, W.NodeValidatorBuilder_allowsElement_closure, W.NodeValidatorBuilder_allowsAttribute_closure, W._SimpleNodeValidator_closure, W._SimpleNodeValidator_closure0, W._TemplatingNodeValidator_closure, W._ValidatingTreeSanitizer_sanitizeTree_walk, P.CssClassSetImpl_add_closure, P.FilteredElementList__iterable_closure, P.FilteredElementList__iterable_closure0, G.Canvas__attachListener_closure, G.Canvas__attachListener_closure0, G.Canvas__attachListener_closure1, G.Canvas__attachListener_closure2, G.Canvas__attachListener_closure3, G.Canvas__attachListener_closure4, G.Canvas__attachListener_closure5, M.ChartInputs_closure, M.ChartInputs_closure0, M.ChartInputs_closure1, M.ChartInputs_closure2, M.ChartInputs_closure3, M.ChartInputs_closure4, M.ChartInputs__addSymbol_closure, X.MainControl_closure, X.MainControl_closure0, O.Navbar_closure, O.Navbar_closure0, F.Note_closure]);
     _inheritMany(H.TearOffClosure, [H.StaticClosure, H.BoundClosure]);
     _inherit(H._AssertionError, P.AssertionError);
     _inherit(P.MapBase, P.MapMixin);
@@ -8332,7 +8149,7 @@
     _mixin(W.__NamedNodeMap_Interceptor_ListMixin, P.ListMixin);
     _mixin(W.__NamedNodeMap_Interceptor_ListMixin_ImmutableListMixin, W.ImmutableListMixin);
   })();
-  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: P.Null, args: [,]}, {func: 1, ret: P.Null}, {func: 1, ret: -1}, {func: 1, ret: P.Null, args: [W.MouseEvent]}, {func: 1, ret: P.Null, args: [W.Event]}, {func: 1, ret: -1, args: [P.Object], opt: [P.StackTrace]}, {func: 1, ret: -1, args: [{func: 1, ret: -1}]}, {func: 1, args: [,]}, {func: 1, ret: P.bool, args: [W.Node]}, {func: 1, ret: P.bool, args: [W.NodeValidator]}, {func: 1, ret: P.bool, args: [P.String]}, {func: 1, ret: P.Null, args: [W.KeyboardEvent]}, {func: 1, ret: P.bool, args: [W.Element, P.String, P.String, W._Html5NodeValidator]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.Null, args: [{func: 1, ret: -1}]}, {func: 1, ret: -1, args: [,]}, {func: 1, ret: P.Null, args: [, P.StackTrace]}, {func: 1, ret: P.Null, args: [P.int,,]}, {func: 1, ret: P.Null, args: [,], opt: [P.StackTrace]}, {func: 1, ret: [P._Future,,], args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [W.HttpRequest]}, {func: 1, ret: P.Null, args: [W.ProgressEvent]}, {func: 1, args: [W.Event]}, {func: 1, ret: P.String, args: [P.String]}, {func: 1, ret: -1, args: [W.Node, W.Node]}, {func: 1, ret: P.bool, args: [[P.Set, P.String]]}, {func: 1, ret: W.Element, args: [W.Node]}], interceptorsByTag: null, leafTags: null};
+  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: P.Null}, {func: 1, ret: P.Null, args: [,]}, {func: 1, ret: -1}, {func: 1, ret: P.Null, args: [W.Event]}, {func: 1, ret: P.Null, args: [W.MouseEvent]}, {func: 1, ret: -1, args: [P.Object], opt: [P.StackTrace]}, {func: 1, ret: -1, args: [{func: 1, ret: -1}]}, {func: 1, args: [,]}, {func: 1, ret: P.bool, args: [W.Node]}, {func: 1, ret: P.bool, args: [W.NodeValidator]}, {func: 1, ret: P.bool, args: [P.String]}, {func: 1, ret: P.Null, args: [W.KeyboardEvent]}, {func: 1, ret: P.bool, args: [W.Element, P.String, P.String, W._Html5NodeValidator]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.Null, args: [{func: 1, ret: -1}]}, {func: 1, ret: -1, args: [,]}, {func: 1, ret: P.Null, args: [, P.StackTrace]}, {func: 1, ret: P.Null, args: [P.int,,]}, {func: 1, ret: P.Null, args: [,], opt: [P.StackTrace]}, {func: 1, ret: [P._Future,,], args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [W.HttpRequest]}, {func: 1, ret: P.Null, args: [W.ProgressEvent]}, {func: 1, args: [W.Event]}, {func: 1, ret: P.String, args: [P.String]}, {func: 1, ret: -1, args: [W.Node, W.Node]}, {func: 1, ret: P.bool, args: [[P.Set, P.String]]}, {func: 1, ret: W.Element, args: [W.Node]}], interceptorsByTag: null, leafTags: null};
   (function constants() {
     var makeConstList = hunkHelpers.makeConstList;
     C.BodyElement_methods = W.BodyElement.prototype;

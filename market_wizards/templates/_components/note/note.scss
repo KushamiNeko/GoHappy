@@ -5,7 +5,7 @@
 
 .-note {
   z-index: 10;
-  width: 100%;
+  width: 90%;
   position: absolute;
   bottom: -100vh;
   @include will-change(bottom, 0.1s, ease);

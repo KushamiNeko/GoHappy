@@ -67,9 +67,10 @@ func NewTradingAgent(ctx *context.Context, live bool) (*TradingAgent, error) {
 
 func (t *TradingAgent) NewBook(inputs map[string]string) error {
 	n := input.InputsAbbreviation(inputs, map[string]string{
-		"t": "time",
-		"n": "note",
-		"v": "version",
+		//"t": "time",
+		//"n": "note",
+		//"v": "version",
+		"t": "title",
 	})
 
 	n["book_type"] = t.bookType
@@ -102,7 +103,8 @@ func (t *TradingAgent) UpdateBook() error {
 		config.DbTradingBooks,
 		t.ctx.User().Uid(),
 		map[string]string{
-			"index": t.reading.Index(),
+			//"index": t.reading.Index(),
+			"record_index": t.reading.RecordIndex(),
 		},
 		t.reading.Entity(),
 	)
@@ -125,7 +127,8 @@ func (t *TradingAgent) ChangeBook(inputs map[string]string) error {
 	}
 
 	for _, b := range t.books {
-		if strings.HasPrefix(b.Index(), i) {
+		//if strings.HasPrefix(b.Index(), i) {
+		if strings.HasPrefix(b.RecordIndex(), i) {
 			t.reading = b
 			return nil
 		}
@@ -151,7 +154,8 @@ func (t *TradingAgent) NewTransaction(inputs map[string]string) error {
 
 	err = t.ctx.Db().Insert(
 		t.tradingDB,
-		t.reading.Index(),
+		//t.reading.Index(),
+		t.reading.RecordIndex(),
 		transaction.Entity(),
 	)
 	if err != nil {
@@ -169,7 +173,8 @@ func (t *TradingAgent) NewTransaction(inputs map[string]string) error {
 func (t *TradingAgent) Positions() ([]*model.FuturesTransaction, error) {
 	results, err := t.ctx.Db().Find(
 		t.tradingDB,
-		t.reading.Index(),
+		//t.reading.Index(),
+		t.reading.RecordIndex(),
 		nil,
 	)
 	if err != nil {
@@ -248,7 +253,8 @@ func (t *TradingAgent) Books() ([]*model.TradingBook, error) {
 func (t *TradingAgent) Transactions() ([]*model.FuturesTransaction, error) {
 	results, err := t.ctx.Db().Find(
 		t.tradingDB,
-		t.reading.Index(),
+		//t.reading.Index(),
+		t.reading.RecordIndex(),
 		nil,
 	)
 	if err != nil {
@@ -272,7 +278,8 @@ func (t *TradingAgent) Transactions() ([]*model.FuturesTransaction, error) {
 func (t *TradingAgent) Trades() ([]*model.FuturesTrade, error) {
 	results, err := t.ctx.Db().Find(
 		t.tradingDB,
-		t.reading.Index(),
+		//t.reading.Index(),
+		t.reading.RecordIndex(),
 		nil,
 	)
 	if err != nil {
@@ -364,7 +371,8 @@ func (t *TradingAgent) Reading() (*model.TradingBook, error) {
 func (t *TradingAgent) SetReading(book *model.TradingBook) error {
 	found := false
 	for _, b := range t.books {
-		if b.Time().Equal(book.Time()) && b.Note() == book.Note() {
+		//if b.Time().Equal(book.Time()) && b.Note() == book.Note() {
+		if b.Title() == book.Title() {
 			found = true
 			break
 		}
