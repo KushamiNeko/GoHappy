@@ -389,6 +389,7 @@ func (p *ServiceHandler) recordsLookup(book, symbol string) error {
 			rs = append(rs, r)
 		}
 	}
+
 	p.records = rs
 
 	return nil
@@ -427,6 +428,10 @@ func (p *ServiceHandler) notesLookup(book string) error {
 
 			ns = append(ns, n)
 		}
+
+		sort.Slice(ns, func(i, j int) bool {
+			return ns[i].Time().Before(ns[j].Time())
+		})
 
 		p.nstore[book] = ns
 	}
@@ -752,6 +757,7 @@ func (p *ServiceHandler) plot(out io.Writer, freq data.Frequency, showRecords bo
 		pt.AddPlotter(
 			&plotter.TradesRecorder{
 				TimeSeries: p.series,
+				Frequency:  freq,
 				Records:    p.records,
 				Notes:      p.notes,
 				FontSize:   plot.ChartConfig("RecordsFontSize"),
