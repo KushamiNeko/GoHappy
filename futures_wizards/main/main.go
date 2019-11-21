@@ -17,8 +17,11 @@ func main() {
 	db := database.NewFileDB(
 		filepath.Join(
 			os.Getenv("HOME"),
-			"Documents/database/yaml/futures_wizards"),
-		database.YamlEngine,
+			//"Documents/database/yaml/futures_wizards",
+			"Documents/database/filedb/futures_wizards",
+		),
+		//database.YamlEngine,
+		database.JsonEngine,
 	)
 
 	ctx := context.NewContext(db)

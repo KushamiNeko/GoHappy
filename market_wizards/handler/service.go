@@ -599,7 +599,13 @@ func (p *ServiceHandler) symbolSource(symbol string) data.DataSource {
 	regex := regexp.MustCompile(pattern)
 
 	if regex.MatchString(symbol) {
-		return data.NewDataSource(data.Yahoo)
+
+		if symbol != "spx" && symbol != "compq" && symbol != "rut" {
+			return data.NewDataSource(data.AlphaVantage)
+		} else {
+			return data.NewDataSource(data.Yahoo)
+		}
+
 	} else {
 		return data.NewDataSource(data.Barchart)
 	}

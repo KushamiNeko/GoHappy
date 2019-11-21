@@ -203,7 +203,7 @@ func (t *TradingAgent) Positions() ([]*model.FuturesTransaction, error) {
 
 	tb := make(map[string]*model.FuturesTrade)
 
-	for i := len(trades) - 1; i > 0; i-- {
+	for i := len(trades) - 1; i >= 0; i-- {
 		t := trades[i]
 
 		if v, ok := tb[t.Symbol()]; !ok {
