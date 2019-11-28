@@ -243,6 +243,18 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 				msn.Sprintf("%.2f", y-ay),
 				msn.Sprintf("%.2f", ((y-ay)/ay)*100.0),
 			)
+		} else {
+			if x > 0 {
+				dd := p.series.ValueAtIndex(x, "close", 0) - p.series.ValueAtIndex(x-1, "close", 0)
+				dp := (dd / p.series.ValueAtIndex(x-1, "close", 0)) * 100.0
+
+				is = fmt.Sprintf(
+					"%sdiff($): %s\ndiff(%%): %s\n",
+					is,
+					msn.Sprintf("%.2f", dd),
+					msn.Sprintf("%.2f", dp),
+				)
+			}
 		}
 
 		_, err = w.Write([]byte(is))
@@ -600,10 +612,13 @@ func (p *ServiceHandler) symbolSource(symbol string) data.DataSource {
 
 	if regex.MatchString(symbol) {
 
-		if symbol != "spx" && symbol != "compq" && symbol != "rut" {
-			return data.NewDataSource(data.AlphaVantage)
-		} else {
+		switch {
+		case symbol == "spx" || symbol == "compq" || symbol == "rut" || symbol == "vix":
 			return data.NewDataSource(data.Yahoo)
+		case symbol == "vle":
+			return data.NewDataSource(data.StockCharts)
+		default:
+			return data.NewDataSource(data.AlphaVantage)
 		}
 
 	} else {

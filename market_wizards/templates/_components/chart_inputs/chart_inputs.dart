@@ -26,10 +26,13 @@ class ChartInputs {
     //"rut",
     "esz19",
     "nqz19",
+    "ymz19",
     "qrz19",
     "znz19",
     "clz19",
     "gcz19",
+    //"vix",
+    //"vle",
   ];
 
   ChartInputs(String id, {String cls = ""})
