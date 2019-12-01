@@ -23,8 +23,10 @@ import (
 	"github.com/KushamiNeko/go_fun/chart/utils"
 	"github.com/KushamiNeko/go_fun/trading/model"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"gonum.org/v1/plot/vg"
 	"gopkg.in/yaml.v2"
 
+	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
@@ -55,6 +57,9 @@ type ServiceHandler struct {
 	series  *data.TimeSeries
 	records []*model.FuturesTransaction
 	notes   []*model.TradingNote
+
+	tickWidth  vg.Length
+	tickHeight vg.Length
 }
 
 func (p *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -453,7 +458,7 @@ func (p *ServiceHandler) notesLookup(book string) error {
 	return nil
 }
 
-func inverseX(min, max, nx float64) float64 {
+func (p *ServiceHandler) inverseX(min, max, nx float64) float64 {
 	/*
 
 			linear scale function
@@ -470,13 +475,14 @@ func inverseX(min, max, nx float64) float64 {
 
 	*/
 
-	const wm = 0.032817628
+	//const wm = 0.032817628
+	wm := float64(p.tickWidth / plot.ChartConfig("ChartWidth"))
 
 	r := (max - min) / (1.0 - wm)
 	return (nx - wm) * r
 }
 
-func inverseY(min, max, ny float64) float64 {
+func (p *ServiceHandler) inverseY(min, max, ny float64) float64 {
 
 	/*
 
@@ -500,7 +506,8 @@ func inverseY(min, max, ny float64) float64 {
 
 	*/
 
-	const hm = 0.025
+	//const hm = 0.025
+	hm := float64(p.tickHeight / plot.ChartConfig("ChartHeight"))
 
 	r := 1.0 / (1.0 - hm)
 	ly := (ny - hm) * r
@@ -530,14 +537,14 @@ func (p *ServiceHandler) inverseXY(snx, sny string) (int, float64, error) {
 		25.0,
 	)
 
-	x := int(math.Round(inverseX(-0.5, float64(len(p.series.Times()))-0.5, nx)))
+	x := int(math.Round(p.inverseX(-0.5, float64(len(p.series.Times()))-0.5, nx)))
 	if x < 0 {
 		x = 0
 	} else if x > len(p.series.Times())-1 {
 		x = len(p.series.Times()) - 1
 	}
 
-	y := inverseY(ymin, ymax, ny)
+	y := p.inverseY(ymin, ymax, ny)
 	if y < ymin {
 		y = ymin
 	} else if y > ymax {
@@ -787,13 +794,21 @@ func (p *ServiceHandler) plot(out io.Writer, freq data.Frequency, showRecords bo
 		)
 	}
 
+	mh := utils.Max(p.series.Values("high"))
+	ml := utils.Min(p.series.Values("low"))
+
 	ymin, ymax := utils.RangeExtend(
-		utils.Min(p.series.Values("low")),
-		utils.Max(p.series.Values("high")),
+		ml,
+		mh,
 		25.0,
 	)
 
 	pt.YRange(ymin, ymax)
+
+	msg := message.NewPrinter(language.English)
+
+	p.tickWidth = pt.TickWidth(msg.Sprintf("%.2f", mh))
+	p.tickHeight = pt.TickHeight("2006 Jan")
 
 	err = pt.Plot(
 		out,
