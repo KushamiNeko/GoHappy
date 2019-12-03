@@ -4,15 +4,15 @@
 
 <div
   id="{{.ID}}-trade-inputs-container"
-  class="{{.Class}}-trade-inputs-container"
->
+  class="{{.Class}}-trade-inputs-container {{.Class}}-trade-inputs-hide"
+  >
   <div class="{{.Class}}-trade-inputs-set">
     <span class="{{.Class}}-trade-inputs-label">book</span>
     <input
       id="{{.ID}}-trade-inputs-book"
       type="text"
       class="{{.Class}}-trade-inputs-text"
-    />
+      />
   </div>
 
   <div class="{{.Class}}-trade-inputs-set">
@@ -21,7 +21,7 @@
       id="{{.ID}}-trade-inputs-time"
       type="text"
       class="{{.Class}}-trade-inputs-text"
-    />
+      />
   </div>
 
   <div class="{{.Class}}-trade-inputs-set">
@@ -30,7 +30,7 @@
       id="{{.ID}}-trade-inputs-symbol"
       type="text"
       class="{{.Class}}-trade-inputs-text"
-    />
+      />
   </div>
 
   <div class="{{.Class}}-trade-inputs-set">
@@ -39,7 +39,7 @@
       id="{{.ID}}-trade-inputs-price"
       type="text"
       class="{{.Class}}-trade-inputs-text"
-    />
+      />
   </div>
 
   <div class="{{.Class}}-trade-inputs-set">
@@ -48,7 +48,7 @@
       id="{{.ID}}-trade-inputs-quantity"
       type="text"
       class="{{.Class}}-trade-inputs-text"
-    />
+      />
   </div>
 
   <div class="{{.Class}}-trade-inputs-set">
@@ -57,7 +57,7 @@
       <button
         id="{{.ID}}-trade-inputs-increase"
         class="{{.Class}}-trade-inputs-operation-btn"
-      >
+        >
         <i class="material-icons {{.Class}}-trade-inputs-operation-icon">
           add
         </i>
@@ -65,7 +65,7 @@
       <button
         id="{{.ID}}-trade-inputs-decrease"
         class="{{.Class}}-trade-inputs-operation-btn"
-      >
+        >
         <i class="material-icons {{.Class}}-trade-inputs-operation-icon">
           remove
         </i>
@@ -85,7 +85,7 @@
   <button
     id="{{.ID}}-trade-inputs-ok"
     class="{{.Class}}-trade-inputs-btn"
-  >
+    >
     ok
   </button>
 </div>

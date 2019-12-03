@@ -1,6 +1,8 @@
 import "dart:html";
 import "../_components/chart_inputs/chart_inputs.dart";
+import "../_components/trade_inputs/trade_inputs.dart";
 import "../_components/modal/modal.dart";
+import "../_components/canvas/canvas.dart";
 import "../_components/note/note.dart";
 import "../_components/navbar/navbar.dart";
 import "../_components/sidebar/sidebar.dart";
@@ -9,6 +11,9 @@ import "server.dart";
 class MainControl {
   final Server _server;
   final ChartInputs _chartInputs;
+  final TradeInputs _tradeInputs;
+
+  final Canvas _canvas;
 
   final Navbar _navbar;
   final Sidebar _sidebar;
@@ -18,8 +23,8 @@ class MainControl {
 
   bool _isFullScreen = false;
 
-  MainControl(
-      this._navbar, this._sidebar, this._modal, this._chartInputs, this._note)
+  MainControl(this._navbar, this._sidebar, this._modal, this._canvas,
+      this._chartInputs, this._note, this._tradeInputs)
       : _server = new Server() {
     window.onKeyDown.listen((KeyboardEvent event) {
       if (_chartInputs.isFocus()) {
@@ -34,6 +39,19 @@ class MainControl {
       }
 
       _keyPressSwitch(event);
+    });
+
+    document.body.onMouseDown.listen((MouseEvent event) {
+      _canvas.mouseDown(event);
+    });
+
+    document.body.onMouseMove.listen((MouseEvent event) {
+      _canvas.mouseMove(event);
+      _tradeInputs.move(event.client.x, event.client.y);
+    });
+
+    document.body.onMouseUp.listen((MouseEvent event) {
+      _canvas.mouseUp(event);
     });
   }
 
@@ -114,6 +132,15 @@ class MainControl {
             _note.close();
           } else {
             _note.open();
+          }
+          break;
+
+        case (116):
+          // t
+          if (_tradeInputs.isOpen()) {
+            _tradeInputs.hide();
+          } else {
+            _tradeInputs.show();
           }
           break;
         default:

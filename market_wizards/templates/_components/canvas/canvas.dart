@@ -84,57 +84,57 @@ class Canvas {
     _server.$chartInspect.listen((info) {
       _info.innerHtml = info;
     });
+  }
 
-    document.body.onMouseMove.listen((MouseEvent event) {
-      _inspectInfo(event);
+  mouseMove(MouseEvent event) {
+    _inspectInfo(event);
 
-      if (_double) {
-        _doubleCover(event);
-      } else if (_coverL) {
-        _singleCoverL(event);
-      } else if (_coverR) {
-        _singleCoverR(event);
-      } else {}
-      _inspect(event);
-      if (_calculate) {
-        _calcAnchor(event);
-      }
-    });
+    if (_double) {
+      _doubleCover(event);
+    } else if (_coverL) {
+      _singleCoverL(event);
+    } else if (_coverR) {
+      _singleCoverR(event);
+    } else {}
+    _inspect(event);
+    if (_calculate) {
+      _calcAnchor(event);
+    }
+  }
 
-    document.body.onMouseDown.listen((MouseEvent event) {
-      _ictx.clearRect(0, 0, _inspectCanvas.width, _inspectCanvas.height);
-      _cctx.clearRect(0, 0, _inspectCanvas.width, _inspectCanvas.height);
+  mouseDown(MouseEvent event) {
+    _ictx.clearRect(0, 0, _inspectCanvas.width, _inspectCanvas.height);
+    _cctx.clearRect(0, 0, _inspectCanvas.width, _inspectCanvas.height);
 
-      if (!_info.classes.contains("${_cls}-canvas-chart-info-hidden")) {
-        _info.classes.add("${_cls}-canvas-chart-info-hidden");
-      }
+    if (!_info.classes.contains("${_cls}-canvas-chart-info-hidden")) {
+      _info.classes.add("${_cls}-canvas-chart-info-hidden");
+    }
 
-      _calculate = true;
-      _calcAnchorX = _eventXOffset(event);
-      _calcAnchorY = _eventYOffset(event);
+    _calculate = true;
+    _calcAnchorX = _eventXOffset(event);
+    _calcAnchorY = _eventYOffset(event);
 
-      if (event.ctrlKey) {
-        _singleCoverL(event);
-      }
+    if (event.ctrlKey) {
+      _singleCoverL(event);
+    }
 
-      if (event.shiftKey) {
-        _singleCoverR(event);
-      }
+    if (event.shiftKey) {
+      _singleCoverR(event);
+    }
 
-      if (event.altKey) {
-        _doubleCover(event);
-      }
-    });
+    if (event.altKey) {
+      _doubleCover(event);
+    }
+  }
 
-    _coverCanvas.onMouseUp.listen((MouseEvent event) {
-      _calculate = false;
+  mouseUp(MouseEvent event) {
+    _calculate = false;
 
-      _coverL = false;
-      _coverR = false;
+    _coverL = false;
+    _coverR = false;
 
-      _double = false;
-      _doubleAnchorX = 0;
-    });
+    _double = false;
+    _doubleAnchorX = 0;
   }
 
   num _eventXOffset(MouseEvent event) {

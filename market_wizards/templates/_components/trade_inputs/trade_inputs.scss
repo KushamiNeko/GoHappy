@@ -16,6 +16,14 @@
 .-trade-inputs-container {
   @include layout-vertical;
   @include layout-start-justified;
+
+  position: absolute;
+
+  z-index: 3;
+}
+
+.-trade-inputs-hide {
+  display: none;
 }
 
 

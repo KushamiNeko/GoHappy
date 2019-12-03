@@ -171,25 +171,9 @@ func (t *TradingAgent) NewTransaction(inputs map[string]string) error {
 }
 
 func (t *TradingAgent) Positions() ([]*model.FuturesTransaction, error) {
-	results, err := t.ctx.Db().Find(
-		t.tradingDB,
-		//t.reading.Index(),
-		t.reading.RecordIndex(),
-		nil,
-	)
+	transactions, err := t.Transactions()
 	if err != nil {
 		return nil, err
-	}
-
-	transactions := make([]*model.FuturesTransaction, len(results))
-
-	for i, r := range results {
-		t, err := model.NewFuturesTransactionFromEntity(r)
-		if err != nil {
-			return nil, err
-		}
-
-		transactions[i] = t
 	}
 
 	trades, err := t.processTrades(transactions)
@@ -272,29 +256,21 @@ func (t *TradingAgent) Transactions() ([]*model.FuturesTransaction, error) {
 		transactions[i] = t
 	}
 
+	sort.Slice(transactions, func(i, j int) bool {
+		if transactions[i].Time().Equal(transactions[j].Time()) {
+			return transactions[i].TimeStamp() < transactions[j].TimeStamp()
+		} else {
+			return transactions[i].Time().Before(transactions[j].Time())
+		}
+	})
+
 	return transactions, nil
 }
 
 func (t *TradingAgent) Trades() ([]*model.FuturesTrade, error) {
-	results, err := t.ctx.Db().Find(
-		t.tradingDB,
-		//t.reading.Index(),
-		t.reading.RecordIndex(),
-		nil,
-	)
+	transactions, err := t.Transactions()
 	if err != nil {
 		return nil, err
-	}
-
-	transactions := make([]*model.FuturesTransaction, len(results))
-
-	for i, r := range results {
-		t, err := model.NewFuturesTransactionFromEntity(r)
-		if err != nil {
-			return nil, err
-		}
-
-		transactions[i] = t
 	}
 
 	trades, err := t.processTrades(transactions)

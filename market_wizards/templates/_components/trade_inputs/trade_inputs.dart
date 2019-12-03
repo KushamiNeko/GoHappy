@@ -2,7 +2,7 @@ import "dart:html";
 import "../../_services/server.dart";
 
 class TradeInputs {
-  //final DivElement _container;
+  final DivElement _container;
 
   final InputElement _ibook;
   final InputElement _itime;
@@ -22,6 +22,7 @@ class TradeInputs {
   TradeInputs(String id, {String cls = ""})
       : _cls = cls,
         _server = new Server(),
+        _container = querySelector("#${id}-trade-inputs-container"),
         _ibook = querySelector("#${id}-trade-inputs-book"),
         _itime = querySelector("#${id}-trade-inputs-time"),
         _isymbol = querySelector("#${id}-trade-inputs-symbol"),
@@ -45,6 +46,10 @@ class TradeInputs {
       _bdec.blur();
     });
 
+    _bok.onClick.listen((MouseEvent event) {
+      hide();
+    });
+
     _server.$book.listen((book) {
       _ibook.value = book;
     });
@@ -65,5 +70,34 @@ class TradeInputs {
     _server.$info.listen((info) {
       _iprice.value = info["Close"].toString();
     });
+  }
+
+  void move(num x, num y) {
+    var width = _container.clientWidth;
+    var height = _container.clientHeight;
+
+    if (x >= document.body.clientWidth / 2.0) {
+      _container.style.left = "${x - width}px";
+    } else {
+      _container.style.left = "${x}px";
+    }
+
+    if (y >= document.body.clientHeight / 2.0) {
+      _container.style.top = "${y - height}px";
+    } else {
+      _container.style.top = "${y}px";
+    }
+  }
+
+  void show() {
+    _container.classes.remove("${_cls}-trade-inputs-hide");
+  }
+
+  void hide() {
+    _container.classes.add("${_cls}-trade-inputs-hide");
+  }
+
+  bool isOpen() {
+    return !_container.classes.contains("${_cls}-trade-inputs-hide");
   }
 }

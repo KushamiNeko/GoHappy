@@ -620,9 +620,15 @@ func (p *ServiceHandler) symbolSource(symbol string) data.DataSource {
 	if regex.MatchString(symbol) {
 
 		switch {
-		case symbol == "spx" || symbol == "compq" || symbol == "rut" || symbol == "vix":
+		case (symbol == "spx" ||
+			symbol == "compq" ||
+			symbol == "rut" ||
+			symbol == "vix" ||
+			symbol == "vxn" ||
+			symbol == "ovx" ||
+			symbol == "gvz"):
 			return data.NewDataSource(data.Yahoo)
-		case symbol == "vle":
+		case symbol == "vle" || symbol == "tyvix" || symbol == "rvx":
 			return data.NewDataSource(data.StockCharts)
 		default:
 			return data.NewDataSource(data.AlphaVantage)
@@ -807,7 +813,7 @@ func (p *ServiceHandler) plot(out io.Writer, freq data.Frequency, showRecords bo
 
 	msg := message.NewPrinter(language.English)
 
-	p.tickWidth = pt.TickWidth(msg.Sprintf("%.2f", mh))
+	p.tickWidth = pt.TickWidth(msg.Sprintf("%.2f", pt.YMax()))
 	p.tickHeight = pt.TickHeight("2006 Jan")
 
 	err = pt.Plot(
