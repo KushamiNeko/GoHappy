@@ -30,14 +30,14 @@ class ChartInputs {
     "vxn",
     //"ymz19",
     "qrz19",
-    "rvx",
+    //"rvx",
     "vle",
     "znz19",
-    "tyvix",
+    //"tyvix",
     "clz19",
-    "ovx",
+    //"ovx",
     "gcz19",
-    "gvz",
+    //"gvz",
     //"vix",
   ];
 

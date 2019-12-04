@@ -1,7 +1,7 @@
 package view
 
 import (
-	"github.com/KushamiNeko/go_happy/futures_wizards/context"
+	"github.com/KushamiNeko/go_fun/trading/context"
 )
 
 type Entry struct {

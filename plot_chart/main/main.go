@@ -316,13 +316,18 @@ func plotChart(symbol string, year int, freq data.Frequency, version string, rec
 			BodyWidth:    plot.ChartConfig("CandleBodyWidth"),
 			ShadowWidth:  plot.ChartConfig("CandleShadowWidth"),
 		},
-		//&plotter.TradesRecorder{
+	)
+
+	if records {
+		//p.AddPlotter(
+		//&plotter.LeverageRecorder{
 		//TimeSeries: ts,
 		//Records:    rs,
 		//FontSize:   plot.ChartConfig("RecordsFontSize"),
 		//Color:      plot.ThemeColor("ColorText"),
 		//},
-	)
+		//)
+	}
 
 	ymn, ymx := utils.RangeExtend(utils.Min(ts.Values("low")), utils.Max(ts.Values("high")), 25.0)
 	p.YRange(ymn, ymx)

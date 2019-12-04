@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/KushamiNeko/go_fun/chart/data"
@@ -21,7 +20,10 @@ import (
 	"github.com/KushamiNeko/go_fun/chart/plot"
 	"github.com/KushamiNeko/go_fun/chart/plotter"
 	"github.com/KushamiNeko/go_fun/chart/utils"
+	"github.com/KushamiNeko/go_fun/trading/agent"
+	"github.com/KushamiNeko/go_fun/trading/context"
 	"github.com/KushamiNeko/go_fun/trading/model"
+	"github.com/KushamiNeko/go_fun/utils/database"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 	"gonum.org/v1/plot/vg"
 	"gopkg.in/yaml.v2"
@@ -283,11 +285,11 @@ plotting:
 			return
 		}
 
-		err = p.notesLookup(book)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		//err = p.notesLookup(book)
+		//if err != nil {
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		//return
+		//}
 	}
 
 	var buffer bytes.Buffer
@@ -356,61 +358,115 @@ func (p *ServiceHandler) getNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *ServiceHandler) recordsLookup(book, symbol string) error {
-	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb")
+	var err error
 
-	var (
-		data []byte
-		err  error
-
-		rse []map[string]string
-		ok  bool
-	)
-
-	_, ok = p.rstore[book]
+	rs, ok := p.rstore[book]
 	if !ok {
-		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.json", book)))
+		db := database.NewFileDB(
+			filepath.Join(
+				os.Getenv("HOME"),
+				"Documents/database/filedb/futures_wizards",
+			),
+			database.JsonEngine,
+		)
+
+		ctx := context.NewContext(db)
+		err = ctx.Login("aa")
 		if err != nil {
 			return err
 		}
 
-		err = json.Unmarshal(data, &rse)
+		tradeAgent, err := agent.NewTradingAgent(ctx, false)
 		if err != nil {
 			return err
 		}
 
-		rs := make([]*model.FuturesTransaction, 0, len(rse))
-
-		for _, e := range rse {
-			t, err := model.NewFuturesTransactionFromEntity(e)
-			if err != nil {
-				return err
-			}
-
-			rs = append(rs, t)
+		books, err := tradeAgent.Books()
+		if err != nil {
+			return err
 		}
 
-		sort.Slice(rs, func(i, j int) bool {
-			if rs[i].Time().Equal(rs[j].Time()) {
-				return rs[i].TimeStamp() < rs[j].TimeStamp()
-			} else {
-				return rs[i].Time().Before(rs[j].Time())
+		for _, b := range books {
+			if b.Title() == book {
+				err = tradeAgent.SetReading(b)
+				if err != nil {
+					return err
+				}
+
+				break
 			}
-		})
+		}
+
+		rs, err := tradeAgent.Transactions()
+		if err != nil {
+			return err
+		}
 
 		p.rstore[book] = rs
+		p.records = rs
+	} else {
+		p.records = rs
 	}
-
-	rs := make([]*model.FuturesTransaction, 0, len(p.rstore[book]))
-	for _, r := range p.rstore[book] {
-		if strings.Contains(symbol, r.Symbol()) {
-			rs = append(rs, r)
-		}
-	}
-
-	p.records = rs
 
 	return nil
 }
+
+//func (p *ServiceHandler) recordsLookup(book, symbol string) error {
+//root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb")
+
+//var (
+//data []byte
+//err  error
+
+//rse []map[string]string
+//ok  bool
+//)
+
+//_, ok = p.rstore[book]
+//if !ok {
+//data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.json", book)))
+//if err != nil {
+//return err
+//}
+
+//err = json.Unmarshal(data, &rse)
+//if err != nil {
+//return err
+//}
+
+//rs := make([]*model.FuturesTransaction, 0, len(rse))
+
+//for _, e := range rse {
+//t, err := model.NewFuturesTransactionFromEntity(e)
+//if err != nil {
+//return err
+//}
+
+//rs = append(rs, t)
+//}
+
+//sort.Slice(rs, func(i, j int) bool {
+//if rs[i].Time().Equal(rs[j].Time()) {
+//return rs[i].TimeStamp() < rs[j].TimeStamp()
+//} else {
+//return rs[i].Time().Before(rs[j].Time())
+//}
+//})
+
+//p.rstore[book] = rs
+//}
+
+//rs := make([]*model.FuturesTransaction, 0, len(p.rstore[book]))
+//for _, r := range p.rstore[book] {
+//if strings.Contains(symbol, r.Symbol()) {
+//rs = append(rs, r)
+//}
+//}
+
+//p.records = rs
+
+//return nil
+//}
 
 func (p *ServiceHandler) notesLookup(book string) error {
 	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb")
@@ -789,11 +845,18 @@ func (p *ServiceHandler) plot(out io.Writer, freq data.Frequency, showRecords bo
 
 	if showRecords {
 		pt.AddPlotter(
-			&plotter.TradesRecorder{
+			//&plotter.TradesRecorder{
+			//TimeSeries: p.series,
+			//Frequency:  freq,
+			//Records:    p.records,
+			//Notes:      p.notes,
+			//FontSize: plot.ChartConfig("RecordsFontSize"),
+			//Color:    plot.ThemeColor("ColorText"),
+			//},
+			&plotter.LeverageRecorder{
 				TimeSeries: p.series,
 				Frequency:  freq,
 				Records:    p.records,
-				Notes:      p.notes,
 				FontSize:   plot.ChartConfig("RecordsFontSize"),
 				Color:      plot.ThemeColor("ColorText"),
 			},

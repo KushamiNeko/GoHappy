@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/KushamiNeko/go_fun/trading/context"
 	"github.com/KushamiNeko/go_fun/utils/database"
 	"github.com/KushamiNeko/go_fun/utils/foreign"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 	"github.com/KushamiNeko/go_happy/futures_wizards/config"
-	"github.com/KushamiNeko/go_happy/futures_wizards/context"
 	"github.com/KushamiNeko/go_happy/futures_wizards/view"
 )
 

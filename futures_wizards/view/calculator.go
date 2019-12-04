@@ -3,11 +3,11 @@ package view
 import (
 	"fmt"
 
+	"github.com/KushamiNeko/go_fun/trading/agent"
+	"github.com/KushamiNeko/go_fun/trading/context"
 	"github.com/KushamiNeko/go_fun/utils/input"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
-	"github.com/KushamiNeko/go_happy/futures_wizards/agent"
 	"github.com/KushamiNeko/go_happy/futures_wizards/config"
-	"github.com/KushamiNeko/go_happy/futures_wizards/context"
 )
 
 type Calculator struct {
