@@ -26,7 +26,6 @@ import (
 	"github.com/KushamiNeko/go_fun/utils/database"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 	"gonum.org/v1/plot/vg"
-	"gopkg.in/yaml.v2"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -52,8 +51,8 @@ type cache struct {
 }
 
 type ServiceHandler struct {
-	store  []*cache
-	rstore map[string][]*model.FuturesTransaction
+	store []*cache
+	//rstore map[string][]*model.FuturesTransaction
 	nstore map[string][]*model.TradingNote
 
 	series  *data.TimeSeries
@@ -69,13 +68,13 @@ func (p *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.store = make([]*cache, 0, 6)
 	}
 
-	if p.rstore == nil {
-		p.rstore = make(map[string][]*model.FuturesTransaction)
-	}
+	//if p.rstore == nil {
+	//p.rstore = make(map[string][]*model.FuturesTransaction)
+	//}
 
-	if p.nstore == nil {
-		p.nstore = make(map[string][]*model.TradingNote)
-	}
+	//if p.nstore == nil {
+	//p.nstore = make(map[string][]*model.TradingNote)
+	//}
 
 	switch r.Method {
 
@@ -219,12 +218,12 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 			"time: %s\nprice: %s\nopen: %s\nhigh: %s\nlow: %s\nclose: %s\nvolume: %s\ninterest: %s\n",
 			p.series.Times()[x].Format("2006-01-02"),
 			msn.Sprintf("%.2f", y),
-			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "open", 0)),
-			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "high", 0)),
-			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "low", 0)),
-			msn.Sprintf("%.2f", p.series.ValueAtIndex(x, "close", 0)),
-			msn.Sprintf("%.0f", p.series.ValueAtIndex(x, "volume", 0)),
-			msn.Sprintf("%.0f", p.series.ValueAtIndex(x, "openinterest", 0)),
+			msn.Sprintf("%.2f", p.series.ValueAtTimesIndex(x, "open", 0)),
+			msn.Sprintf("%.2f", p.series.ValueAtTimesIndex(x, "high", 0)),
+			msn.Sprintf("%.2f", p.series.ValueAtTimesIndex(x, "low", 0)),
+			msn.Sprintf("%.2f", p.series.ValueAtTimesIndex(x, "close", 0)),
+			msn.Sprintf("%.0f", p.series.ValueAtTimesIndex(x, "volume", 0)),
+			msn.Sprintf("%.0f", p.series.ValueAtTimesIndex(x, "openinterest", 0)),
 		)
 
 		sanx := r.URL.Query().Get("ax")
@@ -252,8 +251,8 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 			)
 		} else {
 			if x > 0 {
-				dd := p.series.ValueAtIndex(x, "close", 0) - p.series.ValueAtIndex(x-1, "close", 0)
-				dp := (dd / p.series.ValueAtIndex(x-1, "close", 0)) * 100.0
+				dd := p.series.ValueAtTimesIndex(x, "close", 0) - p.series.ValueAtTimesIndex(x-1, "close", 0)
+				dp := (dd / p.series.ValueAtTimesIndex(x-1, "close", 0)) * 100.0
 
 				is = fmt.Sprintf(
 					"%sdiff($): %s\ndiff(%%): %s\n",
@@ -357,56 +356,107 @@ func (p *ServiceHandler) getNote(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func newTradingAgent(book string) (*agent.TradingAgent, error) {
+	var err error
+
+	db := database.NewFileDB(
+		filepath.Join(
+			os.Getenv("HOME"),
+			"Documents/database/filedb/futures_wizards",
+		),
+		database.JsonEngine,
+	)
+
+	ctx := context.NewContext(db)
+	err = ctx.Login("aa")
+	if err != nil {
+		return nil, err
+	}
+
+	tradeAgent, err := agent.NewTradingAgent(ctx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	books, err := tradeAgent.Books()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, b := range books {
+		if b.Title() == book {
+			err = tradeAgent.SetReading(b)
+			if err != nil {
+				return nil, err
+			}
+
+			break
+		}
+	}
+
+	return tradeAgent, nil
+}
+
 func (p *ServiceHandler) recordsLookup(book, symbol string) error {
 	var err error
 
-	rs, ok := p.rstore[book]
-	if !ok {
-		db := database.NewFileDB(
-			filepath.Join(
-				os.Getenv("HOME"),
-				"Documents/database/filedb/futures_wizards",
-			),
-			database.JsonEngine,
-		)
+	//rs, ok := p.rstore[book]
+	//if !ok {
 
-		ctx := context.NewContext(db)
-		err = ctx.Login("aa")
-		if err != nil {
-			return err
-		}
+	//db := database.NewFileDB(
+	//filepath.Join(
+	//os.Getenv("HOME"),
+	//"Documents/database/filedb/futures_wizards",
+	//),
+	//database.JsonEngine,
+	//)
 
-		tradeAgent, err := agent.NewTradingAgent(ctx, false)
-		if err != nil {
-			return err
-		}
+	//ctx := context.NewContext(db)
+	//err = ctx.Login("aa")
+	//if err != nil {
+	//return err
+	//}
 
-		books, err := tradeAgent.Books()
-		if err != nil {
-			return err
-		}
+	//tradeAgent, err := agent.NewTradingAgent(ctx, false)
+	//if err != nil {
+	//return err
+	//}
 
-		for _, b := range books {
-			if b.Title() == book {
-				err = tradeAgent.SetReading(b)
-				if err != nil {
-					return err
-				}
+	//books, err := tradeAgent.Books()
+	//if err != nil {
+	//return err
+	//}
 
-				break
-			}
-		}
+	//for _, b := range books {
+	//if b.Title() == book {
+	//err = tradeAgent.SetReading(b)
+	//if err != nil {
+	//return err
+	//}
 
-		rs, err := tradeAgent.Transactions()
-		if err != nil {
-			return err
-		}
+	//break
+	//}
+	//}
 
-		p.rstore[book] = rs
-		p.records = rs
-	} else {
-		p.records = rs
+	tradeAgent, err := newTradingAgent(book)
+	if err != nil {
+		return err
 	}
+
+	//if !found {
+	//return fmt.Errorf("unknown book: %s", book)
+	//}
+
+	rs, err := tradeAgent.Transactions()
+	if err != nil {
+		return err
+	}
+
+	//p.rstore[book] = rs
+	p.records = rs
+	//} else {
+	//p.records = rs
+	//}
 
 	return nil
 }
@@ -469,11 +519,15 @@ func (p *ServiceHandler) recordsLookup(book, symbol string) error {
 //}
 
 func (p *ServiceHandler) notesLookup(book string) error {
-	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb")
+	if p.nstore == nil {
+		p.nstore = make(map[string][]*model.TradingNote)
+	}
+
+	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb/futures_wizards")
 
 	var (
 		data []byte
-		err  error
+		//err  error
 
 		nse []map[string]string
 		ok  bool
@@ -481,12 +535,28 @@ func (p *ServiceHandler) notesLookup(book string) error {
 
 	_, ok = p.nstore[book]
 	if !ok {
-		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.yaml", book)))
+
+		//data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("%s.yaml", book)))
+		//if err != nil {
+		//return err
+		//}
+
+		tradeAgent, err := newTradingAgent(book)
 		if err != nil {
 			return err
 		}
 
-		err = yaml.Unmarshal(data, &nse)
+		b, err := tradeAgent.Reading()
+		if err != nil {
+			return err
+		}
+
+		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("trading_note_%s.json", b.NoteIndex())))
+		if err != nil {
+			return err
+		}
+
+		err = json.Unmarshal(data, &nse)
 		if err != nil {
 			return err
 		}
@@ -651,6 +721,37 @@ func (p *ServiceHandler) lookup(dt time.Time, symbol string, freq data.Frequency
 	ts.SetColumn("bb+30", indicator.BollingerBand(ts.FullValues("close"), 20, 3.0))
 	ts.SetColumn("bb-30", indicator.BollingerBand(ts.FullValues("close"), 20, -3.0))
 
+	///////////////////
+
+	if symbol == "tyvix" {
+		hls := indicator.BollingerBand(ts.FullValues("close"), 20, 4.0)
+		lls := indicator.BollingerBand(ts.FullValues("close"), 20, -4.0)
+
+		for i, v := range ts.FullValues("high") {
+			if v > hls[i] {
+				ts.FullValues("high")[i] = hls[i]
+			}
+			//if ts.FullValues("open")[i] > ts.FullValues("close")[i] {
+			//ts.FullValues("high")[i] = ts.FullValues("open")[i]
+			//} else {
+			//ts.FullValues("high")[i] = ts.FullValues("close")[i]
+			//}
+		}
+
+		for i, v := range ts.FullValues("low") {
+			if v < lls[i] {
+				ts.FullValues("low")[i] = lls[i]
+			}
+			//if ts.FullValues("open")[i] < ts.FullValues("close")[i] {
+			//ts.FullValues("low")[i] = ts.FullValues("open")[i]
+			//} else {
+			//ts.FullValues("low")[i] = ts.FullValues("close")[i]
+			//}
+		}
+	}
+
+	///////////////////
+
 	ts.TimeSlice(start, end)
 
 	p.store = append(
@@ -684,7 +785,13 @@ func (p *ServiceHandler) symbolSource(symbol string) data.DataSource {
 			symbol == "ovx" ||
 			symbol == "gvz"):
 			return data.NewDataSource(data.Yahoo)
-		case symbol == "vle" || symbol == "tyvix" || symbol == "rvx":
+		case (symbol == "vle" ||
+			symbol == "tyvix" ||
+			symbol == "rvx" ||
+			symbol == "spxhilo" ||
+			symbol == "ndxhilo" ||
+			symbol == "nyhilo" ||
+			symbol == "nahilo"):
 			return data.NewDataSource(data.StockCharts)
 		default:
 			return data.NewDataSource(data.AlphaVantage)
@@ -754,10 +861,11 @@ func (p *ServiceHandler) chartPeriod(end time.Time, freq data.Frequency) (time.T
 func (p *ServiceHandler) plot(out io.Writer, freq data.Frequency, showRecords bool) error {
 
 	pt := &plot.Plot{}
-	err := pt.Init()
-	if err != nil {
-		return err
-	}
+	pt.Init()
+	//err := pt.Init()
+	//if err != nil {
+	//return err
+	//}
 
 	pt.AddTickMarker(
 		&plotter.TimeTicker{
@@ -879,14 +987,19 @@ func (p *ServiceHandler) plot(out io.Writer, freq data.Frequency, showRecords bo
 	p.tickWidth = pt.TickWidth(msg.Sprintf("%.2f", pt.YMax()))
 	p.tickHeight = pt.TickHeight("2006 Jan")
 
-	err = pt.Plot(
+	//err = pt.Plot(
+	//out,
+	//plot.ChartConfig("ChartWidth"),
+	//plot.ChartConfig("ChartHeight"),
+	//)
+	//if err != nil {
+	//return err
+	//}
+	pt.Plot(
 		out,
 		plot.ChartConfig("ChartWidth"),
 		plot.ChartConfig("ChartHeight"),
 	)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }

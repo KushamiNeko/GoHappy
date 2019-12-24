@@ -12,7 +12,7 @@ class Server {
   String _symbol = "esz19";
   StreamController<String> _$symbol;
 
-  String _book = "stocks_2018";
+  String _book = "es_2018";
   StreamController<String> _$book;
 
   String _note = "";
@@ -129,9 +129,7 @@ class Server {
     _time = time;
 
     if (_showRecords) {
-      print(book);
       assert(new RegExp(r"^[a-zA-Z_0-9]+$").hasMatch(book));
-      print("assert");
       _book = book;
     }
 

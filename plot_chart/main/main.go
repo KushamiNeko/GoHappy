@@ -47,7 +47,7 @@ func validInput(symbols, years, freqs, outdir, version string) error {
 		}
 	}
 
-	regex = regexp.MustCompile(`^[a-zA-Z]\d$`)
+	//regex = regexp.MustCompile(`^[a-zA-Z]\d$`)
 	if err != nil {
 		return fmt.Errorf("invalid version: %s", version)
 	}

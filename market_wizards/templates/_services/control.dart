@@ -48,6 +48,8 @@ class MainControl {
     document.body.onMouseMove.listen((MouseEvent event) {
       _canvas.mouseMove(event);
       _tradeInputs.move(event.client.x, event.client.y);
+
+      _server.noteRequest(event.client.x, event.client.y);
     });
 
     document.body.onMouseUp.listen((MouseEvent event) {
@@ -92,7 +94,6 @@ class MainControl {
   }
 
   void _keyPressSwitch(KeyboardEvent event) {
-    print(event.which);
     if (event.which >= 49 && event.which <= 57) {
       //1-9 number keys
       _chartInputs.symbolIndex(event.which - 49);

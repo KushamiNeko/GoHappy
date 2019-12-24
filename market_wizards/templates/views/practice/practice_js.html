@@ -1813,23 +1813,6 @@
     },
     unmangleGlobalNameIfPreservedAnyways: function($name) {
       return init.mangledGlobalNames[$name];
-    },
-    printString: function(string) {
-      if (typeof dartPrint == "function") {
-        dartPrint(string);
-        return;
-      }
-      if (typeof console == "object" && typeof console.log != "undefined") {
-        console.log(string);
-        return;
-      }
-      if (typeof window == "object")
-        return;
-      if (typeof print == "function") {
-        print(string);
-        return;
-      }
-      throw "Unable to print message: " + String(string);
     }
   },
   J = {
@@ -3063,9 +3046,6 @@
     FormatException$: function(message, source) {
       return new P.FormatException(message, source);
     },
-    print: function(object) {
-      H.printString(H.S(object));
-    },
     bool: function bool() {
     },
     DateTime: function DateTime(t0, t1) {
@@ -3545,7 +3525,7 @@
   M = {
     ChartInputs$: function(id) {
       var t3, t4, t5, t6, t7,
-        t1 = H.setRuntimeTypeInfo(["esz19", "vix", "nqz19", "vxn", "qrz19", "vle", "znz19", "clz19", "gcz19"], [P.String]),
+        t1 = H.setRuntimeTypeInfo(["esh20", "vix", "nqh20", "vxn", "qrh20", "vle", "znh20", "tyvix", "clf20", "gcf20"], [P.String]),
         t2 = $.Server__server;
       if (t2 == null)
         t2 = $.Server__server = R.Server$_internal();
@@ -3715,7 +3695,7 @@
       _._$frequency = t1;
       _._symbol = "esz19";
       _._$symbol = t2;
-      _._book = "stocks_2018";
+      _._book = "es_2018";
       _._$book = t3;
       _._server$_note = "";
       _._$note = t4;
@@ -7424,7 +7404,7 @@
       t5.add$1(0, t1._book);
       t1._$note.add$1(0, t1._server$_note);
       t2.add$1(0, t1._server$_showRecords);
-      for (t1 = _this._symbols, _i = 0; _i < 9; ++_i)
+      for (t1 = _this._symbols, _i = 0; _i < 10; ++_i)
         _this._addSymbol$1(t1[_i]);
       t1 = _this._bsymbol;
       t1.toString;
@@ -7598,12 +7578,10 @@
       t2._frequency = t5;
       t2._time = t4;
       if (t2._server$_showRecords) {
-        P.print(t6);
         t3 = P.RegExp_RegExp("^[a-zA-Z_0-9]+$");
         if (typeof t6 !== "string")
           H.throwExpression(H.argumentErrorValue(t6));
         H.assertHelper(t3._nativeRegExp.test(t6));
-        P.print("assert");
         t2._book = t6;
       }
       t2.getChart$0();
@@ -7696,7 +7674,6 @@
       t2 = t1._chartInputs;
       if (t2.isFocus$0())
         return;
-      P.print($event.which);
       t3 = $event.which;
       if (typeof t3 !== "number")
         return t3.$ge();
@@ -7940,42 +7917,43 @@
       }
       t2 = $event.clientX;
       t3 = $event.clientY;
-      t1 = t1._tradeInputs._trade_inputs$_container;
-      width = t1.clientWidth;
-      height = t1.clientHeight;
-      t4 = document;
-      t5 = t4.body.clientWidth;
-      if (typeof t5 !== "number")
-        return t5.$div();
+      t4 = t1._tradeInputs._trade_inputs$_container;
+      width = t4.clientWidth;
+      height = t4.clientHeight;
+      t5 = document;
+      t6 = t5.body.clientWidth;
+      if (typeof t6 !== "number")
+        return t6.$div();
       if (typeof t2 !== "number")
         return t2.$ge();
-      if (t2 >= t5 / 2) {
-        t5 = t1.style;
+      if (t2 >= t6 / 2) {
+        t6 = t4.style;
         if (typeof width !== "number")
           return H.iae(width);
         t2 = H.S(t2 - width) + "px";
-        t5.left = t2;
+        t6.left = t2;
       } else {
-        t5 = t1.style;
+        t6 = t4.style;
         t2 = H.S(t2) + "px";
-        t5.left = t2;
+        t6.left = t2;
       }
-      t2 = t4.body.clientHeight;
+      t2 = t5.body.clientHeight;
       if (typeof t2 !== "number")
         return t2.$div();
       if (typeof t3 !== "number")
         return t3.$ge();
       if (t3 >= t2 / 2) {
-        t1 = t1.style;
+        t2 = t4.style;
         if (typeof height !== "number")
           return H.iae(height);
         t3 = H.S(t3 - height) + "px";
-        t1.top = t3;
+        t2.top = t3;
       } else {
-        t1 = t1.style;
+        t2 = t4.style;
         t3 = H.S(t3) + "px";
-        t1.top = t3;
+        t2.top = t3;
       }
+      t1._control$_server.noteRequest$2($event.clientX, $event.clientY);
     },
     $signature: 3
   };
