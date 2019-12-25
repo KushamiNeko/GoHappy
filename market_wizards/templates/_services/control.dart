@@ -94,9 +94,16 @@ class MainControl {
   }
 
   void _keyPressSwitch(KeyboardEvent event) {
-    if (event.which >= 49 && event.which <= 57) {
-      //1-9 number keys
-      _chartInputs.symbolIndex(event.which - 49);
+    print(event.which);
+    if (event.which >= 48 && event.which <= 57) {
+      // number keys
+      // 48    : 0
+      // 49-57 : 1-9
+      if (event.which == 48) {
+        _chartInputs.symbolIndex(9);
+      } else {
+        _chartInputs.symbolIndex(event.which - 49);
+      }
     } else {
       switch (event.which) {
         case (104):

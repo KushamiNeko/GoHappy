@@ -4,9 +4,7 @@ go 1.13
 
 require (
 	github.com/KushamiNeko/go_fun v0.0.0
-	golang.org/x/text v0.3.2
-	gonum.org/v1/plot v0.0.0-20191107103940-ca91d9d40d0a
-	gopkg.in/yaml.v2 v2.2.7
+	golang.org/x/tools v0.0.0-20191224055732-dd894d0a8a40 // indirect
 )
 
 replace github.com/KushamiNeko/go_fun => ../../../packages/go/fun

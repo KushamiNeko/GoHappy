@@ -24,29 +24,3 @@ func renderView(w http.ResponseWriter, viewTemplates string, data interface{}) {
 
 	w.Write(web.CleanAll(buffer.Bytes()))
 }
-
-//func writeTemplate(w http.ResponseWriter, temp *template.Template, name string, data interface{}, cb func()) {
-//buffer := bytes.Buffer{}
-
-//err := temp.ExecuteTemplate(
-//&buffer,
-//name,
-//data,
-//)
-//if err != nil {
-//pretty.ColorPrintln(pretty.PaperPink300, err.Error())
-//http.Error(w, err.Error(), http.StatusInternalServerError)
-//return
-//}
-
-//if cb != nil {
-//cb()
-//}
-
-//_, err = w.Write(cleaner.CleanAll(buffer.Bytes()))
-//if err != nil {
-//pretty.ColorPrintln(pretty.PaperPink300, err.Error())
-//http.Error(w, err.Error(), http.StatusInternalServerError)
-//return
-//}
-//}

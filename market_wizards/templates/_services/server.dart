@@ -137,14 +137,16 @@ class Server {
   }
 
   String _requestUrl() {
-    var url =
-        "${window.location.origin}/service/plot/practice/${_symbol}/${_frequency}/${_function}/${_time}";
-
-    if (_showRecords) {
-      url = "${url}/records/${_book}";
-    }
+    var url = "${window.location.origin}/service/plot/practice";
 
     url = "${url}?timestemp=${new DateTime.now().millisecondsSinceEpoch}";
+
+    url =
+        "${url}&symbol=${_symbol}&frequency=${_frequency}&function=${_function}&time=${_time}";
+
+    if (_showRecords) {
+      url = "${url}&book=${_book}";
+    }
 
     return url;
   }
