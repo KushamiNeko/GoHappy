@@ -145,7 +145,7 @@ class Server {
         "${url}&symbol=${_symbol}&frequency=${_frequency}&function=${_function}&time=${_time}";
 
     if (_showRecords) {
-      url = "${url}&book=${_book}";
+      url = "${url}&book=${_book}&records=true";
     }
 
     return url;
@@ -195,8 +195,9 @@ class Server {
       return;
     }
 
-    var url = "${window.location.origin}/service/record/note/${_book}";
+    var url = "${window.location.origin}/service/record/note";
     url = "${url}?timestemp=${new DateTime.now().millisecondsSinceEpoch}";
+    url = "${url}&book=${_book}";
     url = "${url}&x=${x}&y=${y}";
 
     var note = await HttpRequest.getString(url);

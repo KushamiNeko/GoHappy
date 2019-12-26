@@ -3729,7 +3729,7 @@ u.c=a
 u.d.i(0,a)
 u.G()},
 ai:function(){var u=this,t=window.location,s=(t&&C.p).gbb(t)+"/service/plot/practice?timestemp="+Date.now()+"&symbol="+H.b(u.e)+"&frequency="+H.b(u.c)+"&function="+u.Q+"&time="+H.b(u.a)
-return u.ch?s+"&book="+H.b(u.r):s},
+return u.ch?s+"&book="+H.b(u.r)+"&records=true":s},
 a_:function(){var u=0,t=P.fd(null),s,r=this,q,p,o
 var $async$a_=P.fe(function(a,b){if(a===1)return P.f6(b,t)
 while(true)switch(u){case 0:if(r.dy){u=1
@@ -3762,7 +3762,7 @@ var $async$T=P.fe(function(c,d){if(c===1)return P.f6(d,t)
 while(true)switch(u){case 0:if(r.dy){u=1
 break}q=window.location
 u=3
-return P.f5(W.eX((q&&C.p).gbb(q)+"/service/record/note/"+H.b(r.r)+"?timestemp="+Date.now()+"&x="+H.b(a)+"&y="+H.b(b)),$async$T)
+return P.f5(W.eX((q&&C.p).gbb(q)+"/service/record/note?timestemp="+Date.now()+"&book="+H.b(r.r)+"&x="+H.b(a)+"&y="+H.b(b)),$async$T)
 case 3:p=d
 r.y=p
 r.z.i(0,p)
