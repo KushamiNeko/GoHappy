@@ -17,50 +17,55 @@ import (
 	"gonum.org/v1/gonum/stat"
 )
 
-func processInput(symbol, period, op, book string) (*agent.TradingAgent, time.Time, time.Time, error) {
+func processInput(symbol, period, flip, op, book string) (*agent.TradingAgent, time.Time, time.Time, time.Time, error) {
 	var regex *regexp.Regexp
 
 	regex = regexp.MustCompile(`^es|nq|qr|zn$`)
 	if !regex.MatchString(symbol) {
-		return nil, time.Time{}, time.Time{}, fmt.Errorf("invalid symbol: %s", symbol)
+		return nil, time.Time{}, time.Time{}, time.Time{}, fmt.Errorf("invalid symbol: %s", symbol)
 	}
 
 	regex = regexp.MustCompile(`^(\d{4}|\d{8})(?:\s*[-~]\s*(\d{4}|\d{8}))?$`)
 	if !regex.MatchString(period) {
-		return nil, time.Time{}, time.Time{}, fmt.Errorf("invalid period: %s", period)
+		return nil, time.Time{}, time.Time{}, time.Time{}, fmt.Errorf("invalid period: %s", period)
 	}
 
 	var (
-		f, t time.Time
-		err  error
+		from, to time.Time
+		err      error
 	)
 	m := regex.FindAllStringSubmatch(period, -1)
 	if len(m) != 1 {
-		return nil, time.Time{}, time.Time{}, fmt.Errorf("invalid period: %s", period)
+		return nil, time.Time{}, time.Time{}, time.Time{}, fmt.Errorf("invalid period: %s", period)
 	} else {
 		if m[0][2] == "" {
-			f, err = time.Parse("20060102", period)
+			from, err = time.Parse("20060102", period)
 			if err != nil {
-				return nil, time.Time{}, time.Time{}, err
+				return nil, time.Time{}, time.Time{}, time.Time{}, err
 			}
 
-			t = f
+			to = from
 		} else {
-			f, err = time.Parse("20060102", m[0][1])
+			from, err = time.Parse("20060102", m[0][1])
 			if err != nil {
-				return nil, time.Time{}, time.Time{}, err
+				return nil, time.Time{}, time.Time{}, time.Time{}, err
 			}
 
-			t, err = time.Parse("20060102", m[0][2])
+			to, err = time.Parse("20060102", m[0][2])
 			if err != nil {
-				return nil, time.Time{}, time.Time{}, err
+				return nil, time.Time{}, time.Time{}, time.Time{}, err
 			}
 		}
 	}
 
+	ft, err := time.Parse("20060102", flip)
+	if err != nil {
+		return nil, time.Time{}, time.Time{}, time.Time{}, err
+	}
+
 	regex = regexp.MustCompile(`^+|-$`)
 	if !regex.MatchString(op) {
-		return nil, time.Time{}, time.Time{}, fmt.Errorf("invalid op: %s", op)
+		return nil, time.Time{}, time.Time{}, time.Time{}, fmt.Errorf("invalid op: %s", op)
 	}
 
 	a, err := agent.NewTradingAgentCompact(
@@ -72,10 +77,10 @@ func processInput(symbol, period, op, book string) (*agent.TradingAgent, time.Ti
 		book,
 	)
 	if err != nil {
-		return nil, time.Time{}, time.Time{}, err
+		return nil, time.Time{}, time.Time{}, time.Time{}, err
 	}
 
-	return a, f, t, nil
+	return a, from, to, ft, nil
 }
 
 func timeExtend(f, t time.Time) (time.Time, time.Time) {
@@ -108,12 +113,13 @@ func timeExtend(f, t time.Time) (time.Time, time.Time) {
 func main() {
 	symbol := flag.String("symbol", "", "symbol to calculate")
 	period := flag.String("period", "", "time period")
+	flip := flag.String("flip", "", "flip operation time")
 	op := flag.String("op", "", "operation")
 	book := flag.String("book", "", "records book")
 
 	flag.Parse()
 
-	ta, f, t, err := processInput(*symbol, *period, *op, *book)
+	ta, f, t, fp, err := processInput(*symbol, *period, *flip, *op, *book)
 	if err != nil {
 		pretty.ColorPrintln(pretty.PaperRed500, err.Error())
 		return
@@ -155,6 +161,7 @@ func main() {
 		vxn,
 		f,
 		t,
+		fp,
 		*op,
 	)
 
@@ -168,7 +175,7 @@ func calculateRisk(
 	records []*model.FuturesTransaction,
 	vix *data.TimeSeries,
 	vxn *data.TimeSeries,
-	f, t time.Time,
+	f, t, fp time.Time,
 	op string,
 ) {
 
@@ -177,6 +184,7 @@ func calculateRisk(
 		records,
 		f,
 		t,
+		fp,
 		op,
 		false,
 	)
@@ -186,6 +194,7 @@ func calculateRisk(
 		records,
 		f,
 		t,
+		fp,
 		op,
 		true,
 	)

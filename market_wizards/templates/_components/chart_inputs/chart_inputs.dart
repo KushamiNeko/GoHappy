@@ -39,6 +39,8 @@ class ChartInputs {
     "ovx",
     "gc",
     "gvz",
+    "vx",
+    "rxes",
   ];
 
   ChartInputs(String id, {String cls = ""})

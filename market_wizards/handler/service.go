@@ -2,22 +2,15 @@ package handler
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"net/http"
-	"os"
-	"path/filepath"
 	"regexp"
-	"sort"
 	"strconv"
 	"time"
 
 	"github.com/KushamiNeko/go_fun/chart/data"
 	"github.com/KushamiNeko/go_fun/chart/preset"
-	"github.com/KushamiNeko/go_fun/trading/agent"
-	"github.com/KushamiNeko/go_fun/trading/model"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 )
 
@@ -39,11 +32,11 @@ type cache struct {
 type ServiceHandler struct {
 	store []*cache
 	//rstore map[string][]*model.FuturesTransaction
-	nstore map[string][]*model.TradingNote
+	//nstore map[string][]*model.TradingNote
 
-	chart   preset.ChartPreset
-	records []*model.FuturesTransaction
-	notes   []*model.TradingNote
+	chart preset.ChartPreset
+	//records []*model.FuturesTransaction
+	//notes []*model.TradingNote
 }
 
 func (p *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +65,7 @@ func (p *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		regex = regexp.MustCompile(`/service/record/note\?.+`)
 		if regex.MatchString(r.RequestURI) {
-			p.getNote(w, r)
+			//p.getNote(w, r)
 			return
 		}
 
@@ -82,7 +75,6 @@ func (p *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
 func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 
 	symbol := r.URL.Query().Get("symbol")
@@ -214,13 +206,18 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 plotting:
 
 	if showRecords {
-		err = p.recordsLookup(book, symbol)
+		//err = p.recordsLookup(book, symbol)
+		//if err != nil {
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		//return
+		//}
+
+		//p.chart.ShowRecords(p.records)
+		err = p.chart.ShowRecordsInBook(book)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		p.chart.ShowRecords(p.records)
 
 		//err = p.notesLookup(book)
 		//if err != nil {
@@ -245,147 +242,147 @@ plotting:
 	}
 }
 
-func (p *ServiceHandler) getNote(w http.ResponseWriter, r *http.Request) {
-	if p.chart == nil {
-		http.NotFound(w, r)
-		return
-	}
+//func (p *ServiceHandler) getNote(w http.ResponseWriter, r *http.Request) {
+//if p.chart == nil {
+//http.NotFound(w, r)
+//return
+//}
 
-	book := r.URL.Query().Get("book")
+//book := r.URL.Query().Get("book")
 
-	p.notesLookup(book)
+//p.notesLookup(book)
 
-	snx := r.URL.Query().Get("x")
-	sny := r.URL.Query().Get("y")
+//snx := r.URL.Query().Get("x")
+//sny := r.URL.Query().Get("y")
 
-	nx, err := strconv.ParseFloat(snx, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+//nx, err := strconv.ParseFloat(snx, 64)
+//if err != nil {
+//http.Error(w, err.Error(), http.StatusBadRequest)
+//return
+//}
 
-	ny, err := strconv.ParseFloat(sny, 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+//ny, err := strconv.ParseFloat(sny, 64)
+//if err != nil {
+//http.Error(w, err.Error(), http.StatusBadRequest)
+//return
+//}
 
-	x, _ := p.chart.ReverseXY(nx, ny)
-	dt := p.chart.Times()[int(x)]
+//x, _ := p.chart.ReverseXY(nx, ny)
+//dt := p.chart.Times()[int(x)]
 
-	for _, n := range p.notes {
-		if n.Time().Equal(dt) {
-			_, err = w.Write([]byte(n.Note()))
-			if err != nil {
-				pretty.ColorPrintln(pretty.PaperRed400, err.Error())
-				return
-			}
-		}
-	}
+//for _, n := range p.notes {
+//if n.Time().Equal(dt) {
+//_, err = w.Write([]byte(n.Note()))
+//if err != nil {
+//pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+//return
+//}
+//}
+//}
 
-	_, err = w.Write([]byte(""))
-	if err != nil {
-		pretty.ColorPrintln(pretty.PaperRed400, err.Error())
-		return
-	}
-}
+//_, err = w.Write([]byte(""))
+//if err != nil {
+//pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+//return
+//}
+//}
 
-func (p *ServiceHandler) recordsLookup(book, symbol string) error {
-	var err error
+//func (p *ServiceHandler) recordsLookup(book, symbol string) error {
+//var err error
 
-	tradeAgent, err := agent.NewTradingAgentCompact(
-		filepath.Join(
-			os.Getenv("HOME"),
-			"Documents/database/filedb/futures_wizards",
-		),
-		"aa",
-		book,
-	)
-	if err != nil {
-		return err
-	}
+//tradeAgent, err := agent.NewTradingAgentCompact(
+//filepath.Join(
+//os.Getenv("HOME"),
+//"Documents/database/filedb/futures_wizards",
+//),
+//"aa",
+//book,
+//)
+//if err != nil {
+//return err
+//}
 
-	rs, err := tradeAgent.Transactions()
-	if err != nil {
-		return err
-	}
+//rs, err := tradeAgent.Transactions()
+//if err != nil {
+//return err
+//}
 
-	//p.rstore[book] = rs
-	p.records = rs
-	//} else {
-	//p.records = rs
-	//}
+////p.rstore[book] = rs
+//p.records = rs
+////} else {
+////p.records = rs
+////}
 
-	return nil
-}
+//return nil
+//}
 
-func (p *ServiceHandler) notesLookup(book string) error {
-	if p.nstore == nil {
-		p.nstore = make(map[string][]*model.TradingNote)
-	}
+//func (p *ServiceHandler) notesLookup(book string) error {
+//if p.nstore == nil {
+//p.nstore = make(map[string][]*model.TradingNote)
+//}
 
-	root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb/futures_wizards")
+//root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb/futures_wizards")
 
-	var (
-		data []byte
-		//err  error
+//var (
+//data []byte
+////err  error
 
-		nse []map[string]string
-		ok  bool
-	)
+//nse []map[string]string
+//ok  bool
+//)
 
-	_, ok = p.nstore[book]
-	if !ok {
+//_, ok = p.nstore[book]
+//if !ok {
 
-		tradeAgent, err := agent.NewTradingAgentCompact(
-			filepath.Join(
-				os.Getenv("HOME"),
-				"Documents/database/filedb/futures_wizards",
-			),
-			"aa",
-			book,
-		)
-		if err != nil {
-			return err
-		}
+//tradeAgent, err := agent.NewTradingAgentCompact(
+//filepath.Join(
+//os.Getenv("HOME"),
+//"Documents/database/filedb/futures_wizards",
+//),
+//"aa",
+//book,
+//)
+//if err != nil {
+//return err
+//}
 
-		b, err := tradeAgent.Reading()
-		if err != nil {
-			return err
-		}
+//b, err := tradeAgent.Reading()
+//if err != nil {
+//return err
+//}
 
-		data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("trading_note_%s.json", b.NoteIndex())))
-		if err != nil {
-			return err
-		}
+//data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("trading_note_%s.json", b.NoteIndex())))
+//if err != nil {
+//return err
+//}
 
-		err = json.Unmarshal(data, &nse)
-		if err != nil {
-			return err
-		}
+//err = json.Unmarshal(data, &nse)
+//if err != nil {
+//return err
+//}
 
-		ns := make([]*model.TradingNote, 0, len(nse))
+//ns := make([]*model.TradingNote, 0, len(nse))
 
-		for _, e := range nse {
-			n, err := model.NewTradingNoteFromEntity(e)
-			if err != nil {
-				return err
-			}
+//for _, e := range nse {
+//n, err := model.NewTradingNoteFromEntity(e)
+//if err != nil {
+//return err
+//}
 
-			ns = append(ns, n)
-		}
+//ns = append(ns, n)
+//}
 
-		sort.Slice(ns, func(i, j int) bool {
-			return ns[i].Time().Before(ns[j].Time())
-		})
+//sort.Slice(ns, func(i, j int) bool {
+//return ns[i].Time().Before(ns[j].Time())
+//})
 
-		p.nstore[book] = ns
-	}
+//p.nstore[book] = ns
+//}
 
-	p.notes = p.nstore[book]
+//p.notes = p.nstore[book]
 
-	return nil
-}
+//return nil
+//}
 
 func (p *ServiceHandler) lookup(dt time.Time, symbol string, freq data.Frequency, timeSliced bool) error {
 
