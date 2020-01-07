@@ -14,18 +14,17 @@ import (
 	"time"
 
 	"github.com/KushamiNeko/go_fun/chart/data"
-	"github.com/KushamiNeko/go_fun/chart/indicator"
-	"github.com/KushamiNeko/go_fun/chart/plot"
-	"github.com/KushamiNeko/go_fun/chart/plotter"
-	"github.com/KushamiNeko/go_fun/chart/utils"
+	"github.com/KushamiNeko/go_fun/chart/preset"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 )
 
-func validInput(symbols, years, freqs, outdir, version string) error {
+//func validInput(symbols, years, freqs, outdir, version string) error {
+func validInput(symbols, years, freqs, outdir string) error {
 	var regex *regexp.Regexp
-	var err error
+	//var err error
 
-	regex = regexp.MustCompile(`^[a-zA-Z]+\d*(?:,\w+\d*)*$`)
+	//regex = regexp.MustCompile(`^[a-zA-Z]+\d*(?:,\w+\d*)*$`)
+	regex = regexp.MustCompile(`^\w+(?:,\w+)*$`)
 	if !regex.MatchString(symbols) {
 		return fmt.Errorf("invalid symbols: %s", symbols)
 	}
@@ -48,9 +47,9 @@ func validInput(symbols, years, freqs, outdir, version string) error {
 	}
 
 	//regex = regexp.MustCompile(`^[a-zA-Z]\d$`)
-	if err != nil {
-		return fmt.Errorf("invalid version: %s", version)
-	}
+	//if err != nil {
+	//return fmt.Errorf("invalid version: %s", version)
+	//}
 
 	return nil
 }
@@ -60,12 +59,13 @@ func main() {
 	years := flag.String("years", "", "years to plot")
 	freqs := flag.String("freqs", "d,w", "frequency to plot")
 	outdir := flag.String("outdir", "", "output directory")
-	version := flag.String("version", "", "records version")
+	//version := flag.String("version", "", "records version")
 	records := flag.Bool("records", false, "show records")
 
 	flag.Parse()
 
-	err := validInput(*symbols, *years, *freqs, *outdir, *version)
+	//err := validInput(*symbols, *years, *freqs, *outdir, *version)
+	err := validInput(*symbols, *years, *freqs, *outdir)
 	if err != nil {
 		pretty.ColorPrintln(pretty.PaperRed500, err.Error())
 		return
@@ -75,7 +75,7 @@ func main() {
 	pretty.ColorPrintln(pretty.PaperPink400, fmt.Sprintf("years: %s", *years))
 	pretty.ColorPrintln(pretty.PaperPink400, fmt.Sprintf("frequency: %s", *freqs))
 	pretty.ColorPrintln(pretty.PaperPink400, fmt.Sprintf("outdir: %s", *outdir))
-	pretty.ColorPrintln(pretty.PaperPink400, fmt.Sprintf("version: %s", *version))
+	//pretty.ColorPrintln(pretty.PaperPink400, fmt.Sprintf("version: %s", *version))
 	pretty.ColorPrintln(pretty.PaperPink400, fmt.Sprintf("records: %v", *records))
 
 	sy, ey := parseYears(*years)
@@ -86,25 +86,26 @@ func main() {
 		for _, freq := range strings.Split(*freqs, ",") {
 			for y := sy; y < ey; y++ {
 
-				s := symbol
-				regex := regexp.MustCompile(`^([a-zA-Z]+)([fghjkmnquvxz][0-9]+)?$`)
-				m := regex.FindAllStringSubmatch(symbol, -1)
-				if m != nil {
-					s = m[0][1]
-				}
+				//s := symbol
+				//regex := regexp.MustCompile(`^([a-zA-Z]+)([fghjkmnquvxz][0-9]+)?$`)
+				//m := regex.FindAllStringSubmatch(symbol, -1)
+				//if m != nil {
+				//s = m[0][1]
+				//}
 
-				name := fmt.Sprintf("%d_%s_%s.png", y, s, freq)
+				//name := fmt.Sprintf("%d_%s_%s.png", y, s, freq)
+				name := fmt.Sprintf("%d_%s_%s.png", y, symbol, freq)
 				path := filepath.Clean(filepath.Join(*outdir, name))
 
 				wg.Add(1)
-				go func(path string, symbol string, year int, freq data.Frequency, version string, records bool) {
+				go func(path string, symbol string, year int, freq data.Frequency, records bool) {
 
 					f, err := os.Create(path)
 					if err != nil {
 						panic(err)
 					}
 
-					buffer, err := plotChart(symbol, year, freq, version, records)
+					buffer, err := plotChart(symbol, year, freq, records)
 					if err != nil {
 						panic(err)
 					}
@@ -115,7 +116,7 @@ func main() {
 					}
 
 					wg.Done()
-				}(path, symbol, y, data.ParseFrequency(freq), *version, *records)
+				}(path, symbol, y, data.ParseFrequency(freq), *records)
 
 			}
 		}
@@ -158,16 +159,16 @@ func parseYears(years string) (int, int) {
 	return int(sy), int(ey)
 }
 
-func plotChart(symbol string, year int, freq data.Frequency, version string, records bool) (io.Reader, error) {
+func plotChart(symbol string, year int, freq data.Frequency, records bool) (io.Reader, error) {
 
-	var src data.DataSource
+	//var src data.DataSource
 
-	regex := regexp.MustCompile(`^[a-zA-Z]+$`)
-	if regex.MatchString(symbol) {
-		src = data.NewDataSource(data.Yahoo)
-	} else {
-		src = data.NewDataSource(data.Barchart)
-	}
+	//regex := regexp.MustCompile(`^[a-zA-Z]+$`)
+	//if regex.MatchString(symbol) {
+	//src = data.NewDataSource(data.Yahoo)
+	//} else {
+	//src = data.NewDataSource(data.Barchart)
+	//}
 
 	var st, et time.Time
 	loc, err := time.LoadLocation("")
@@ -217,131 +218,153 @@ func plotChart(symbol string, year int, freq data.Frequency, version string, rec
 		panic("unknown frequency")
 	}
 
-	ts, err := src.Read(st, et, symbol, freq)
+	//c, err := preset.NewChartPreset(symbol, st.Add(-500*24*time.Hour), et.Add(500*24*time.Hour), freq)
+	c, err := preset.NewGeneral(symbol, st.Add(-500*24*time.Hour), et.Add(500*24*time.Hour), freq)
 	if err != nil {
 		return nil, err
 	}
 
-	ts.SetColumn("sma5", indicator.SimpleMovingAverge(ts.FullValues("close"), 5))
-	ts.SetColumn("sma20", indicator.SimpleMovingAverge(ts.FullValues("close"), 20))
+	c.TimeSlice(st, et)
 
-	ts.SetColumn("bb+15", indicator.BollingerBand(ts.FullValues("close"), 20, 1.5))
-	ts.SetColumn("bb-15", indicator.BollingerBand(ts.FullValues("close"), 20, -1.5))
-	ts.SetColumn("bb+20", indicator.BollingerBand(ts.FullValues("close"), 20, 2.0))
-	ts.SetColumn("bb-20", indicator.BollingerBand(ts.FullValues("close"), 20, -2.0))
-	ts.SetColumn("bb+25", indicator.BollingerBand(ts.FullValues("close"), 20, 2.5))
-	ts.SetColumn("bb-25", indicator.BollingerBand(ts.FullValues("close"), 20, -2.5))
-	ts.SetColumn("bb+30", indicator.BollingerBand(ts.FullValues("close"), 20, 3.0))
-	ts.SetColumn("bb-30", indicator.BollingerBand(ts.FullValues("close"), 20, -3.0))
-
-	p := &plot.Plot{}
-	err = p.Init()
-	if err != nil {
-		return nil, err
-	}
-
-	p.AddTickMarker(
-		&plotter.TimeTicker{
-			TimeSeries: ts,
-			Frequency:  freq,
-		},
-		&plotter.PriceTicker{
-			TimeSeries: ts,
-			Step:       20,
-		},
-		plot.ThemeColor("ColorTick"),
-		plot.ChartConfig("TickFontSize"),
-	)
-
-	p.AddPlotter(
-		plotter.GridPlotter(
-			plot.ChartConfig("GridLineWidth"),
-			plot.ThemeColor("ColorGrid"),
-		),
-		plotter.LinePlotter(
-			ts.Values("sma5"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorSMA1"),
-		),
-		plotter.LinePlotter(
-			ts.Values("sma20"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorSMA2"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb+15"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB1"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb-15"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB1"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb+20"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB2"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb-20"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB2"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb+25"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB3"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb-25"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB3"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb+30"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB4"),
-		),
-		plotter.LinePlotter(
-			ts.Values("bb-30"),
-			plot.ChartConfig("LineWidth"),
-			plot.ThemeColor("ColorBB4"),
-		),
-		&plotter.CandleStick{
-			TimeSeries:   ts,
-			ColorUp:      plot.ThemeColor("ColorUp"),
-			ColorDown:    plot.ThemeColor("ColorDown"),
-			ColorNeutral: plot.ThemeColor("ColorNeutral"),
-			BodyWidth:    plot.ChartConfig("CandleBodyWidth"),
-			ShadowWidth:  plot.ChartConfig("CandleShadowWidth"),
-		},
-	)
+	c.ShowInfo(false)
 
 	if records {
-		//p.AddPlotter(
-		//&plotter.LeverageRecorder{
-		//TimeSeries: ts,
-		//Records:    rs,
-		//FontSize:   plot.ChartConfig("RecordsFontSize"),
-		//Color:      plot.ThemeColor("ColorText"),
-		//},
-		//)
+		err = c.ShowRecordsInBook(fmt.Sprintf("%s_%d", symbol, year))
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	ymn, ymx := utils.RangeExtend(utils.Min(ts.Values("low")), utils.Max(ts.Values("high")), 25.0)
-	p.YRange(ymn, ymx)
+	//ts, err := src.Read(st, et, symbol, freq)
+	//if err != nil {
+	//return nil, err
+	//}
+
+	//ts.SetColumn("sma5", indicator.SimpleMovingAverge(ts.FullValues("close"), 5))
+	//ts.SetColumn("sma20", indicator.SimpleMovingAverge(ts.FullValues("close"), 20))
+
+	//ts.SetColumn("bb+15", indicator.BollingerBand(ts.FullValues("close"), 20, 1.5))
+	//ts.SetColumn("bb-15", indicator.BollingerBand(ts.FullValues("close"), 20, -1.5))
+	//ts.SetColumn("bb+20", indicator.BollingerBand(ts.FullValues("close"), 20, 2.0))
+	//ts.SetColumn("bb-20", indicator.BollingerBand(ts.FullValues("close"), 20, -2.0))
+	//ts.SetColumn("bb+25", indicator.BollingerBand(ts.FullValues("close"), 20, 2.5))
+	//ts.SetColumn("bb-25", indicator.BollingerBand(ts.FullValues("close"), 20, -2.5))
+	//ts.SetColumn("bb+30", indicator.BollingerBand(ts.FullValues("close"), 20, 3.0))
+	//ts.SetColumn("bb-30", indicator.BollingerBand(ts.FullValues("close"), 20, -3.0))
+
+	//p := &plot.Plot{}
+	//err = p.Init()
+	//if err != nil {
+	//return nil, err
+	//}
+
+	//p.AddTickMarker(
+	//&plotter.TimeTicker{
+	//TimeSeries: ts,
+	//Frequency:  freq,
+	//},
+	//&plotter.PriceTicker{
+	//TimeSeries: ts,
+	//Step:       20,
+	//},
+	//plot.ThemeColor("ColorTick"),
+	//plot.ChartConfig("TickFontSize"),
+	//)
+
+	//p.AddPlotter(
+	//plotter.GridPlotter(
+	//plot.ChartConfig("GridLineWidth"),
+	//plot.ThemeColor("ColorGrid"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("sma5"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorSMA1"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("sma20"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorSMA2"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb+15"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB1"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb-15"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB1"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb+20"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB2"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb-20"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB2"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb+25"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB3"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb-25"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB3"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb+30"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB4"),
+	//),
+	//plotter.LinePlotter(
+	//ts.Values("bb-30"),
+	//plot.ChartConfig("LineWidth"),
+	//plot.ThemeColor("ColorBB4"),
+	//),
+	//&plotter.CandleStick{
+	//TimeSeries:   ts,
+	//ColorUp:      plot.ThemeColor("ColorUp"),
+	//ColorDown:    plot.ThemeColor("ColorDown"),
+	//ColorNeutral: plot.ThemeColor("ColorNeutral"),
+	//BodyWidth:    plot.ChartConfig("CandleBodyWidth"),
+	//ShadowWidth:  plot.ChartConfig("CandleShadowWidth"),
+	//},
+	//)
+
+	//if records {
+	////p.AddPlotter(
+	////&plotter.LeverageRecorder{
+	////TimeSeries: ts,
+	////Records:    rs,
+	////FontSize:   plot.ChartConfig("RecordsFontSize"),
+	////Color:      plot.ThemeColor("ColorText"),
+	////},
+	////)
+	//}
+
+	//ymn, ymx := utils.RangeExtend(utils.Min(ts.Values("low")), utils.Max(ts.Values("high")), 25.0)
+	//p.YRange(ymn, ymx)
 
 	buffer := new(bytes.Buffer)
 
-	err = p.Plot(
-		buffer,
-		plot.ChartConfig("ChartWidth"),
-		plot.ChartConfig("ChartHeight"),
-	)
+	err = c.Plot(buffer)
 	if err != nil {
 		return nil, err
 	}
+
+	//err = p.Plot(
+	//buffer,
+	//plot.ChartConfig("ChartWidth"),
+	//plot.ChartConfig("ChartHeight"),
+	//)
+	//if err != nil {
+	//return nil, err
+	//}
 
 	return buffer, nil
 }

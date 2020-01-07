@@ -9,7 +9,7 @@ class Server {
   String _frequency = "d";
   StreamController<String> _$frequency;
 
-  String _symbol = "esz19";
+  String _symbol = "es";
   StreamController<String> _$symbol;
 
   String _book = "es_2018";
