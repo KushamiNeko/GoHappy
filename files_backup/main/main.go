@@ -110,6 +110,6 @@ func main() {
 }
 
 func colorExit(err error) {
-	pretty.ColorPrintln(config.ColorWarning, fmt.Sprintf("%s", err.Error()))
+	pretty.ColorPrintln(config.ColorWarning, err.Error())
 	syscall.Exit(1)
 }

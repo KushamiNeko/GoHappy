@@ -62,7 +62,6 @@ func Cp(src, tar string) error {
 	}
 
 	if !strings.Contains(tar, config.SafeGuard) {
-		//panic(fmt.Sprintf("%s is not under safeguard", tar))
 		return fmt.Errorf("%s is not under safeguard", tar)
 	}
 
@@ -93,7 +92,6 @@ func Rm(tar string) error {
 	}
 
 	if !strings.Contains(tar, config.SafeGuard) {
-		//panic(fmt.Sprintf("%s is not under safeguard", tar))
 		return fmt.Errorf("%s is not under safeguard", tar)
 	}
 

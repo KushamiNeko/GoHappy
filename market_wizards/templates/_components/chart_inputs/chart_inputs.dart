@@ -14,6 +14,9 @@ class ChartInputs {
 
   final ButtonElement _btn;
 
+  //final ButtonElement _btnRD;
+  final ButtonElement _btnRT;
+
   final Server _server;
 
   final String _cls;
@@ -35,6 +38,10 @@ class ChartInputs {
     "vle",
     "zn",
     "tyvix",
+    "np",
+    "jniv",
+    "fx",
+    "vstx",
     "cl",
     "ovx",
     "gc",
@@ -53,7 +60,9 @@ class ChartInputs {
         _itime = querySelector("#${id}-chart-inputs-time"),
         _ifreq = querySelector("#${id}-chart-inputs-frequency"),
         _ibook = querySelector("#${id}-chart-inputs-book"),
-        _btn = querySelector("#${id}-chart-inputs-button") {
+        _btn = querySelector("#${id}-chart-inputs-button"),
+        //_btnRD = querySelector("#${id}-chart-inputs-random-date"),
+        _btnRT = querySelector("#${id}-chart-inputs-random-trade") {
     _server.$showRecords.listen((show) {
       if (show) {
         _ibook.parent.classes.remove("${cls}-chart-inputs-text-hidden");
@@ -107,6 +116,14 @@ class ChartInputs {
 
       _btn.blur();
     });
+
+    _btnRT.onClick.listen((MouseEvent event) {
+      _server.randomTradeRequest();
+    });
+
+    //_btnRD.onClick.listen((MouseEvent event) {
+    //_server.randomDateRequest();
+    //});
   }
 
   Element get container => _container;

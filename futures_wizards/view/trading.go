@@ -34,8 +34,6 @@ func newTrading(ctx *context.Context) (*Trading, error) {
 		"transactions",
 		"trades",
 		"statistic",
-		"plot",
-		//"plot all",
 	}
 
 	t.Page.handlers = map[string]func() error{
@@ -49,8 +47,6 @@ func newTrading(ctx *context.Context) (*Trading, error) {
 		"transactions":    t.cmdTransactions,
 		"trades":          t.cmdTrades,
 		"statistic":       t.cmdStatistic,
-		"plot":            t.cmdPlot,
-		//"plot all":        t.cmdPlotAll,
 	}
 
 	t.Page.init(false)
@@ -141,7 +137,6 @@ func (t *Trading) cmdReading() error {
 func (t *Trading) cmdNewBook() error {
 	inputs, err := input.KeyValueInput(
 		config.ColorInfo,
-		//"create a new trading book: (time, note, version)",
 		"create a new trading book: (title)",
 	)
 	if err != nil {
@@ -287,31 +282,5 @@ func (t *Trading) cmdStatistic() error {
 	pretty.ColorPrintln(config.ColorInfo, model.StatisticFmtLabelsS())
 	pretty.ColorPrintln(config.ColorWhite, statistic.FmtS())
 
-	return nil
-}
-
-func (t *Trading) cmdPlot() error {
-	//inputs, err := input.KeyValueInput(
-	//config.ColorInfo,
-	//"plot candlestick: (period, file)",
-	//)
-	//if err != nil {
-	//return err
-	//}
-
-	//return t.agent.Plot(inputs)
-	return nil
-}
-
-func (t *Trading) cmdPlotAll() error {
-	//inputs, err := input.KeyValueInput(
-	//config.ColorInfo,
-	//"plot all books: (folder)",
-	//)
-	//if err != nil {
-	//return err
-	//}
-
-	//return t.agent.PlotAllBooks(inputs)
 	return nil
 }

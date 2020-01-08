@@ -95,10 +95,6 @@ func (p *Processor) Caching(src string) error {
 			return nil
 		}
 
-		//err = cacheFile(src)
-		//if err != nil {
-		//return err
-		//}
 		caches[src] = []byte{}
 
 	case stat.Mode().IsDir():
@@ -187,10 +183,6 @@ func (p *Processor) Process() error {
 		}
 	}
 
-	//if !p.Initialized || shadowChanged {
-	//for _, f := range nfs {
-	//p.operate(f)
-	//}
 	if !p.Initialized {
 		for _, f := range nfs {
 			p.operate(f)
@@ -219,7 +211,7 @@ func (p *Processor) Process() error {
 func (p *Processor) operator(ext string) Operator {
 	switch ext {
 	case ".scss":
-		return &CssOperator{}
+		return &CSSOperator{}
 	case ".dart":
 		return &DartOperator{p.Optimized}
 	case ".ts":

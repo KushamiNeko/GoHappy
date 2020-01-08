@@ -120,7 +120,8 @@ class Server {
       {String book = "1"}) {
     assert(new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$").hasMatch(symbol));
     assert(new RegExp(r"h|d|w|m").hasMatch(freq));
-    assert(new RegExp(r"^\d{8}$").hasMatch(time));
+    //assert(new RegExp(r"^\d{8}$").hasMatch(time));
+    assert(new RegExp(r"^(?:\d{4}|\d{8})$").hasMatch(time));
 
     _function = "refresh";
 
@@ -136,6 +137,16 @@ class Server {
     getChart();
   }
 
+  void randomTradeRequest() {
+    _function = "randomTrade";
+    getChart();
+  }
+
+  void randomDateRequest() {
+    _function = "randomDate";
+    getChart();
+  }
+
   String _requestUrl() {
     var url = "${window.location.origin}/service/plot/practice";
 
@@ -144,8 +155,11 @@ class Server {
     url =
         "${url}&symbol=${_symbol}&frequency=${_frequency}&function=${_function}&time=${_time}";
 
+    //url = "${url}&book=${_book}";
+
     if (_showRecords) {
       url = "${url}&book=${_book}&records=true";
+      //url = "${url}&records=true";
     }
 
     return url;

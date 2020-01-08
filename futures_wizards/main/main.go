@@ -21,7 +21,7 @@ func main() {
 			"Documents/database/filedb/futures_wizards",
 		),
 		//database.YamlEngine,
-		database.JsonEngine,
+		database.JSONEngine,
 	)
 
 	ctx := context.NewContext(db)

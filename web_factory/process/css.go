@@ -11,13 +11,9 @@ import (
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 )
 
-type CssOperator struct{}
+type CSSOperator struct{}
 
-//func (c *CssOperator) DstPath(src, dst string) string {
-//return filepath.Join(dst, strings.ReplaceAll(filepath.Base(src), filepath.Ext(src), ".css"))
-//}
-
-func (c *CssOperator) Operate(src, dst string) (string, error) {
+func (c *CSSOperator) Operate(src, dst string) (string, error) {
 	ext := filepath.Ext(src)
 
 	if ext != ".scss" && ext != "sass" {

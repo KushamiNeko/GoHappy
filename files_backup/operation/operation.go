@@ -79,7 +79,7 @@ func sync(src, tar string, ensure bool) error {
 					s = f2
 					d = f1
 				default:
-					return fmt.Errorf("Unknow file path:\n%s\n%s", f1, f2)
+					return fmt.Errorf("unknow file path:\n%s\n%s", f1, f2)
 				}
 
 				err := shell.Rm(d)
@@ -115,7 +115,7 @@ func sync(src, tar string, ensure bool) error {
 					}
 
 				default:
-					return fmt.Errorf("Unknow file path:\n%s", path)
+					return fmt.Errorf("unknow file path:\n%s", path)
 				}
 
 			}

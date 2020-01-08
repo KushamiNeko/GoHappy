@@ -4,13 +4,17 @@ import (
 	"bytes"
 	"fmt"
 	"math"
+	"math/rand"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/KushamiNeko/go_fun/chart/data"
 	"github.com/KushamiNeko/go_fun/chart/preset"
+	"github.com/KushamiNeko/go_fun/trading/agent"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 )
 
@@ -19,8 +23,9 @@ func init() {
 }
 
 const (
-	timeFormatL = "20060102150405"
-	timeFormatS = "20060102"
+	//timeFormatL = "20060102150405"
+	//timeFormatS = "20060102"
+	timeFormat = "20060102"
 )
 
 type cache struct {
@@ -31,26 +36,13 @@ type cache struct {
 
 type ServiceHandler struct {
 	store []*cache
-	//rstore map[string][]*model.FuturesTransaction
-	//nstore map[string][]*model.TradingNote
-
 	chart preset.ChartPreset
-	//records []*model.FuturesTransaction
-	//notes []*model.TradingNote
 }
 
 func (p *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if p.store == nil {
 		p.store = make([]*cache, 0, 6)
 	}
-
-	//if p.rstore == nil {
-	//p.rstore = make(map[string][]*model.FuturesTransaction)
-	//}
-
-	//if p.nstore == nil {
-	//p.nstore = make(map[string][]*model.TradingNote)
-	//}
 
 	switch r.Method {
 
@@ -85,17 +77,30 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 
 	book := r.URL.Query().Get("book")
 
-	var tfmt string
-	regex := regexp.MustCompile(`^\d{8}$`)
+	//var tfmt string
+	//regex := regexp.MustCompile(`^\d{8}$`)
+	//if regex.MatchString(dtime) {
+	//tfmt = timeFormatS
+	//} else {
+	//tfmt = timeFormatL
+	//}
+
+	regex := regexp.MustCompile(`^\d{4}$`)
 	if regex.MatchString(dtime) {
-		tfmt = timeFormatS
+		dtime = fmt.Sprintf("%s1231", dtime)
 	} else {
-		tfmt = timeFormatL
+		regex = regexp.MustCompile(`^\d{8}$`)
+		if !regex.MatchString(dtime) {
+			http.Error(w, "invalid time", http.StatusBadRequest)
+			return
+		}
 	}
 
-	dt, err := time.Parse(tfmt, dtime)
+	//dt, err := time.Parse(tfmt, dtime)
+	dt, err := time.Parse(timeFormat, dtime)
 	if err != nil {
-		panic(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	switch function {
@@ -126,6 +131,84 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 		p.chart.Backward()
 
 		goto plotting
+
+	case "randomTrade":
+		ta, err := agent.NewTradingAgentCompact(
+			filepath.Join(
+				os.Getenv("HOME"),
+				"Documents/database/filedb/futures_wizards",
+			),
+			"aa",
+			"",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		bs, err := ta.Books()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		rand.Seed(time.Now().Unix())
+
+		ri := rand.Intn(len(bs))
+
+		ta.SetReading(bs[ri])
+
+		ts, err := ta.Trades()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		times := make([]time.Time, 0, len(ts)+1)
+
+		for _, t := range ts {
+			times = append(times, t.OpenTime())
+		}
+
+		ps, _ := ta.Positions()
+		if len(ps) != 0 {
+			times = append(times, ps[0].Time())
+		}
+
+		ri = rand.Intn(len(times))
+
+		st := times[ri]
+
+		dt = st.Add(-1 * time.Duration(rand.Intn(27)+1) * 7 * 24 * time.Hour)
+
+		err = p.lookup(dt, symbol, freq, true)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		goto plotting
+
+	//case "randomDate":
+
+	//dt = time.Date(
+	//2000+rand.Intn(time.Now().Year()%2000),
+	//time.Month(rand.Intn(12)+1),
+	//rand.Intn(31)+1,
+	//0,
+	//0,
+	//0,
+	//0,
+	//time.Now().Location(),
+	//)
+
+	//err = p.lookup(dt, symbol, freq, true)
+	//if err != nil {
+	//http.Error(w, err.Error(), http.StatusBadRequest)
+	//return
+	//}
+
+	//goto plotting
 
 	case "info":
 		if p.chart == nil {
@@ -206,24 +289,11 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 plotting:
 
 	if showRecords {
-		//err = p.recordsLookup(book, symbol)
-		//if err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//return
-		//}
-
-		//p.chart.ShowRecords(p.records)
 		err = p.chart.ShowRecordsInBook(book)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		//err = p.notesLookup(book)
-		//if err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//return
-		//}
 	} else {
 		p.chart.ShowRecords(nil)
 	}
@@ -241,148 +311,6 @@ plotting:
 		return
 	}
 }
-
-//func (p *ServiceHandler) getNote(w http.ResponseWriter, r *http.Request) {
-//if p.chart == nil {
-//http.NotFound(w, r)
-//return
-//}
-
-//book := r.URL.Query().Get("book")
-
-//p.notesLookup(book)
-
-//snx := r.URL.Query().Get("x")
-//sny := r.URL.Query().Get("y")
-
-//nx, err := strconv.ParseFloat(snx, 64)
-//if err != nil {
-//http.Error(w, err.Error(), http.StatusBadRequest)
-//return
-//}
-
-//ny, err := strconv.ParseFloat(sny, 64)
-//if err != nil {
-//http.Error(w, err.Error(), http.StatusBadRequest)
-//return
-//}
-
-//x, _ := p.chart.ReverseXY(nx, ny)
-//dt := p.chart.Times()[int(x)]
-
-//for _, n := range p.notes {
-//if n.Time().Equal(dt) {
-//_, err = w.Write([]byte(n.Note()))
-//if err != nil {
-//pretty.ColorPrintln(pretty.PaperRed400, err.Error())
-//return
-//}
-//}
-//}
-
-//_, err = w.Write([]byte(""))
-//if err != nil {
-//pretty.ColorPrintln(pretty.PaperRed400, err.Error())
-//return
-//}
-//}
-
-//func (p *ServiceHandler) recordsLookup(book, symbol string) error {
-//var err error
-
-//tradeAgent, err := agent.NewTradingAgentCompact(
-//filepath.Join(
-//os.Getenv("HOME"),
-//"Documents/database/filedb/futures_wizards",
-//),
-//"aa",
-//book,
-//)
-//if err != nil {
-//return err
-//}
-
-//rs, err := tradeAgent.Transactions()
-//if err != nil {
-//return err
-//}
-
-////p.rstore[book] = rs
-//p.records = rs
-////} else {
-////p.records = rs
-////}
-
-//return nil
-//}
-
-//func (p *ServiceHandler) notesLookup(book string) error {
-//if p.nstore == nil {
-//p.nstore = make(map[string][]*model.TradingNote)
-//}
-
-//root := filepath.Join(os.Getenv("HOME"), "Documents/database/filedb/futures_wizards")
-
-//var (
-//data []byte
-////err  error
-
-//nse []map[string]string
-//ok  bool
-//)
-
-//_, ok = p.nstore[book]
-//if !ok {
-
-//tradeAgent, err := agent.NewTradingAgentCompact(
-//filepath.Join(
-//os.Getenv("HOME"),
-//"Documents/database/filedb/futures_wizards",
-//),
-//"aa",
-//book,
-//)
-//if err != nil {
-//return err
-//}
-
-//b, err := tradeAgent.Reading()
-//if err != nil {
-//return err
-//}
-
-//data, err = ioutil.ReadFile(filepath.Join(root, fmt.Sprintf("trading_note_%s.json", b.NoteIndex())))
-//if err != nil {
-//return err
-//}
-
-//err = json.Unmarshal(data, &nse)
-//if err != nil {
-//return err
-//}
-
-//ns := make([]*model.TradingNote, 0, len(nse))
-
-//for _, e := range nse {
-//n, err := model.NewTradingNoteFromEntity(e)
-//if err != nil {
-//return err
-//}
-
-//ns = append(ns, n)
-//}
-
-//sort.Slice(ns, func(i, j int) bool {
-//return ns[i].Time().Before(ns[j].Time())
-//})
-
-//p.nstore[book] = ns
-//}
-
-//p.notes = p.nstore[book]
-
-//return nil
-//}
 
 func (p *ServiceHandler) lookup(dt time.Time, symbol string, freq data.Frequency, timeSliced bool) error {
 
