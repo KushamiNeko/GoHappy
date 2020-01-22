@@ -77,14 +77,6 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 
 	book := r.URL.Query().Get("book")
 
-	//var tfmt string
-	//regex := regexp.MustCompile(`^\d{8}$`)
-	//if regex.MatchString(dtime) {
-	//tfmt = timeFormatS
-	//} else {
-	//tfmt = timeFormatL
-	//}
-
 	regex := regexp.MustCompile(`^\d{4}$`)
 	if regex.MatchString(dtime) {
 		dtime = fmt.Sprintf("%s1231", dtime)
@@ -96,7 +88,6 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//dt, err := time.Parse(tfmt, dtime)
 	dt, err := time.Parse(timeFormat, dtime)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

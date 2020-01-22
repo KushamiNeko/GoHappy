@@ -11,36 +11,42 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/KushamiNeko/go_fun/chart/futures"
 	"github.com/KushamiNeko/go_fun/utils/input"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 )
 
-type Page int
-
 const (
 	interactive = `https://www.barchart.com/futures/quotes/%s/interactive-chart`
 	historical  = `https://www.barchart.com/futures/quotes/%s/historical-download`
-
-	historicalPage Page = iota
-	interactivePage
 
 	historicalPattern  = `([\w\d]{5})_(\w+)_\w+-\w+-\d{2}-\d{2}-\d{4}.csv`
 	interactivePattern = `([\w\d]{5})_\w+_\w+_\w+_(\w+)_\d{2}_\d{2}_\d{4}.csv`
 )
 
-func barchartPage(symbols []string, ys, ye int, months futures.ContractMonths, page Page) {
-	var root string
-	switch page {
-	case historicalPage:
-		root = historical
-	case interactivePage:
-		root = interactive
-	default:
-		panic("unknown page")
-	}
+func command(url string) {
+	var outb bytes.Buffer
+	var errb bytes.Buffer
 
+	cmd := exec.Command(
+		"google-chrome",
+		url,
+	)
+
+	cmd.Stdout = &outb
+	cmd.Stderr = &errb
+
+	err := cmd.Start()
+	if err != nil {
+		pretty.ColorPrintln(pretty.PaperRed400, outb.String())
+		pretty.ColorPrintln(pretty.PaperRed400, errb.String())
+		panic(err)
+	}
+}
+
+func barchartPage(root string, symbols []string, ys, ye int, months futures.ContractMonths) {
 	for _, symbol := range symbols {
 		for y := ys; y < ye; y++ {
 			for _, month := range months {
@@ -54,25 +60,12 @@ func barchartPage(symbols []string, ys, ye int, months futures.ContractMonths, p
 
 				pretty.ColorPrintln(pretty.PaperCyan300, code)
 
-				var outb bytes.Buffer
-				var errb bytes.Buffer
-
-				cmd := exec.Command(
-					"google-chrome",
+				command(
 					fmt.Sprintf(
 						root,
 						code,
 					),
 				)
-
-				cmd.Stdout = &outb
-				cmd.Stderr = &errb
-
-				err := cmd.Start()
-				if err != nil {
-					panic(err)
-				}
-
 			}
 
 			reader := bufio.NewReader(os.Stdin)
@@ -85,24 +78,32 @@ func barchartPage(symbols []string, ys, ye int, months futures.ContractMonths, p
 func validInput(symbols, years, months, page string) error {
 	var regex *regexp.Regexp
 
-	regex = regexp.MustCompile(`^\w+(?:,\w+)*$`)
-	if !regex.MatchString(symbols) {
-		return fmt.Errorf("invalid symbols: %s", symbols)
+	if symbols != "" {
+		regex = regexp.MustCompile(`^\w+(?:,\w+)*$`)
+		if !regex.MatchString(symbols) {
+			return fmt.Errorf("invalid symbols: %s", symbols)
+		}
 	}
 
-	regex = regexp.MustCompile(`^(\d{4})(?:(?:\-|\~)(\d{4}))*$`)
-	if !regex.MatchString(years) {
-		return fmt.Errorf("invalid years: %s", years)
+	if years != "" {
+		regex = regexp.MustCompile(`^(\d{4})(?:(?:\-|\~)(\d{4}))*$`)
+		if !regex.MatchString(years) {
+			return fmt.Errorf("invalid years: %s", years)
+		}
 	}
 
-	regex = regexp.MustCompile(`^(?:[fghjkmnquvxz]+|all|even|financial)$`)
-	if !regex.MatchString(months) {
-		return fmt.Errorf("invalid months: %s", months)
+	if months != "" {
+		regex = regexp.MustCompile(`^(?:[fghjkmnquvxz]+|all|even|financial)$`)
+		if !regex.MatchString(months) {
+			return fmt.Errorf("invalid months: %s", months)
+		}
 	}
 
-	regex = regexp.MustCompile(`^(?:historical|interactive)$`)
-	if !regex.MatchString(page) {
-		return fmt.Errorf("invalid page: %s", page)
+	if page != "" {
+		regex = regexp.MustCompile(`^(?:historical|interactive)$`)
+		if !regex.MatchString(page) {
+			return fmt.Errorf("invalid page: %s", page)
+		}
 	}
 
 	return nil
@@ -114,6 +115,8 @@ func main() {
 	months := flag.String("months", "", "months")
 	page := flag.String("page", "historical", "barchart page")
 
+	download := flag.Bool("download", false, "download files from barchart")
+	front := flag.Bool("front", false, "download front contract")
 	rename := flag.Bool("rename", false, "rename downloaded files in Download folder")
 	check := flag.Bool("check", false, "check if downloaded files are complete in data source folder")
 
@@ -123,27 +126,36 @@ func main() {
 	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("years: %s", *years))
 	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("months: %s", *months))
 	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("page: %s", *page))
+
+	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("download: %v", *download))
+	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("front: %v", *front))
+	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("check: %v", *check))
 	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("rename: %v", *rename))
 
-	if *symbols != "" && *years != "" && *months != "" {
-		err := validInput(*symbols, *years, *months, *page)
-		if err != nil {
-			pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+	err := validInput(*symbols, *years, *months, *page)
+	if err != nil {
+		pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+		return
+	}
+
+	var root string
+	switch *page {
+	case "historical":
+		root = historical
+	case "interactive":
+		root = interactive
+	default:
+		panic("unknown page")
+	}
+
+	switch {
+	case *download:
+		if *symbols == "" || *months == "" {
+			pretty.ColorPrintln(pretty.PaperRed400, "empty symbols or months")
 			return
 		}
 
 		ss := strings.Split(*symbols, ",")
-		ys, ye := input.YearsInput(*years)
-
-		var p Page
-		switch *page {
-		case "historical":
-			p = historicalPage
-		case "interactive":
-			p = interactivePage
-		default:
-			panic("unknown page")
-		}
 
 		var m futures.ContractMonths
 		switch *months {
@@ -156,23 +168,63 @@ func main() {
 		default:
 		}
 
-		if *check {
-			checkDownload(ss, ys, ye, m)
+		if *front {
+			for _, symbol := range ss {
+				contract := futures.FrontContract(
+					time.Now(),
+					symbol,
+					m,
+					futures.BarchartSymbolFormat,
+				)
+
+				command(fmt.Sprintf(root, contract))
+			}
 		} else {
-			barchartPage(
-				ss,
-				ys,
-				ye,
-				m,
-				p,
-			)
+			if *years == "" {
+				pretty.ColorPrintln(pretty.PaperRed400, "empty years")
+				return
+			}
+
+			ys, ye := input.YearsInput(*years)
+
+			barchartPage(root, ss, ys, ye, m)
 		}
-	}
 
-	if *rename {
+		if *rename {
+			renameDownload()
+		}
+
+	case *check:
+		if *symbols == "" || *months == "" {
+			pretty.ColorPrintln(pretty.PaperRed400, "empty symbols or months")
+			return
+		}
+
+		if *years == "" {
+			pretty.ColorPrintln(pretty.PaperRed400, "empty years")
+			return
+		}
+
+		ss := strings.Split(*symbols, ",")
+		ys, ye := input.YearsInput(*years)
+
+		var m futures.ContractMonths
+		switch *months {
+		case "all":
+			m = futures.AllContractMonths
+		case "even":
+			m = futures.EvenContractMonths
+		case "financial":
+			m = futures.FinancialContractMonths
+		default:
+		}
+
+		checkDownload(ss, ys, ye, m)
+	case *rename:
 		renameDownload()
+	default:
+		panic("unknown case")
 	}
-
 }
 
 func checkDownload(symbols []string, ys, ye int, months futures.ContractMonths) {
