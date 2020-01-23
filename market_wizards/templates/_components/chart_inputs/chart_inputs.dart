@@ -24,34 +24,26 @@ class ChartInputs {
   TableCellElement _selectedCell;
 
   final List<String> _symbols = [
-    //"spx",
-    //"compq",
-    //"rut",
     "es",
     "vix",
     "nq",
     "vxn",
-    "mb",
-    //"ym",
     "qr",
     "rvx",
     "vle",
     "zn",
     "tyvix",
-    "np",
-    "jniv",
     "fx",
     "vstx",
+    "np",
+    "jniv",
     "cl",
     "ovx",
     "gc",
     "gvz",
+    "mb",
     "vx",
     "rxes",
-    //"nk225m",
-    //"nkvi",
-    //"fesx",
-    //"fvs",
   ];
 
   ChartInputs(String id, {String cls = ""})

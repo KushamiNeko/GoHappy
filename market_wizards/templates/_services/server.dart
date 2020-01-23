@@ -12,7 +12,7 @@ class Server {
   String _symbol = "es";
   StreamController<String> _$symbol;
 
-  String _book = "es_2018";
+  String _book = "es_${new DateTime.now().year - 1}";
   StreamController<String> _$book;
 
   String _note = "";
