@@ -15,6 +15,7 @@ import (
 	"github.com/KushamiNeko/go_fun/chart/data"
 	"github.com/KushamiNeko/go_fun/chart/preset"
 	"github.com/KushamiNeko/go_fun/trading/agent"
+	"github.com/KushamiNeko/go_fun/trading/model"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 )
 
@@ -143,11 +144,21 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		tbs := make([]*model.TradingBook, 0, len(bs))
+		bre := regexp.MustCompile(`^\w{2}_\d{4}$`)
+		for _, b := range bs {
+			if bre.MatchString(b.Title()) {
+				tbs = append(tbs, b)
+			}
+		}
+
 		rand.Seed(time.Now().Unix())
 
-		ri := rand.Intn(len(bs))
+		//ri := rand.Intn(len(bs))
+		ri := rand.Intn(len(tbs))
 
-		ta.SetReading(bs[ri])
+		//ta.SetReading(bs[ri])
+		ta.SetReading(tbs[ri])
 
 		ts, err := ta.Trades()
 		if err != nil {

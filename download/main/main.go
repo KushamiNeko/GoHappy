@@ -22,8 +22,8 @@ const (
 	interactive = `https://www.barchart.com/futures/quotes/%s/interactive-chart`
 	historical  = `https://www.barchart.com/futures/quotes/%s/historical-download`
 
-	historicalPattern  = `([\w\d]{5})_(\w+)_\w+-\w+-\d{2}-\d{2}-\d{4}.csv`
-	interactivePattern = `([\w\d]{5})_\w+_\w+_\w+_(\w+)_\d{2}_\d{2}_\d{4}.csv`
+	historicalPattern  = `^([\w\d]{5})_([^_-]+)(?:-[^_-]+)*_[^_-]+-[^_-]+-\d{2}-\d{2}-\d{4}.csv$`
+	interactivePattern = `^([\w\d]{5})_[^_]+_[^_]+_[^_]+_([^_]+)(?:_[^_]+)*_\d{2}_\d{2}_\d{4}.csv$`
 )
 
 func command(url string) {
@@ -259,8 +259,17 @@ func renameDownload() {
 	}
 
 	for _, f := range fs {
-		if !rename(root, f.Name(), historicalPattern) {
-			rename(root, f.Name(), interactivePattern)
+		//if !rename(root, f.Name(), historicalPattern) {
+		//rename(root, f.Name(), interactivePattern)
+		//}
+
+		switch {
+		case rename(root, f.Name(), historicalPattern):
+		case rename(root, f.Name(), interactivePattern):
+		case renameYahoo(root, f.Name()):
+		case renameInvesting(root, f.Name()):
+		default:
+			continue
 		}
 	}
 
@@ -297,4 +306,73 @@ func rename(root, file, pattern string) bool {
 	} else {
 		return false
 	}
+}
+
+func renameYahoo(root, file string) bool {
+	regex := regexp.MustCompile(`\^(\w+)`)
+	match := regex.FindAllStringSubmatch(file, -1)
+	if len(match) != 0 {
+
+		newName := fmt.Sprintf(
+			"%s.csv",
+			strings.ToLower(match[0][1]),
+		)
+
+		pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+
+		err := os.Rename(
+			filepath.Join(
+				root,
+				file,
+			),
+			filepath.Join(
+				root,
+				newName,
+			),
+		)
+
+		if err != nil {
+			panic(err)
+		}
+
+		return true
+	} else {
+		return false
+	}
+}
+
+func renameInvesting(root, file string) bool {
+	var symbol string
+
+	switch {
+	case strings.Contains(file, "STOXX 50 Volatility"):
+		symbol = "vstx"
+	case strings.Contains(file, "Nikkei Volatility"):
+		symbol = "jniv"
+	default:
+		return false
+	}
+
+	newName := fmt.Sprintf(
+		"%s.csv",
+		symbol,
+	)
+
+	pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+
+	err := os.Rename(
+		filepath.Join(
+			root,
+			file,
+		),
+		filepath.Join(
+			root,
+			newName,
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	return true
 }
