@@ -1,4 +1,5 @@
 import "dart:html";
+import "dart:async";
 import "../_components/chart_inputs/chart_inputs.dart";
 import "../_components/trade_inputs/trade_inputs.dart";
 import "../_components/modal/modal.dart";
@@ -22,6 +23,8 @@ class MainControl {
   final Note _note;
 
   bool _isFullScreen = false;
+
+  String _key = "";
 
   MainControl(this._navbar, this._sidebar, this._modal, this._canvas,
       this._chartInputs, this._note, this._tradeInputs)
@@ -94,16 +97,24 @@ class MainControl {
   }
 
   void _keyPressSwitch(KeyboardEvent event) {
-    print(event.which);
+    //print(event.which);
     if (event.which >= 48 && event.which <= 57) {
       // number keys
       // 48    : 0
       // 49-57 : 1-9
-      if (event.which == 48) {
-        _chartInputs.symbolIndex(9);
-      } else {
-        _chartInputs.symbolIndex(event.which - 49);
-      }
+      _key += (event.which - 48).toString();
+      new Timer(const Duration(milliseconds: 200), () {
+        if (_key != "") {
+          _chartInputs.symbolIndex(int.parse(_key.trim()) - 1);
+        }
+        _key = "";
+      });
+
+      //if (event.which == 48) {
+      //_chartInputs.symbolIndex(9);
+      //} else {
+      //_chartInputs.symbolIndex(event.which - 49);
+      //}
     } else {
       switch (event.which) {
         case (104):

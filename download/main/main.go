@@ -264,8 +264,8 @@ func renameDownload() {
 		//}
 
 		switch {
-		case rename(root, f.Name(), historicalPattern):
-		case rename(root, f.Name(), interactivePattern):
+		case renameBarchart(root, f.Name(), historicalPattern):
+		case renameBarchart(root, f.Name(), interactivePattern):
 		case renameYahoo(root, f.Name()):
 		case renameInvesting(root, f.Name()):
 		default:
@@ -275,27 +275,50 @@ func renameDownload() {
 
 }
 
-func rename(root, file, pattern string) bool {
+func renameBarchart(root, file, pattern string) bool {
+	dst := filepath.Join(
+		os.Getenv("HOME"),
+		"Documents/data_source/continuous",
+	)
+
 	regex := regexp.MustCompile(pattern)
 	match := regex.FindAllStringSubmatch(file, -1)
 	if len(match) != 0 {
 
+		symbol := strings.ToLower(match[0][1])
+
 		newName := fmt.Sprintf(
 			"%s.csv",
-			strings.ToLower(match[0][1]),
+			//strings.ToLower(match[0][1]),
+			symbol,
 		)
 
-		pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+		oldPath := filepath.Join(root, file)
+		newPath := filepath.Join(dst, symbol[:2], newName)
+
+		//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+		pretty.ColorPrintln(
+			pretty.PaperDeepOrange400,
+			fmt.Sprintf(
+				"%s -> %s",
+				//file,
+				//newName,
+				oldPath,
+				newPath,
+			),
+		)
 
 		err := os.Rename(
-			filepath.Join(
-				root,
-				file,
-			),
-			filepath.Join(
-				root,
-				newName,
-			),
+			oldPath,
+			newPath,
+			//filepath.Join(
+			//src,
+			//file,
+			//),
+			//filepath.Join(
+			//src,
+			//newName,
+			//),
 		)
 
 		if err != nil {
@@ -309,27 +332,52 @@ func rename(root, file, pattern string) bool {
 }
 
 func renameYahoo(root, file string) bool {
+	dst := filepath.Join(
+		os.Getenv("HOME"),
+		"Documents/data_source/yahoo",
+	)
+
 	regex := regexp.MustCompile(`\^(\w+)`)
 	match := regex.FindAllStringSubmatch(file, -1)
 	if len(match) != 0 {
 
+		symbol := strings.ToLower(match[0][1])
+
 		newName := fmt.Sprintf(
 			"%s.csv",
-			strings.ToLower(match[0][1]),
+			//strings.ToLower(match[0][1]),
+			symbol,
 		)
 
-		pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+		oldPath := filepath.Join(root, file)
+		newPath := filepath.Join(dst, newName)
+
+		pretty.ColorPrintln(
+			pretty.PaperDeepOrange400,
+			fmt.Sprintf(
+				"%s -> %s",
+				oldPath,
+				newPath,
+			),
+		)
 
 		err := os.Rename(
-			filepath.Join(
-				root,
-				file,
-			),
-			filepath.Join(
-				root,
-				newName,
-			),
+			oldPath,
+			newPath,
 		)
+
+		//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+
+		//err := os.Rename(
+		//filepath.Join(
+		//src,
+		//file,
+		//),
+		//filepath.Join(
+		//src,
+		//newName,
+		//),
+		//)
 
 		if err != nil {
 			panic(err)
@@ -342,6 +390,11 @@ func renameYahoo(root, file string) bool {
 }
 
 func renameInvesting(root, file string) bool {
+	dst := filepath.Join(
+		os.Getenv("HOME"),
+		"Documents/data_source/investing.com",
+	)
+
 	var symbol string
 
 	switch {
@@ -358,18 +411,35 @@ func renameInvesting(root, file string) bool {
 		symbol,
 	)
 
-	pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+	oldPath := filepath.Join(root, file)
+	newPath := filepath.Join(dst, newName)
 
-	err := os.Rename(
-		filepath.Join(
-			root,
-			file,
-		),
-		filepath.Join(
-			root,
-			newName,
+	pretty.ColorPrintln(
+		pretty.PaperDeepOrange400,
+		fmt.Sprintf(
+			"%s -> %s",
+			oldPath,
+			newPath,
 		),
 	)
+
+	err := os.Rename(
+		oldPath,
+		newPath,
+	)
+
+	//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+
+	//err := os.Rename(
+	//filepath.Join(
+	//src,
+	//file,
+	//),
+	//filepath.Join(
+	//src,
+	//newName,
+	//),
+	//)
 	if err != nil {
 		panic(err)
 	}

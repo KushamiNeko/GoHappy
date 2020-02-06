@@ -37,13 +37,17 @@ class ChartInputs {
     "vstx",
     "np",
     "jniv",
+    "hyg",
+    "emb",
+    "lqd",
+    "ief",
+    "mb",
+    "vx",
+    "rxes",
     "cl",
     "ovx",
     "gc",
     "gvz",
-    "mb",
-    "vx",
-    "rxes",
   ];
 
   ChartInputs(String id, {String cls = ""})

@@ -181,7 +181,7 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 
 		st := times[ri]
 
-		dt = st.Add(-1 * time.Duration(rand.Intn(13)+1) * 7 * 24 * time.Hour)
+		dt = st.Add(-1 * time.Duration(rand.Intn(9)+1) * 7 * 24 * time.Hour)
 
 		err = p.lookup(dt, symbol, freq, true)
 		if err != nil {
