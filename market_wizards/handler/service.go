@@ -191,26 +191,70 @@ func (p *ServiceHandler) getPlot(w http.ResponseWriter, r *http.Request) {
 
 		goto plotting
 
-	//case "randomDate":
+	case "randomDate":
 
-	//dt = time.Date(
-	//2000+rand.Intn(time.Now().Year()%2000),
-	//time.Month(rand.Intn(12)+1),
-	//rand.Intn(31)+1,
-	//0,
-	//0,
-	//0,
-	//0,
-	//time.Now().Location(),
-	//)
+		rand.Seed(time.Now().Unix())
 
-	//err = p.lookup(dt, symbol, freq, true)
-	//if err != nil {
-	//http.Error(w, err.Error(), http.StatusBadRequest)
-	//return
-	//}
+		var (
+			y int
+			m time.Month
+			d int
+		)
 
-	//goto plotting
+		y = 1999 + rand.Intn(time.Now().Year()-1999)
+
+		switch y {
+		case 1999:
+			m = time.Month(rand.Intn(9) + 4)
+		default:
+			m = time.Month(rand.Intn(12) + 1)
+		}
+
+		switch m {
+		case time.January:
+			d = rand.Intn(31) + 1
+		case time.February:
+			d = rand.Intn(28) + 1
+		case time.March:
+			d = rand.Intn(31) + 1
+		case time.April:
+			d = rand.Intn(30) + 1
+		case time.May:
+			d = rand.Intn(31) + 1
+		case time.June:
+			d = rand.Intn(30) + 1
+		case time.July:
+			d = rand.Intn(31) + 1
+		case time.August:
+			d = rand.Intn(31) + 1
+		case time.September:
+			d = rand.Intn(30) + 1
+		case time.October:
+			d = rand.Intn(31) + 1
+		case time.November:
+			d = rand.Intn(30) + 1
+		case time.December:
+			d = rand.Intn(31) + 1
+		}
+
+		dt = time.Date(
+			y,
+			m,
+			d,
+			0,
+			0,
+			0,
+			0,
+			time.Now().Location(),
+		)
+
+		err = p.lookup(dt, symbol, freq, true)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		goto plotting
 
 	case "info":
 		if p.chart == nil {

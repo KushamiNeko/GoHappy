@@ -14,7 +14,7 @@ class ChartInputs {
 
   final ButtonElement _btn;
 
-  //final ButtonElement _btnRD;
+  final ButtonElement _btnRD;
   final ButtonElement _btnRT;
 
   final Server _server;
@@ -61,7 +61,7 @@ class ChartInputs {
         _ifreq = querySelector("#${id}-chart-inputs-frequency"),
         _ibook = querySelector("#${id}-chart-inputs-book"),
         _btn = querySelector("#${id}-chart-inputs-button"),
-        //_btnRD = querySelector("#${id}-chart-inputs-random-date"),
+        _btnRD = querySelector("#${id}-chart-inputs-random-date"),
         _btnRT = querySelector("#${id}-chart-inputs-random-trade") {
     _server.$showRecords.listen((show) {
       if (show) {
@@ -121,9 +121,9 @@ class ChartInputs {
       _server.randomTradeRequest();
     });
 
-    //_btnRD.onClick.listen((MouseEvent event) {
-    //_server.randomDateRequest();
-    //});
+    _btnRD.onClick.listen((MouseEvent event) {
+      _server.randomDateRequest();
+    });
   }
 
   Element get container => _container;
