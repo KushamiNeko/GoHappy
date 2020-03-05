@@ -3561,7 +3561,7 @@
   M = {
     ChartInputs$: function(id) {
       var t3, t4, t5, t6, t7,
-        t1 = H.setRuntimeTypeInfo(["es", "vix", "nq", "vxn", "qr", "rvx", "vle", "zn", "tyvix", "fx", "vstx", "np", "jniv", "hyg", "emb", "lqd", "ief", "mb", "rxes", "cl", "ovx", "gc", "gvz"], [P.String]),
+        t1 = H.setRuntimeTypeInfo(["es", "vix", "nq", "vxn", "qr", "rvx", "vle", "zn", "tyvix", "fx", "vstx", "np", "jniv", "hyg", "emb", "lqd", "ief", "mb", "rxes", "cl", "ovx", "gc", "gvz", "sml", "dx"], [P.String]),
         t2 = $.Server__server;
       if (t2 == null)
         t2 = $.Server__server = R.Server$_internal();
@@ -7513,7 +7513,7 @@
       t5.add$1(0, t1._book);
       t1._$note.add$1(0, t1._server$_note);
       t2.add$1(0, t1._server$_showRecords);
-      for (t1 = _this._symbols, _i = 0; _i < 23; ++_i)
+      for (t1 = _this._symbols, _i = 0; _i < 25; ++_i)
         _this._addSymbol$1(t1[_i]);
       t1 = _this._bsymbol;
       t1.toString;
@@ -7650,7 +7650,7 @@
       t4 = t3 + _s24_;
       t2.classList.remove(t4);
       symbol = t2.value;
-      regex = P.RegExp_RegExp("^[a-zA-Z]{2,6}(?:\\d{2})*$");
+      regex = P.RegExp_RegExp("^[a-zA-Z]{1,6}(?:\\d{1,2})*$");
       if (typeof symbol !== "string")
         H.throwExpression(H.argumentErrorValue(symbol));
       if (!regex._nativeRegExp.test(symbol)) {
@@ -7676,7 +7676,7 @@
       t5 = t1._ifreq.value;
       t6 = t1._chart_inputs$_ibook.value;
       t2.toString;
-      t7 = P.RegExp_RegExp("^[a-zA-Z]{2,6}(?:\\d{2})*$");
+      t7 = P.RegExp_RegExp("^[a-zA-Z]{1,6}(?:\\d{1,2})*$");
       if (typeof t3 !== "string")
         H.throwExpression(H.argumentErrorValue(t3));
       H.assertHelper(t7._nativeRegExp.test(t3));
@@ -7738,7 +7738,7 @@
       t1 = t1._chart_inputs$_server;
       t2 = t.innerHTML;
       t1.toString;
-      t3 = P.RegExp_RegExp("^[a-zA-Z]{2,6}(?:\\d{2})*$");
+      t3 = P.RegExp_RegExp("^[a-zA-Z]{1,6}(?:\\d{1,2})*$");
       if (typeof t2 !== "string")
         H.throwExpression(H.argumentErrorValue(t2));
       H.assertHelper(t3._nativeRegExp.test(t2));

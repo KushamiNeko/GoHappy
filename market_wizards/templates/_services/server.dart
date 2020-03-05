@@ -97,7 +97,8 @@ class Server {
   }
 
   void symbolRequest(String symbol) {
-    assert(new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$").hasMatch(symbol));
+    //assert(new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$").hasMatch(symbol));
+    assert(new RegExp(r"^[a-zA-Z]{1,6}(?:\d{1,2})*$").hasMatch(symbol));
     _function = "refresh";
 
     _symbol = symbol;
@@ -118,7 +119,8 @@ class Server {
 
   void inputsRequest(String symbol, String time, String freq,
       {String book = "1"}) {
-    assert(new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$").hasMatch(symbol));
+    //assert(new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$").hasMatch(symbol));
+    assert(new RegExp(r"^[a-zA-Z]{1,6}(?:\d{1,2})*$").hasMatch(symbol));
     assert(new RegExp(r"h|d|w|m").hasMatch(freq));
     //assert(new RegExp(r"^\d{8}$").hasMatch(time));
     assert(new RegExp(r"^(?:\d{4}|\d{8})$").hasMatch(time));

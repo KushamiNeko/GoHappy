@@ -48,6 +48,10 @@ class ChartInputs {
     "ovx",
     "gc",
     "gvz",
+    "sml",
+    //"e6",
+    //"j6",
+    "dx",
   ];
 
   ChartInputs(String id, {String cls = ""})
@@ -93,7 +97,8 @@ class ChartInputs {
       _isymbol.classes.remove("${cls}-chart-inputs-text-error");
 
       var symbol = _isymbol.value;
-      var regex = new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$");
+      //var regex = new RegExp(r"^[a-zA-Z]{2,6}(?:\d{2})*$");
+      var regex = new RegExp(r"^[a-zA-Z]{1,6}(?:\d{1,2})*$");
 
       if (!regex.hasMatch(symbol)) {
         _isymbol.classes.add("${cls}-chart-inputs-text-error");
