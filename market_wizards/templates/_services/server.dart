@@ -150,6 +150,7 @@ class Server {
   }
 
   String _requestUrl() {
+    //var url = "http://127.0.0.1:5000/service/plot/practice";
     var url = "${window.location.origin}/service/plot/practice";
 
     url = "${url}?timestemp=${new DateTime.now().millisecondsSinceEpoch}";

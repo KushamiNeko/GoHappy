@@ -31,7 +31,8 @@ func command(url string) {
 	var errb bytes.Buffer
 
 	cmd := exec.Command(
-		"google-chrome",
+		// "google-chrome",
+		"firefox",
 		url,
 	)
 
