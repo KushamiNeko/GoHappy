@@ -3,24 +3,20 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
-	"strings"
-	"time"
+
+	"github.com/KushamiNeko/go_happy/download/operator"
 
 	"github.com/KushamiNeko/go_fun/chart/futures"
-	"github.com/KushamiNeko/go_fun/utils/input"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
 )
 
 const (
-	interactive = `https://www.barchart.com/futures/quotes/%s/interactive-chart`
 	historical  = `https://www.barchart.com/futures/quotes/%s/historical-download`
+	interactive = `https://www.barchart.com/futures/quotes/%s/interactive-chart`
 
 	historicalPattern  = `^([\w\d]{5})_([^_-]+)(?:-[^_-]+)*_[^_-]+-[^_-]+-\d{2}-\d{2}-\d{4}.csv$`
 	interactivePattern = `^([\w\d]{5})_[^_]+_[^_]+_[^_]+_([^_]+)(?:_[^_]+)*_\d{2}_\d{2}_\d{4}.csv$`
@@ -111,339 +107,346 @@ func validInput(symbols, years, months, page string) error {
 }
 
 func main() {
-	symbols := flag.String("symbols", "", "symbols")
-	years := flag.String("years", "", "years")
-	months := flag.String("months", "", "months")
-	page := flag.String("page", "historical", "barchart page")
+	b := operator.NewBarchartGeneralOperator()
+	//b := operator.NewBarchartFuturesOperator(202011, 202103)
+	//b.FromHistoricalPage()
 
-	download := flag.Bool("download", false, "download files from barchart")
-	front := flag.Bool("front", false, "download front contract")
-	rename := flag.Bool("rename", false, "rename downloaded files in Download folder")
-	check := flag.Bool("check", false, "check if downloaded files are complete in data source folder")
+	//b.Download()
+	b.Rename()
 
-	flag.Parse()
+	//symbols := flag.String("symbols", "", "symbols")
+	//years := flag.String("years", "", "years")
+	//months := flag.String("months", "", "months")
+	//page := flag.String("page", "historical", "barchart page")
 
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("symbols: %s", *symbols))
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("years: %s", *years))
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("months: %s", *months))
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("page: %s", *page))
+	//download := flag.Bool("download", false, "download files from barchart")
+	//front := flag.Bool("front", false, "download front contract")
+	//rename := flag.Bool("rename", false, "rename downloaded files in Download folder")
+	//check := flag.Bool("check", false, "check if downloaded files are complete in data source folder")
 
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("download: %v", *download))
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("front: %v", *front))
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("check: %v", *check))
-	pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("rename: %v", *rename))
+	//flag.Parse()
 
-	err := validInput(*symbols, *years, *months, *page)
-	if err != nil {
-		pretty.ColorPrintln(pretty.PaperRed400, err.Error())
-		return
-	}
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("symbols: %s", *symbols))
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("years: %s", *years))
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("months: %s", *months))
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("page: %s", *page))
 
-	var root string
-	switch *page {
-	case "historical":
-		root = historical
-	case "interactive":
-		root = interactive
-	default:
-		panic("unknown page")
-	}
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("download: %v", *download))
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("front: %v", *front))
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("check: %v", *check))
+	//pretty.ColorPrintln(pretty.PaperLime400, fmt.Sprintf("rename: %v", *rename))
 
-	switch {
-	case *download:
-		if *symbols == "" || *months == "" {
-			pretty.ColorPrintln(pretty.PaperRed400, "empty symbols or months")
-			return
-		}
+	//err := validInput(*symbols, *years, *months, *page)
+	//if err != nil {
+	//pretty.ColorPrintln(pretty.PaperRed400, err.Error())
+	//return
+	//}
 
-		ss := strings.Split(*symbols, ",")
+	//var root string
+	//switch *page {
+	//case "historical":
+	//root = historical
+	//case "interactive":
+	//root = interactive
+	//default:
+	//panic("unknown page")
+	//}
 
-		var m futures.ContractMonths
-		switch *months {
-		case "all":
-			m = futures.AllContractMonths
-		case "even":
-			m = futures.EvenContractMonths
-		case "financial":
-			m = futures.FinancialContractMonths
-		default:
-		}
+	//switch {
+	//case *download:
+	//if *symbols == "" || *months == "" {
+	//pretty.ColorPrintln(pretty.PaperRed400, "empty symbols or months")
+	//return
+	//}
 
-		if *front {
-			for _, symbol := range ss {
-				contract := futures.FrontContract(
-					time.Now(),
-					symbol,
-					m,
-					futures.BarchartSymbolFormat,
-				)
+	//ss := strings.Split(*symbols, ",")
 
-				command(fmt.Sprintf(root, contract))
-			}
-		} else {
-			if *years == "" {
-				pretty.ColorPrintln(pretty.PaperRed400, "empty years")
-				return
-			}
+	//var m futures.ContractMonths
+	//switch *months {
+	//case "all":
+	//m = futures.AllContractMonths
+	//case "even":
+	//m = futures.EvenContractMonths
+	//case "financial":
+	//m = futures.FinancialContractMonths
+	//default:
+	//}
 
-			ys, ye := input.YearsInput(*years)
-
-			barchartPage(root, ss, ys, ye, m)
-		}
-
-		if *rename {
-			renameDownload()
-		}
-
-	case *check:
-		if *symbols == "" || *months == "" {
-			pretty.ColorPrintln(pretty.PaperRed400, "empty symbols or months")
-			return
-		}
-
-		if *years == "" {
-			pretty.ColorPrintln(pretty.PaperRed400, "empty years")
-			return
-		}
-
-		ss := strings.Split(*symbols, ",")
-		ys, ye := input.YearsInput(*years)
-
-		var m futures.ContractMonths
-		switch *months {
-		case "all":
-			m = futures.AllContractMonths
-		case "even":
-			m = futures.EvenContractMonths
-		case "financial":
-			m = futures.FinancialContractMonths
-		default:
-		}
-
-		checkDownload(ss, ys, ye, m)
-	case *rename:
-		renameDownload()
-	default:
-		panic("unknown case")
-	}
-}
-
-func checkDownload(symbols []string, ys, ye int, months futures.ContractMonths) {
-	root := filepath.Join(
-		os.Getenv("HOME"),
-		"Documents/data_source/continuous",
-	)
-
-	for _, symbol := range symbols {
-		for y := ys; y < ye; y++ {
-			for _, month := range months {
-
-				file := fmt.Sprintf("%s%s%02d.csv", symbol, string(month), y%100)
-
-				if _, err := os.Stat(filepath.Join(root, symbol, file)); os.IsNotExist(err) {
-					pretty.ColorPrintln(pretty.PaperRed400, fmt.Sprintf("file does not exist: %s", file))
-				}
-			}
-		}
-	}
-}
-
-func renameDownload() {
-	root := filepath.Join(
-		os.Getenv("HOME"),
-		"Downloads",
-	)
-
-	fs, err := ioutil.ReadDir(root)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, f := range fs {
-		//if !rename(root, f.Name(), historicalPattern) {
-		//rename(root, f.Name(), interactivePattern)
-		//}
-
-		switch {
-		case renameBarchart(root, f.Name(), historicalPattern):
-		case renameBarchart(root, f.Name(), interactivePattern):
-		case renameYahoo(root, f.Name()):
-		case renameInvesting(root, f.Name()):
-		default:
-			continue
-		}
-	}
-
-}
-
-func renameBarchart(root, file, pattern string) bool {
-	dst := filepath.Join(
-		os.Getenv("HOME"),
-		"Documents/data_source/continuous",
-	)
-
-	regex := regexp.MustCompile(pattern)
-	match := regex.FindAllStringSubmatch(file, -1)
-	if len(match) != 0 {
-
-		symbol := strings.ToLower(match[0][1])
-
-		newName := fmt.Sprintf(
-			"%s.csv",
-			//strings.ToLower(match[0][1]),
-			symbol,
-		)
-
-		oldPath := filepath.Join(root, file)
-		newPath := filepath.Join(dst, symbol[:2], newName)
-
-		//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
-		pretty.ColorPrintln(
-			pretty.PaperDeepOrange400,
-			fmt.Sprintf(
-				"%s -> %s",
-				//file,
-				//newName,
-				oldPath,
-				newPath,
-			),
-		)
-
-		err := os.Rename(
-			oldPath,
-			newPath,
-			//filepath.Join(
-			//src,
-			//file,
-			//),
-			//filepath.Join(
-			//src,
-			//newName,
-			//),
-		)
-
-		if err != nil {
-			panic(err)
-		}
-
-		return true
-	} else {
-		return false
-	}
-}
-
-func renameYahoo(root, file string) bool {
-	dst := filepath.Join(
-		os.Getenv("HOME"),
-		"Documents/data_source/yahoo",
-	)
-
-	regex := regexp.MustCompile(`\^(\w+)`)
-	match := regex.FindAllStringSubmatch(file, -1)
-	if len(match) != 0 {
-
-		symbol := strings.ToLower(match[0][1])
-
-		newName := fmt.Sprintf(
-			"%s.csv",
-			//strings.ToLower(match[0][1]),
-			symbol,
-		)
-
-		oldPath := filepath.Join(root, file)
-		newPath := filepath.Join(dst, newName)
-
-		pretty.ColorPrintln(
-			pretty.PaperDeepOrange400,
-			fmt.Sprintf(
-				"%s -> %s",
-				oldPath,
-				newPath,
-			),
-		)
-
-		err := os.Rename(
-			oldPath,
-			newPath,
-		)
-
-		//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
-
-		//err := os.Rename(
-		//filepath.Join(
-		//src,
-		//file,
-		//),
-		//filepath.Join(
-		//src,
-		//newName,
-		//),
-		//)
-
-		if err != nil {
-			panic(err)
-		}
-
-		return true
-	} else {
-		return false
-	}
-}
-
-func renameInvesting(root, file string) bool {
-	dst := filepath.Join(
-		os.Getenv("HOME"),
-		"Documents/data_source/investing.com",
-	)
-
-	var symbol string
-
-	switch {
-	case strings.Contains(file, "STOXX 50 Volatility"):
-		symbol = "vstx"
-	case strings.Contains(file, "Nikkei Volatility"):
-		symbol = "jniv"
-	default:
-		return false
-	}
-
-	newName := fmt.Sprintf(
-		"%s.csv",
-		symbol,
-	)
-
-	oldPath := filepath.Join(root, file)
-	newPath := filepath.Join(dst, newName)
-
-	pretty.ColorPrintln(
-		pretty.PaperDeepOrange400,
-		fmt.Sprintf(
-			"%s -> %s",
-			oldPath,
-			newPath,
-		),
-	)
-
-	err := os.Rename(
-		oldPath,
-		newPath,
-	)
-
-	//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
-
-	//err := os.Rename(
-	//filepath.Join(
-	//src,
-	//file,
-	//),
-	//filepath.Join(
-	//src,
-	//newName,
-	//),
+	//if *front {
+	//for _, symbol := range ss {
+	//contract := futures.FrontContract(
+	//time.Now(),
+	//symbol,
+	//m,
+	//futures.BarchartSymbolFormat,
 	//)
-	if err != nil {
-		panic(err)
-	}
 
-	return true
+	//command(fmt.Sprintf(root, contract))
+	//}
+	//} else {
+	//if *years == "" {
+	//pretty.ColorPrintln(pretty.PaperRed400, "empty years")
+	//return
+	//}
+
+	//ys, ye := input.YearsInput(*years)
+
+	//barchartPage(root, ss, ys, ye, m)
+	//}
+
+	//if *rename {
+	//renameDownload()
+	//}
+
+	//case *check:
+	//if *symbols == "" || *months == "" {
+	//pretty.ColorPrintln(pretty.PaperRed400, "empty symbols or months")
+	//return
+	//}
+
+	//if *years == "" {
+	//pretty.ColorPrintln(pretty.PaperRed400, "empty years")
+	//return
+	//}
+
+	//ss := strings.Split(*symbols, ",")
+	//ys, ye := input.YearsInput(*years)
+
+	//var m futures.ContractMonths
+	//switch *months {
+	//case "all":
+	//m = futures.AllContractMonths
+	//case "even":
+	//m = futures.EvenContractMonths
+	//case "financial":
+	//m = futures.FinancialContractMonths
+	//default:
+	//}
+
+	//checkDownload(ss, ys, ye, m)
+	//case *rename:
+	//renameDownload()
+	//default:
+	//panic("unknown case")
+	//}
 }
+
+//func checkDownload(symbols []string, ys, ye int, months futures.ContractMonths) {
+//	root := filepath.Join(
+//		os.Getenv("HOME"),
+//		"Documents/data_source/continuous",
+//	)
+//
+//	for _, symbol := range symbols {
+//		for y := ys; y < ye; y++ {
+//			for _, month := range months {
+//
+//				file := fmt.Sprintf("%s%s%02d.csv", symbol, string(month), y%100)
+//
+//				if _, err := os.Stat(filepath.Join(root, symbol, file)); os.IsNotExist(err) {
+//					pretty.ColorPrintln(pretty.PaperRed400, fmt.Sprintf("file does not exist: %s", file))
+//				}
+//			}
+//		}
+//	}
+//}
+
+//func renameDownload() {
+//root := filepath.Join(
+//os.Getenv("HOME"),
+//"Downloads",
+//)
+
+//fs, err := ioutil.ReadDir(root)
+//if err != nil {
+//panic(err)
+//}
+
+//for _, f := range fs {
+////if !rename(root, f.Name(), historicalPattern) {
+////rename(root, f.Name(), interactivePattern)
+////}
+
+//switch {
+//case renameBarchart(root, f.Name(), historicalPattern):
+//case renameBarchart(root, f.Name(), interactivePattern):
+//case renameYahoo(root, f.Name()):
+//case renameInvesting(root, f.Name()):
+//default:
+//continue
+//}
+//}
+
+//}
+
+//func renameBarchart(root, file, pattern string) bool {
+//dst := filepath.Join(
+//os.Getenv("HOME"),
+//"Documents/data_source/continuous",
+//)
+
+//regex := regexp.MustCompile(pattern)
+//match := regex.FindAllStringSubmatch(file, -1)
+//if len(match) != 0 {
+
+//symbol := strings.ToLower(match[0][1])
+
+//newName := fmt.Sprintf(
+//"%s.csv",
+////strings.ToLower(match[0][1]),
+//symbol,
+//)
+
+//oldPath := filepath.Join(root, file)
+//newPath := filepath.Join(dst, symbol[:2], newName)
+
+////pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+//pretty.ColorPrintln(
+//pretty.PaperDeepOrange400,
+//fmt.Sprintf(
+//"%s -> %s",
+////file,
+////newName,
+//oldPath,
+//newPath,
+//),
+//)
+
+//err := os.Rename(
+//oldPath,
+//newPath,
+////filepath.Join(
+////src,
+////file,
+////),
+////filepath.Join(
+////src,
+////newName,
+////),
+//)
+
+//if err != nil {
+//panic(err)
+//}
+
+//return true
+//} else {
+//return false
+//}
+//}
+
+//func renameYahoo(root, file string) bool {
+//	dst := filepath.Join(
+//		os.Getenv("HOME"),
+//		"Documents/data_source/yahoo",
+//	)
+//
+//	regex := regexp.MustCompile(`\^(\w+)`)
+//	match := regex.FindAllStringSubmatch(file, -1)
+//	if len(match) != 0 {
+//
+//		symbol := strings.ToLower(match[0][1])
+//
+//		newName := fmt.Sprintf(
+//			"%s.csv",
+//			//strings.ToLower(match[0][1]),
+//			symbol,
+//		)
+//
+//		oldPath := filepath.Join(root, file)
+//		newPath := filepath.Join(dst, newName)
+//
+//		pretty.ColorPrintln(
+//			pretty.PaperDeepOrange400,
+//			fmt.Sprintf(
+//				"%s -> %s",
+//				oldPath,
+//				newPath,
+//			),
+//		)
+//
+//		err := os.Rename(
+//			oldPath,
+//			newPath,
+//		)
+//
+//		//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+//
+//		//err := os.Rename(
+//		//filepath.Join(
+//		//src,
+//		//file,
+//		//),
+//		//filepath.Join(
+//		//src,
+//		//newName,
+//		//),
+//		//)
+//
+//		if err != nil {
+//			panic(err)
+//		}
+//
+//		return true
+//	} else {
+//		return false
+//	}
+//}
+//
+//func renameInvesting(root, file string) bool {
+//	dst := filepath.Join(
+//		os.Getenv("HOME"),
+//		"Documents/data_source/investing.com",
+//	)
+//
+//	var symbol string
+//
+//	switch {
+//	case strings.Contains(file, "STOXX 50 Volatility"):
+//		symbol = "vstx"
+//	case strings.Contains(file, "Nikkei Volatility"):
+//		symbol = "jniv"
+//	default:
+//		return false
+//	}
+//
+//	newName := fmt.Sprintf(
+//		"%s.csv",
+//		symbol,
+//	)
+//
+//	oldPath := filepath.Join(root, file)
+//	newPath := filepath.Join(dst, newName)
+//
+//	pretty.ColorPrintln(
+//		pretty.PaperDeepOrange400,
+//		fmt.Sprintf(
+//			"%s -> %s",
+//			oldPath,
+//			newPath,
+//		),
+//	)
+//
+//	err := os.Rename(
+//		oldPath,
+//		newPath,
+//	)
+//
+//	//pretty.ColorPrintln(pretty.PaperDeepOrange400, fmt.Sprintf("%s -> %s", file, newName))
+//
+//	//err := os.Rename(
+//	//filepath.Join(
+//	//src,
+//	//file,
+//	//),
+//	//filepath.Join(
+//	//src,
+//	//newName,
+//	//),
+//	//)
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	return true
+//}
