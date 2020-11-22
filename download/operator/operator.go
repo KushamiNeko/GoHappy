@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/KushamiNeko/go_fun/utils/pretty"
+	"github.com/KushamiNeko/go_happy/download/command"
 )
 
 type Operator interface {
@@ -15,11 +16,47 @@ type Operator interface {
 }
 
 type operator struct {
+	srcDir string
+	dstDir string
+
 	downloadCount int
 	renameCount   int
 }
 
+func (o *operator) initDir() {
+	o.srcDir = filepath.Join(
+		os.Getenv("HOME"),
+		"Downloads",
+	)
+
+	o.dstDir = filepath.Join(
+		os.Getenv("HOME"),
+		"Documents/data_source",
+	)
+}
+
+func (o *operator) setDir(src, dst string) {
+	o.srcDir = src
+	o.dstDir = dst
+}
+
+func (o *operator) download(page, message string) {
+	o.downloadMessage(message)
+
+	command.Download(page)
+
+	o.downloadCount += 1
+}
+
 func (o *operator) rename(src, dst string) {
+	if _, err := os.Stat(o.srcDir); os.IsNotExist(err) {
+		panic(err)
+	}
+
+	if _, err := os.Stat(o.dstDir); os.IsNotExist(err) {
+		panic(err)
+	}
+
 	if _, err := os.Stat(src); os.IsNotExist(err) {
 		panic(err)
 	}
@@ -30,20 +67,14 @@ func (o *operator) rename(src, dst string) {
 
 	o.renameMessage(src, dst)
 
-	//err := os.Rename(
-	//srcPath,
-	//dstPath,
-	//)
-	//if err != nil {
-	//panic(err)
-	//}
-}
+	err := os.Rename(
+		src,
+		dst,
+	)
+	if err != nil {
+		panic(err)
+	}
 
-func (o *operator) downloadCountIncrement() {
-	o.downloadCount += 1
-}
-
-func (o *operator) renameCountIncrement() {
 	o.renameCount += 1
 }
 
@@ -80,6 +111,11 @@ func (o *operator) downloadCompleted() {
 		fmt.Sprintf("%d files downloaded", o.downloadCount),
 	)
 
+	pretty.ColorPrintln(
+		pretty.PaperGreen400,
+		"download completed",
+	)
+
 	o.completed()
 }
 
@@ -96,12 +132,17 @@ func (o *operator) renameCompleted() {
 		)
 	}
 
+	pretty.ColorPrintln(
+		pretty.PaperGreen400,
+		"rename completed",
+	)
+
 	o.completed()
 }
 
 func (o *operator) completed() {
 	pretty.ColorPrintln(
-		pretty.PaperLime300,
+		pretty.PaperBrown300,
 		"press any key to continue",
 	)
 

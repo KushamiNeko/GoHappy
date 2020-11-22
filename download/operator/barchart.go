@@ -3,14 +3,12 @@ package operator
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/KushamiNeko/go_fun/chart/futures"
 	"github.com/KushamiNeko/go_fun/utils/pretty"
-	"github.com/KushamiNeko/go_happy/download/command"
 )
 
 const (
@@ -33,19 +31,18 @@ const (
 type barchartFutures struct {
 	operator
 
-	start int
-	end   int
-
 	page    string
 	pattern string
 
-	//countDownload int
-	//countRename   int
+	start int
+	end   int
 }
 
 func NewBarchartFuturesOperator(start int, end int) *barchartFutures {
 	b := &barchartFutures{start: start, end: end}
 	b.FromHistoricalPage()
+
+	b.initDir()
 
 	return b
 }
@@ -108,11 +105,7 @@ func (b *barchartFutures) Download() {
 				t := y*100 + int(futures.MonthCode(m).Month())
 				if t >= b.start && t <= b.end {
 					code := fmt.Sprintf("%s%s%02d", symbol, string(m), y%100)
-
-					b.downloadMessage(code)
-
-					command.Download(fmt.Sprintf(b.page, code))
-					b.downloadCountIncrement()
+					b.download(fmt.Sprintf(b.page, code), code)
 				}
 
 			}
@@ -130,19 +123,9 @@ func (b *barchartFutures) Download() {
 }
 
 func (b *barchartFutures) Rename() {
-	dst := filepath.Join(
-		os.Getenv("HOME"),
-		"Documents/data_source/continuous",
-	)
-
 	regex := regexp.MustCompile(b.pattern)
 
-	root := filepath.Join(
-		os.Getenv("HOME"),
-		"Downloads",
-	)
-
-	fs, err := ioutil.ReadDir(root)
+	fs, err := ioutil.ReadDir(b.srcDir)
 	if err != nil {
 		panic(err)
 	}
@@ -152,21 +135,10 @@ func (b *barchartFutures) Rename() {
 		if len(match) != 0 {
 			code := strings.ToLower(match[0][1])
 
-			srcPath := filepath.Join(root, f.Name())
-			dstPath := filepath.Join(dst, code[:2], fmt.Sprintf("%s.csv", code))
+			srcPath := filepath.Join(b.srcDir, f.Name())
+			dstPath := filepath.Join(b.dstDir, "continuous", code[:2], fmt.Sprintf("%s.csv", code))
 
 			b.rename(srcPath, dstPath)
-			//b.renameMessage(srcPath, dstPath)
-
-			//err := os.Rename(
-			//srcPath,
-			//dstPath,
-			//)
-			//if err != nil {
-			//panic(err)
-			//}
-
-			b.renameCountIncrement()
 		}
 
 	}
@@ -181,14 +153,13 @@ type barchartGeneral struct {
 
 	page    string
 	pattern string
-
-	//countDownload int
-	//countRename   int
 }
 
 func NewBarchartGeneralOperator() *barchartGeneral {
 	b := &barchartGeneral{}
 	b.FromHistoricalPage()
+
+	b.initDir()
 
 	return b
 }
@@ -240,30 +211,16 @@ func (b *barchartGeneral) source() map[string]string {
 
 func (b *barchartGeneral) Download() {
 	for symbol := range b.source() {
-		b.downloadMessage(symbol)
-
-		command.Download(fmt.Sprintf(b.page, symbol))
-
-		b.downloadCountIncrement()
+		b.download(fmt.Sprintf(b.page, symbol), symbol)
 	}
 
 	b.downloadCompleted()
 }
 
 func (b *barchartGeneral) Rename() {
-	dst := filepath.Join(
-		os.Getenv("HOME"),
-		"Documents/data_source/barchart",
-	)
-
 	regex := regexp.MustCompile(b.pattern)
 
-	root := filepath.Join(
-		os.Getenv("HOME"),
-		"Downloads",
-	)
-
-	fs, err := ioutil.ReadDir(root)
+	fs, err := ioutil.ReadDir(b.srcDir)
 	if err != nil {
 		panic(err)
 	}
@@ -281,22 +238,10 @@ func (b *barchartGeneral) Rename() {
 				continue
 			}
 
-			srcPath := filepath.Join(root, f.Name())
-			dstPath := filepath.Join(dst, fmt.Sprintf("%s.csv", symbol))
+			srcPath := filepath.Join(b.srcDir, f.Name())
+			dstPath := filepath.Join(b.dstDir, "barchart", fmt.Sprintf("%s.csv", symbol))
 
 			b.rename(srcPath, dstPath)
-
-			//b.renameMessage(srcPath, dstPath)
-
-			//err := os.Rename(
-			//srcPath,
-			//dstPath,
-			//)
-			//if err != nil {
-			//panic(err)
-			//}
-
-			b.renameCountIncrement()
 		}
 
 	}
