@@ -36,6 +36,9 @@ type barchartFutures struct {
 
 	start int
 	end   int
+
+	symbols []string
+	months  string
 }
 
 func NewBarchartFuturesOperator(start int, end int) *barchartFutures {
@@ -43,6 +46,17 @@ func NewBarchartFuturesOperator(start int, end int) *barchartFutures {
 	b.FromHistoricalPage()
 
 	b.initDir()
+
+	b.symbols = b.source()
+
+	return b
+}
+
+func NewBarchartFuturesOperatorCustom(start int, end int, symbols, months string) *barchartFutures {
+	b := NewBarchartFuturesOperator(start, end)
+
+	b.symbols = strings.Split(symbols, ",")
+	b.months = months
 
 	return b
 }
@@ -85,20 +99,35 @@ func (b *barchartFutures) source() []string {
 func (b *barchartFutures) Download() {
 	count := 0
 
-	for _, symbol := range b.source() {
+	//for _, symbol := range b.source() {
+	for _, symbol := range b.symbols {
+		symbol = strings.TrimSpace(symbol)
 
 		startYear := int(b.start / 100)
 		endYear := int(b.end / 100)
 
 		for y := startYear; y <= endYear; y++ {
 			var months futures.ContractMonths
-			switch symbol {
-			case "cl":
-				months = futures.AllContractMonths
-			case "gc":
-				months = futures.EvenContractMonths
-			default:
-				months = futures.FinancialContractMonths
+			//switch symbol {
+			//case "cl":
+			//months = futures.AllContractMonths
+			//case "gc":
+			//months = futures.EvenContractMonths
+			//default:
+			//months = futures.FinancialContractMonths
+			//}
+
+			if b.months != "" {
+				months = futures.ContractMonths(b.months)
+			} else {
+				switch symbol {
+				case "cl":
+					months = futures.AllContractMonths
+				case "gc":
+					months = futures.EvenContractMonths
+				default:
+					months = futures.FinancialContractMonths
+				}
 			}
 
 			for _, m := range months {
