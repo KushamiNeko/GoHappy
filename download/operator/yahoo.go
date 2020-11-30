@@ -23,6 +23,11 @@ func NewYahooOperator() *yahoo {
 
 func (y *yahoo) source() map[string]string {
 	return map[string]string{
+		"btc-usd": "20141001",
+		"eth-usd": "20150901",
+		"ltc-usd": "20141001",
+		"xrp-usd": "20141001",
+		//
 		"^vix": "19900101",
 		"^vxn": "20000101",
 		//"^sml":  "19890101",
@@ -34,9 +39,10 @@ func (y *yahoo) source() map[string]string {
 		"^ndx":  "19850101",
 		//"^nya":  "19650101",
 		"^hsi": "19860101",
-		"ezu":  "20000101",
-		"eem":  "20030101",
-		"fxi":  "20040101",
+		//
+		"ezu": "20000101",
+		"eem": "20030101",
+		"fxi": "20040101",
 		// "^ovx": "20070101",
 		// "^gvz": "20100101",
 		// ##########
@@ -152,11 +158,14 @@ func (y *yahoo) Rename() {
 
 	for _, f := range fs {
 		symbol := strings.ToLower(strings.ReplaceAll(f.Name(), filepath.Ext(f.Name()), ""))
+
 		if _, ok := y.source()[symbol]; ok {
 			match := indexRegex.FindAllStringSubmatch(f.Name(), -1)
 			if len(match) != 0 {
 				symbol = strings.ToLower(match[0][2])
 			}
+
+			symbol = strings.ReplaceAll(symbol, "-", "")
 
 			symbol = y.renameSymbol(symbol)
 
