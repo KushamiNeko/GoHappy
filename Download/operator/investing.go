@@ -24,7 +24,7 @@ func (i *investing) source() map[string]string {
 		"https://www.investing.com/indices/jpx-nikkei-400-historical-data":                 "nk400",
 		"https://www.investing.com/indices/nikkei-volatility-historical-data":              "jniv",
 		"https://www.investing.com/indices/hsi-volatility-historical-data":                 "vhsi",
-		// "https://www.investing.com/indices/cboe-china-etf-volatility-historical-data": "vxfxi,
+		"https://www.investing.com/indices/cboe-china-etf-volatility-historical-data":      "vxfxi",
 	}
 }
 
@@ -60,4 +60,11 @@ func (i *investing) Rename() {
 	i.renameCompleted()
 }
 
-func (y *investing) Check() {}
+func (i *investing) Check() {
+	for _, symbol := range i.source() {
+		path := filepath.Join(i.dstDir, "investing.com", fmt.Sprintf("%s.csv", symbol))
+		i.check(path)
+	}
+
+	i.checkCompleted()
+}

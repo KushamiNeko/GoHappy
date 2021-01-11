@@ -4,12 +4,7 @@ import (
 	"bytes"
 	"os/exec"
 
-	"github.com/KushamiNeko/go_fun/utils/pretty"
-)
-
-const (
-	Google  = "google-chrome"
-	Firefox = "firefox"
+	"github.com/KushamiNeko/GoFun/utils/pretty"
 )
 
 func Download(url string) {
@@ -18,8 +13,7 @@ func Download(url string) {
 
 	cmd := exec.Command(
 		// "google-chrome",
-		//"firefox",
-		Firefox,
+		"firefox",
 		url,
 	)
 

@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/KushamiNeko/go_fun/utils/pretty"
-	"github.com/KushamiNeko/go_happy/download/command"
+	"github.com/KushamiNeko/GoFun/utils/pretty"
+	"github.com/KushamiNeko/GoHappy/Download/command"
 )
+
+const processLimit = 10
 
 type Operator interface {
 	Download()
@@ -21,6 +24,10 @@ type operator struct {
 
 	downloadCount int
 	renameCount   int
+
+	missingCount int
+
+	processCount int
 }
 
 func (o *operator) initDir() {
@@ -29,10 +36,18 @@ func (o *operator) initDir() {
 		"Downloads",
 	)
 
+	if _, err := os.Stat(o.srcDir); os.IsNotExist(err) {
+		panic("src dir does not exist")
+	}
+
 	o.dstDir = filepath.Join(
 		os.Getenv("HOME"),
 		"Documents/data_source",
 	)
+
+	if _, err := os.Stat(o.dstDir); os.IsNotExist(err) {
+		panic("dst dir does not exist")
+	}
 }
 
 func (o *operator) setDir(src, dst string) {
@@ -45,7 +60,9 @@ func (o *operator) download(page, message string) {
 
 	command.Download(page)
 
-	o.downloadCount += 1
+	o.downloadCount++
+
+	o.checkProcessLimit()
 }
 
 func (o *operator) rename(src, dst string) {
@@ -75,7 +92,14 @@ func (o *operator) rename(src, dst string) {
 		panic(err)
 	}
 
-	o.renameCount += 1
+	o.renameCount++
+}
+
+func (o *operator) check(path string) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		o.checkMessage(strings.ReplaceAll(path, fmt.Sprintf(".%s", filepath.Ext(path)), ""))
+		o.missingCount++
+	}
 }
 
 func (o *operator) downloadMessage(symbol string) {
@@ -101,8 +125,6 @@ func (o *operator) checkMessage(symbol string) {
 		pretty.PaperIndigo300,
 		fmt.Sprintf("missing: %s", symbol),
 	)
-
-	o.completed()
 }
 
 func (o *operator) downloadCompleted() {
@@ -140,6 +162,20 @@ func (o *operator) renameCompleted() {
 	o.completed()
 }
 
+func (o *operator) checkCompleted() {
+	pretty.ColorPrintln(
+		pretty.PaperLightGreenA200,
+		fmt.Sprintf("check missing %d files", o.missingCount),
+	)
+
+	pretty.ColorPrintln(
+		pretty.PaperGreen400,
+		"check completed",
+	)
+
+	o.completed()
+}
+
 func (o *operator) completed() {
 	pretty.ColorPrintln(
 		pretty.PaperBrown300,
@@ -147,4 +183,13 @@ func (o *operator) completed() {
 	)
 
 	fmt.Scanln()
+	o.processCount = 0
+}
+
+func (o *operator) checkProcessLimit() {
+	o.processCount++
+	if o.processCount >= processLimit {
+		o.completed()
+		o.processCount = 0
+	}
 }

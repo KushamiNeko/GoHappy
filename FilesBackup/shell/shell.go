@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/KushamiNeko/go_fun/utils/pretty"
-	"github.com/KushamiNeko/go_happy/files_backup/config"
+	"github.com/KushamiNeko/GoFun/utils/pretty"
+	"github.com/KushamiNeko/GoHappy/FilesBackup/config"
 )
 
 func Diff(src, tar string) (string, error) {
