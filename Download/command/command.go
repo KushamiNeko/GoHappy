@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"os/exec"
 
-	"github.com/KushamiNeko/GoFun/utils/pretty"
+	"github.com/KushamiNeko/GoFun/Utils/pretty"
 )
 
 func Download(url string) {

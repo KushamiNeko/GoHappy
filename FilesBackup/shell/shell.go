@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/KushamiNeko/GoFun/utils/pretty"
+	"github.com/KushamiNeko/GoFun/Utils/pretty"
 	"github.com/KushamiNeko/GoHappy/FilesBackup/config"
 )
 

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/KushamiNeko/GoFun/utils/input"
-	"github.com/KushamiNeko/GoFun/utils/pretty"
+	"github.com/KushamiNeko/GoFun/Utils/input"
+	"github.com/KushamiNeko/GoFun/Utils/pretty"
 	"github.com/KushamiNeko/GoHappy/Download/operator"
 )
 

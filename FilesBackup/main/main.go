@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/KushamiNeko/GoFun/utils/pretty"
+	"github.com/KushamiNeko/GoFun/Utils/pretty"
 	"github.com/KushamiNeko/GoHappy/FilesBackup/config"
 	"github.com/KushamiNeko/GoHappy/FilesBackup/operation"
 )
@@ -34,18 +34,11 @@ func main() {
 
 	pretty.ColorPrintln(config.ColorTitle, "flags:")
 
-	if syncFile != "" {
-		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("syncfile: %s", syncFile))
-	} else {
-		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("from: %s", from))
-		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("to: %s", to))
+	if safeguard != "" {
+		config.SafeGuard = safeguard
 	}
 
-	if safeguard != "" {
-		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("safeguard: %s", safeguard))
-	} else {
-		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("safeguard: %s", config.SafeGuard))
-	}
+	pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("safeguard: %s", config.SafeGuard))
 
 	pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("ensure: %v", ensure))
 	pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("force: %v", force))
@@ -55,11 +48,8 @@ func main() {
 
 	var err error
 
-	if safeguard != "" {
-		config.SafeGuard = safeguard
-	}
-
 	if syncFile == "" {
+
 		if from == "" {
 			colorExit(fmt.Errorf("please specify FROM"))
 		}
@@ -71,6 +61,9 @@ func main() {
 		src := strings.TrimSpace(from)
 		dst := strings.TrimSpace(to)
 
+		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("from: %s", src))
+		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("to: %s", dst))
+
 		err = operation.Sync(src, dst, force, ensure)
 		if err != nil {
 			colorExit(err)
@@ -78,18 +71,20 @@ func main() {
 
 	} else {
 
+		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("syncfile: %s", syncFile))
+
 		buffer, err := ioutil.ReadFile(syncFile)
 		if err != nil {
 			colorExit(err)
 		}
 
 		if bytes.Contains(buffer, []byte("\ufeff")) {
-			buffer = bytes.Replace(buffer, []byte("\ufeff"), []byte(""), -1)
+			buffer = bytes.ReplaceAll(buffer, []byte("\ufeff"), []byte(""))
 		}
 
 		content := string(buffer)
 
-		re := regexp.MustCompile(`(.+) -> (.+)`)
+		re := regexp.MustCompile(`(.+)\s*->\s*(.+)`)
 
 		matches := re.FindAllStringSubmatch(content, -1)
 
@@ -101,8 +96,8 @@ func main() {
 			if err != nil {
 				colorExit(err)
 			}
-
 		}
+
 	}
 
 	end := time.Now()
