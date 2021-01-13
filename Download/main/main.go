@@ -75,7 +75,6 @@ func main() {
 		barchart = true
 		yahoo = true
 		investing = true
-		coinapi = true
 	}
 
 	if !download && !rename && !check {

@@ -43,7 +43,6 @@ func main() {
 	pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("ensure: %v", ensure))
 	pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("force: %v", force))
 
-	pretty.ColorPrintln(config.ColorTitle, "start files backup...")
 	start := time.Now()
 
 	var err error
@@ -63,6 +62,7 @@ func main() {
 
 		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("from: %s", src))
 		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("to: %s", dst))
+		pretty.ColorPrintln(config.ColorTitle, "start files backup...")
 
 		err = operation.Sync(src, dst, force, ensure)
 		if err != nil {
@@ -72,6 +72,7 @@ func main() {
 	} else {
 
 		pretty.ColorPrintln(config.ColorSpecial, fmt.Sprintf("syncfile: %s", syncFile))
+		pretty.ColorPrintln(config.ColorTitle, "start files backup...")
 
 		buffer, err := ioutil.ReadFile(syncFile)
 		if err != nil {
