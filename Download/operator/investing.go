@@ -8,11 +8,11 @@ import (
 )
 
 type investing struct {
-	operator
+	*operator
 }
 
 func NewInvestingOperator() *investing {
-	i := &investing{}
+	i := &investing{operator: new(operator)}
 	i.initDir()
 
 	return i

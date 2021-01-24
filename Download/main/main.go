@@ -17,10 +17,11 @@ const errorColor = pretty.PaperRed500
 const introSeparator = ", "
 
 func main() {
+
 	var futuresStart, futuresEnd string
 	var cryptoStart, cryptoEnd string
 
-	var futures, barchart, yahoo, investing, coinapi bool
+	var futures, futuresHourly, barchart, yahoo, investing, coinapi bool
 	var download, rename, check bool
 
 	var futuresSymbols string
@@ -37,6 +38,7 @@ func main() {
 	flag.StringVar(&cryptoSymbols, "crypto-symbols", "", "custom crypto symbol list")
 
 	flag.BoolVar(&futures, "futures", false, "download futures data from Barchart")
+	flag.BoolVar(&futuresHourly, "futures hourly", false, "download futures hourly data from Barchart")
 	flag.BoolVar(&barchart, "barchart", false, "download data from Barchart")
 	flag.BoolVar(&yahoo, "yahoo", false, "download from Yahoo")
 	flag.BoolVar(&investing, "investing", false, "download from Investing.com")
@@ -70,8 +72,9 @@ func main() {
 		return
 	}
 
-	if !futures && !barchart && !yahoo && !investing && !coinapi {
+	if !futures && !futuresHourly && !barchart && !yahoo && !investing && !coinapi {
 		futures = true
+		futuresHourly = true
 		barchart = true
 		yahoo = true
 		investing = true
@@ -83,7 +86,7 @@ func main() {
 		check = false
 	}
 
-	if futures {
+	if futures || futuresHourly {
 		if futuresStart != "" && futuresEnd != "" {
 			pretty.ColorPrintln(introColor, fmt.Sprintf("futures start: %s", futuresStart))
 			pretty.ColorPrintln(introColor, fmt.Sprintf("futures end: %s", futuresEnd))
@@ -103,6 +106,10 @@ func main() {
 
 	if futures {
 		b = append(b, "Barchart Futures")
+	}
+
+	if futuresHourly {
+		b = append(b, "Barchart Futures Hourly")
 	}
 
 	if barchart {
@@ -144,7 +151,7 @@ func main() {
 
 	operators := make([]operator.Operator, 0, 4)
 
-	if futures {
+	if futures || futuresHourly {
 		istart, err = strconv.Atoi(futuresStart)
 		if err != nil {
 			panic(err)
@@ -155,11 +162,31 @@ func main() {
 			panic(err)
 		}
 
-		o := operator.NewBarchartFuturesOperator(istart, iend)
-		if futuresSymbols != "" {
-			o.SetCustomSymbols(strings.Split(futuresSymbols, ","))
+		if istart >= iend {
+			pretty.ColorPrintln(errorColor, "range start should be smaller than range end")
+			return
 		}
-		operators = append(operators, o)
+
+		symbols := strings.Split(futuresSymbols, ",")
+
+		if futures {
+			o := operator.NewBarchartFuturesOperator(istart, iend)
+			if futuresSymbols != "" {
+				o.SetCustomSymbols(symbols)
+			}
+
+			operators = append(operators, o)
+		}
+
+		if futuresHourly {
+			o := operator.NewBarchartFuturesHourlyOperator(istart, iend)
+			if futuresSymbols != "" {
+				o.SetCustomSymbols(symbols)
+			}
+
+			operators = append(operators, o)
+		}
+
 	}
 
 	if barchart {

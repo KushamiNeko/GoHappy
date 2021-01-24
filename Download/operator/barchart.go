@@ -23,14 +23,14 @@ const (
 )
 
 type barchartGeneral struct {
-	operator
+	*operator
 
 	page    string
 	pattern string
 }
 
 func NewBarchartGeneralOperator() *barchartGeneral {
-	b := &barchartGeneral{}
+	b := &barchartGeneral{operator: new(operator)}
 	b.FromHistoricalPage()
 
 	b.initDir()

@@ -11,11 +11,11 @@ import (
 )
 
 type yahoo struct {
-	operator
+	*operator
 }
 
 func NewYahooOperator() *yahoo {
-	y := &yahoo{}
+	y := &yahoo{operator: new(operator)}
 	y.initDir()
 
 	return y

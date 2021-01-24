@@ -11,7 +11,7 @@ import (
 )
 
 type barchartFutures struct {
-	operator
+	*operator
 
 	page    string
 	pattern string
@@ -23,7 +23,11 @@ type barchartFutures struct {
 }
 
 func NewBarchartFuturesOperator(start int, end int) *barchartFutures {
-	b := &barchartFutures{start: start, end: end}
+	b := &barchartFutures{
+		operator: new(operator),
+		start:    start,
+		end:      end,
+	}
 	b.FromHistoricalPage()
 
 	b.initDir()
@@ -130,7 +134,7 @@ func (b *barchartFutures) Rename() {
 			code := strings.ToLower(match[0][1])
 
 			srcPath := filepath.Join(b.srcDir, f.Name())
-			dstPath := filepath.Join(b.dstDir, "continuous", code[:2], fmt.Sprintf("%s.csv", code))
+			dstPath := b.dstPath(code)
 
 			b.rename(srcPath, dstPath)
 		}
@@ -142,9 +146,13 @@ func (b *barchartFutures) Rename() {
 
 func (b *barchartFutures) Check() {
 	b.process(func(code string) {
-		path := filepath.Join(b.dstDir, "continuous", code[:2], fmt.Sprintf("%s.csv", code))
+		path := b.dstPath(code)
 		b.check(path)
 	})
 
 	b.checkCompleted()
+}
+
+func (b *barchartFutures) dstPath(code string) string {
+	return filepath.Join(b.dstDir, "continuous", code[:2], fmt.Sprintf("%s.csv", code))
 }

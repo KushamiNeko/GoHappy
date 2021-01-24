@@ -14,7 +14,7 @@ import (
 )
 
 type coinAPI struct {
-	operator
+	*operator
 
 	start int
 	end   int
@@ -23,7 +23,11 @@ type coinAPI struct {
 }
 
 func NewCoinAPI(start int, end int) *coinAPI {
-	c := &coinAPI{start: start, end: end}
+	c := &coinAPI{
+		operator: new(operator),
+		start:    start,
+		end:      end,
+	}
 
 	c.initDir()
 
