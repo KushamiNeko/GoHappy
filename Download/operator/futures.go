@@ -10,54 +10,15 @@ import (
 	"github.com/KushamiNeko/GoFun/Chart/futures"
 )
 
-type barchartFutures struct {
-	*operator
-
-	page    string
-	pattern string
-
-	start int
-	end   int
-
-	symbols []string
+type futuresWorker interface {
+	source() []string
+	dstPath(dstDir, code string) string
 }
 
-func NewBarchartFuturesOperator(start int, end int) *barchartFutures {
-	b := &barchartFutures{
-		operator: new(operator),
-		start:    start,
-		end:      end,
-	}
-	b.FromHistoricalPage()
-
-	b.initDir()
-
-	b.symbols = b.source()
-
-	return b
+type dailyWorker struct {
 }
 
-func (b *barchartFutures) SetCustomSymbols(symbols []string) *barchartFutures {
-	if len(symbols) != 0 {
-		b.symbols = symbols
-	}
-
-	return b
-}
-
-func (b *barchartFutures) FromHistoricalPage() *barchartFutures {
-	b.page = historicalPage
-	b.pattern = fmt.Sprintf(historicalPattern, symbolPatternFutures)
-	return b
-}
-
-func (b *barchartFutures) FromInteractivePage() *barchartFutures {
-	b.page = interactivePage
-	b.pattern = fmt.Sprintf(interactivePattern, symbolPatternFutures)
-	return b
-}
-
-func (b *barchartFutures) source() []string {
+func (b *dailyWorker) source() []string {
 	return []string{
 		"es",
 		"nq",
@@ -88,6 +49,108 @@ func (b *barchartFutures) source() []string {
 		"zc",
 		"zw",
 	}
+}
+
+func (b *dailyWorker) dstPath(dstDir, code string) string {
+	return filepath.Join(dstDir, "continuous", code[:2], fmt.Sprintf("%s.csv", code))
+}
+
+type hourlyWorker struct {
+}
+
+func (b *hourlyWorker) source() []string {
+	return []string{
+		"zn",
+		"zf",
+		//"zt",
+		"zb",
+		"e6",
+		"j6",
+		//"b6",
+		//"a6",
+	}
+}
+
+func (b *hourlyWorker) dstPath(dstDir, code string) string {
+	return filepath.Join(dstDir, "continuous", fmt.Sprintf("%s@h", code[:2]), fmt.Sprintf("%s.csv", code))
+}
+
+type halfHourlyWorker struct {
+}
+
+func (b *halfHourlyWorker) source() []string {
+	return []string{
+		"zn",
+		"zf",
+		"zb",
+	}
+}
+
+func (b *halfHourlyWorker) dstPath(dstDir, code string) string {
+	return filepath.Join(dstDir, "continuous", fmt.Sprintf("%s@30m", code[:2]), fmt.Sprintf("%s.csv", code))
+}
+
+type barchartFutures struct {
+	*operator
+
+	page    string
+	pattern string
+
+	start int
+	end   int
+
+	worker futuresWorker
+
+	symbols []string
+}
+
+func NewBarchartFuturesOperator(start int, end int) *barchartFutures {
+	b := &barchartFutures{
+		operator: new(operator),
+		start:    start,
+		end:      end,
+		worker:   new(dailyWorker),
+	}
+
+	b.FromHistoricalPage()
+
+	b.initDir()
+
+	b.symbols = b.worker.source()
+
+	return b
+}
+
+func (b *barchartFutures) Hourly() *barchartFutures {
+	b.worker = new(hourlyWorker)
+	b.symbols = b.worker.source()
+	return b
+}
+
+func (b *barchartFutures) ThirtyMinutes() *barchartFutures {
+	b.worker = new(halfHourlyWorker)
+	b.symbols = b.worker.source()
+	return b
+}
+
+func (b *barchartFutures) SetCustomSymbols(symbols []string) *barchartFutures {
+	if len(symbols) != 0 {
+		b.symbols = symbols
+	}
+
+	return b
+}
+
+func (b *barchartFutures) FromHistoricalPage() *barchartFutures {
+	b.page = historicalPage
+	b.pattern = fmt.Sprintf(historicalPattern, symbolPatternFutures)
+	return b
+}
+
+func (b *barchartFutures) FromInteractivePage() *barchartFutures {
+	b.page = interactivePage
+	b.pattern = fmt.Sprintf(interactivePattern, symbolPatternFutures)
+	return b
 }
 
 func (b *barchartFutures) process(fun func(code string)) {
@@ -134,7 +197,7 @@ func (b *barchartFutures) Rename() {
 			code := strings.ToLower(match[0][1])
 
 			srcPath := filepath.Join(b.srcDir, f.Name())
-			dstPath := b.dstPath(code)
+			dstPath := b.worker.dstPath(b.dstDir, code)
 
 			b.rename(srcPath, dstPath)
 		}
@@ -146,13 +209,9 @@ func (b *barchartFutures) Rename() {
 
 func (b *barchartFutures) Check() {
 	b.process(func(code string) {
-		path := b.dstPath(code)
+		path := b.worker.dstPath(b.dstDir, code)
 		b.check(path)
 	})
 
 	b.checkCompleted()
-}
-
-func (b *barchartFutures) dstPath(code string) string {
-	return filepath.Join(b.dstDir, "continuous", code[:2], fmt.Sprintf("%s.csv", code))
 }

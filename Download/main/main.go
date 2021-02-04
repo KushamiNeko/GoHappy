@@ -21,7 +21,7 @@ func main() {
 	var futuresStart, futuresEnd string
 	var cryptoStart, cryptoEnd string
 
-	var futures, futuresHourly, barchart, yahoo, investing, coinapi bool
+	var futures, futuresIntraday, barchart, yahoo, investing, coinapi bool
 	var download, rename, check bool
 
 	var futuresSymbols string
@@ -38,7 +38,7 @@ func main() {
 	flag.StringVar(&cryptoSymbols, "crypto-symbols", "", "custom crypto symbol list")
 
 	flag.BoolVar(&futures, "futures", false, "download futures data from Barchart")
-	flag.BoolVar(&futuresHourly, "futures hourly", false, "download futures hourly data from Barchart")
+	flag.BoolVar(&futuresIntraday, "futures-intraday", false, "download futures intraday data from Barchart")
 	flag.BoolVar(&barchart, "barchart", false, "download data from Barchart")
 	flag.BoolVar(&yahoo, "yahoo", false, "download from Yahoo")
 	flag.BoolVar(&investing, "investing", false, "download from Investing.com")
@@ -72,9 +72,9 @@ func main() {
 		return
 	}
 
-	if !futures && !futuresHourly && !barchart && !yahoo && !investing && !coinapi {
+	if !futures && !futuresIntraday && !barchart && !yahoo && !investing && !coinapi {
 		futures = true
-		futuresHourly = true
+		futuresIntraday = true
 		barchart = true
 		yahoo = true
 		investing = true
@@ -86,7 +86,7 @@ func main() {
 		check = false
 	}
 
-	if futures || futuresHourly {
+	if futures || futuresIntraday {
 		if futuresStart != "" && futuresEnd != "" {
 			pretty.ColorPrintln(introColor, fmt.Sprintf("futures start: %s", futuresStart))
 			pretty.ColorPrintln(introColor, fmt.Sprintf("futures end: %s", futuresEnd))
@@ -108,7 +108,7 @@ func main() {
 		b = append(b, "Barchart Futures")
 	}
 
-	if futuresHourly {
+	if futuresIntraday {
 		b = append(b, "Barchart Futures Hourly")
 	}
 
@@ -151,7 +151,7 @@ func main() {
 
 	operators := make([]operator.Operator, 0, 4)
 
-	if futures || futuresHourly {
+	if futures || futuresIntraday {
 		istart, err = strconv.Atoi(futuresStart)
 		if err != nil {
 			panic(err)
@@ -178,8 +178,15 @@ func main() {
 			operators = append(operators, o)
 		}
 
-		if futuresHourly {
-			o := operator.NewBarchartFuturesHourlyOperator(istart, iend)
+		if futuresIntraday {
+			o := operator.NewBarchartFuturesOperator(istart, iend).Hourly()
+			if futuresSymbols != "" {
+				o.SetCustomSymbols(symbols)
+			}
+
+			operators = append(operators, o)
+
+			o = operator.NewBarchartFuturesOperator(istart, iend).ThirtyMinutes()
 			if futuresSymbols != "" {
 				o.SetCustomSymbols(symbols)
 			}
