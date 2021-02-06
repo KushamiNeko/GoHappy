@@ -90,6 +90,10 @@ func (b *barchartGeneral) source() map[string]string {
 	}
 }
 
+func (b *barchartGeneral) Greeting() {
+	b.greetingMessage("Barchart")
+}
+
 func (b *barchartGeneral) Download() {
 	for symbol := range b.source() {
 		b.download(fmt.Sprintf(b.page, symbol), symbol)

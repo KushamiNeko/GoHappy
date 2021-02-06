@@ -167,6 +167,10 @@ func (c *coinAPI) process(fun func(symbol, startYM string)) {
 	}
 }
 
+func (c *coinAPI) Greeting() {
+	c.greetingMessage("CoinAPI")
+}
+
 func (c *coinAPI) Download() {
 	apiKey := os.Getenv("COIN_API")
 	if apiKey == "" {

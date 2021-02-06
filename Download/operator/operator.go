@@ -13,6 +13,7 @@ import (
 const processLimit = 10
 
 type Operator interface {
+	Greeting()
 	Download()
 	Rename()
 	Check()
@@ -100,6 +101,13 @@ func (o *operator) check(path string) {
 		o.checkMessage(strings.ReplaceAll(path, fmt.Sprintf(".%s", filepath.Ext(path)), ""))
 		o.missingCount++
 	}
+}
+
+func (o *operator) greetingMessage(operator string) {
+	pretty.ColorPrintln(
+		pretty.PaperPink300,
+		fmt.Sprintf("%s Operator Working...\n", operator),
+	)
 }
 
 func (o *operator) downloadMessage(symbol string) {

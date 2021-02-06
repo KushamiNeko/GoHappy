@@ -10,86 +10,6 @@ import (
 	"github.com/KushamiNeko/GoFun/Chart/futures"
 )
 
-type futuresWorker interface {
-	source() []string
-	dstPath(dstDir, code string) string
-}
-
-type dailyWorker struct {
-}
-
-func (b *dailyWorker) source() []string {
-	return []string{
-		"es",
-		"nq",
-		"qr",
-		"ym",
-		"np",
-		"fx",
-		"zn",
-		"zf",
-		"zt",
-		"zb",
-		"ge",
-		"tj",
-		"gg",
-		"dx",
-		"e6",
-		"j6",
-		"b6",
-		"a6",
-		"d6",
-		"s6",
-		"n6",
-		"gc",
-		"si",
-		"cl",
-		"ng",
-		"zs",
-		"zc",
-		"zw",
-	}
-}
-
-func (b *dailyWorker) dstPath(dstDir, code string) string {
-	return filepath.Join(dstDir, "continuous", code[:2], fmt.Sprintf("%s.csv", code))
-}
-
-type hourlyWorker struct {
-}
-
-func (b *hourlyWorker) source() []string {
-	return []string{
-		"zn",
-		"zf",
-		//"zt",
-		"zb",
-		"e6",
-		"j6",
-		//"b6",
-		//"a6",
-	}
-}
-
-func (b *hourlyWorker) dstPath(dstDir, code string) string {
-	return filepath.Join(dstDir, "continuous", fmt.Sprintf("%s@h", code[:2]), fmt.Sprintf("%s.csv", code))
-}
-
-type halfHourlyWorker struct {
-}
-
-func (b *halfHourlyWorker) source() []string {
-	return []string{
-		"zn",
-		"zf",
-		"zb",
-	}
-}
-
-func (b *halfHourlyWorker) dstPath(dstDir, code string) string {
-	return filepath.Join(dstDir, "continuous", fmt.Sprintf("%s@30m", code[:2]), fmt.Sprintf("%s.csv", code))
-}
-
 type barchartFutures struct {
 	*operator
 
@@ -121,14 +41,14 @@ func NewBarchartFuturesOperator(start int, end int) *barchartFutures {
 	return b
 }
 
-func (b *barchartFutures) Hourly() *barchartFutures {
-	b.worker = new(hourlyWorker)
+func (b *barchartFutures) IntradaySixtyMinutes() *barchartFutures {
+	b.worker = new(intraday60MinWorker)
 	b.symbols = b.worker.source()
 	return b
 }
 
-func (b *barchartFutures) ThirtyMinutes() *barchartFutures {
-	b.worker = new(halfHourlyWorker)
+func (b *barchartFutures) IntradayThirtyMinutes() *barchartFutures {
+	b.worker = new(intraday30MinWorker)
 	b.symbols = b.worker.source()
 	return b
 }
@@ -173,6 +93,10 @@ func (b *barchartFutures) process(fun func(code string)) {
 			})
 		}
 	}
+}
+
+func (b *barchartFutures) Greeting() {
+	b.greetingMessage(fmt.Sprintf("Barchart %s", b.worker.name()))
 }
 
 func (b *barchartFutures) Download() {

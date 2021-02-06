@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -16,12 +17,16 @@ const introColor = pretty.PaperYellow300
 const errorColor = pretty.PaperRed500
 const introSeparator = ", "
 
+const symbolSeparator = `[,&\s]`
+
+var symbolsRegex = regexp.MustCompile(symbolSeparator)
+
 func main() {
 
 	var futuresStart, futuresEnd string
 	var cryptoStart, cryptoEnd string
 
-	var futures, futuresIntraday, barchart, yahoo, investing, coinapi bool
+	var futuresDaily, futuresIntraday60, futuresIntraday30, barchart, yahoo, investing, coinapi bool
 	var download, rename, check bool
 
 	var futuresSymbols string
@@ -37,8 +42,9 @@ func main() {
 
 	flag.StringVar(&cryptoSymbols, "crypto-symbols", "", "custom crypto symbol list")
 
-	flag.BoolVar(&futures, "futures", false, "download futures data from Barchart")
-	flag.BoolVar(&futuresIntraday, "futures-intraday", false, "download futures intraday data from Barchart")
+	flag.BoolVar(&futuresDaily, "futures", false, "download futures daily data from Barchart")
+	flag.BoolVar(&futuresIntraday60, "futures-intraday-60", false, "download futures intraday data from Barchart")
+	flag.BoolVar(&futuresIntraday30, "futures-intraday-30", false, "download futures intraday data from Barchart")
 	flag.BoolVar(&barchart, "barchart", false, "download data from Barchart")
 	flag.BoolVar(&yahoo, "yahoo", false, "download from Yahoo")
 	flag.BoolVar(&investing, "investing", false, "download from Investing.com")
@@ -52,12 +58,12 @@ func main() {
 
 	const pattern = `^\d{6}$`
 
-	if futures && !input.ValidateWithRegex(futuresStart, pattern) {
+	if futuresDaily && !input.ValidateWithRegex(futuresStart, pattern) {
 		pretty.ColorPrintln(errorColor, "invalid futures start")
 		return
 	}
 
-	if futures && !input.ValidateWithRegex(futuresEnd, pattern) {
+	if futuresDaily && !input.ValidateWithRegex(futuresEnd, pattern) {
 		pretty.ColorPrintln(errorColor, "invalid futures end")
 		return
 	}
@@ -72,9 +78,10 @@ func main() {
 		return
 	}
 
-	if !futures && !futuresIntraday && !barchart && !yahoo && !investing && !coinapi {
-		futures = true
-		futuresIntraday = true
+	if !futuresDaily && !futuresIntraday60 && !futuresIntraday30 && !barchart && !yahoo && !investing && !coinapi {
+		futuresDaily = true
+		futuresIntraday60 = true
+		futuresIntraday30 = true
 		barchart = true
 		yahoo = true
 		investing = true
@@ -86,14 +93,14 @@ func main() {
 		check = false
 	}
 
-	if futures || futuresIntraday {
+	if futuresDaily || futuresIntraday60 || futuresIntraday30 {
 		if futuresStart != "" && futuresEnd != "" {
 			pretty.ColorPrintln(introColor, fmt.Sprintf("futures start: %s", futuresStart))
 			pretty.ColorPrintln(introColor, fmt.Sprintf("futures end: %s", futuresEnd))
 		}
 
 		if futuresSymbols != "" {
-			pretty.ColorPrintln(introColor, fmt.Sprintf("futures symbols: %s", strings.ReplaceAll(futuresSymbols, ",", ", ")))
+			pretty.ColorPrintln(introColor, fmt.Sprintf("futures symbols: %s", strings.Join(symbolsRegex.Split(futuresSymbols, -1), ", ")))
 		}
 	}
 
@@ -104,12 +111,16 @@ func main() {
 
 	b := make([]string, 0, 4)
 
-	if futures {
+	if futuresDaily {
 		b = append(b, "Barchart Futures")
 	}
 
-	if futuresIntraday {
-		b = append(b, "Barchart Futures Hourly")
+	if futuresIntraday60 {
+		b = append(b, "Barchart Futures Intraday 60 Minutes")
+	}
+
+	if futuresIntraday30 {
+		b = append(b, "Barchart Futures Intraday 30 Minutes")
 	}
 
 	if barchart {
@@ -133,15 +144,15 @@ func main() {
 	b = make([]string, 0, 3)
 
 	if download {
-		b = append(b, "download")
+		b = append(b, "Download")
 	}
 
 	if rename {
-		b = append(b, "rename")
+		b = append(b, "Rename")
 	}
 
 	if check {
-		b = append(b, "check")
+		b = append(b, "Check")
 	}
 
 	pretty.ColorPrintln(introColor, fmt.Sprintf("operation: %s", strings.Join(b, introSeparator)))
@@ -151,7 +162,7 @@ func main() {
 
 	operators := make([]operator.Operator, 0, 4)
 
-	if futures || futuresIntraday {
+	if futuresDaily || futuresIntraday60 || futuresIntraday30 {
 		istart, err = strconv.Atoi(futuresStart)
 		if err != nil {
 			panic(err)
@@ -167,9 +178,9 @@ func main() {
 			return
 		}
 
-		symbols := strings.Split(futuresSymbols, ",")
+		symbols := symbolsRegex.Split(futuresSymbols, -1)
 
-		if futures {
+		if futuresDaily {
 			o := operator.NewBarchartFuturesOperator(istart, iend)
 			if futuresSymbols != "" {
 				o.SetCustomSymbols(symbols)
@@ -178,15 +189,17 @@ func main() {
 			operators = append(operators, o)
 		}
 
-		if futuresIntraday {
-			o := operator.NewBarchartFuturesOperator(istart, iend).Hourly()
+		if futuresIntraday60 {
+			o := operator.NewBarchartFuturesOperator(istart, iend).IntradaySixtyMinutes()
 			if futuresSymbols != "" {
 				o.SetCustomSymbols(symbols)
 			}
 
 			operators = append(operators, o)
+		}
 
-			o = operator.NewBarchartFuturesOperator(istart, iend).ThirtyMinutes()
+		if futuresIntraday30 {
+			o := operator.NewBarchartFuturesOperator(istart, iend).IntradayThirtyMinutes()
 			if futuresSymbols != "" {
 				o.SetCustomSymbols(symbols)
 			}
@@ -230,12 +243,14 @@ func main() {
 
 		o := operator.NewCoinAPI(istart, iend)
 		if cryptoSymbols != "" {
-			o.SetCustomSymbols(strings.Split(cryptoSymbols, ","))
+			o.SetCustomSymbols(symbolsRegex.Split(cryptoSymbols, -1))
 		}
 		operators = append(operators, o)
 	}
 
 	for _, op := range operators {
+		op.Greeting()
+
 		if download {
 			op.Download()
 		}

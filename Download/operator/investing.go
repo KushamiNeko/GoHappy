@@ -28,6 +28,10 @@ func (i *investing) source() map[string]string {
 	}
 }
 
+func (i *investing) Greeting() {
+	i.greetingMessage("Investing.com")
+}
+
 func (i *investing) Download() {
 	for page, symbol := range i.source() {
 		i.download(page, symbol)

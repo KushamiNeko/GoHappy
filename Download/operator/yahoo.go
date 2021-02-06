@@ -106,6 +106,10 @@ func (y *yahoo) url(symbol, datetime string) string {
 	return b.String()
 }
 
+func (y *yahoo) Greeting() {
+	y.greetingMessage("Yahoo")
+}
+
 func (y *yahoo) Download() {
 
 	for symbol, datetime := range y.source() {
